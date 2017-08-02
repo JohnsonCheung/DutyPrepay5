@@ -51,6 +51,23 @@ For J = 0 To U
 Next
 AddAyPfx = O
 End Function
+Function Sy(ParamArray Ap()) As String()
+Dim Av(): Av = Ap
+Sy = AySy(Av)
+End Function
+Function AySy(Ay) As String()
+If IsEmptyAy(Ay) Then Exit Function
+If IsStrAy(Ay) Then AySy = Ay: Exit Function
+Dim U&, O$(), J&, I
+J = 0
+U = UB(Ay)
+ReDim O(U)
+For Each I In Ay
+    O(J) = I
+    J = J + 1
+Next
+AySy = O
+End Function
 Function AyIdx&(Ay, Itm)
 Dim J&
 For J = 0 To UB(Ay)

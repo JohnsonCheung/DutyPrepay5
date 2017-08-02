@@ -21,6 +21,12 @@ With Brk1(S, S1, NoTrim)
     TakBet = Brk1(.S2, S2, NoTrim).S1
 End With
 End Function
+Function FstChr$(S)
+FstChr = Left(S, 1)
+End Function
+Function LasChr$(S)
+LasChr = Right(S, 1)
+End Function
 Function AlignL$(S, W)
 Dim L%:
 If IsNull(S) Then

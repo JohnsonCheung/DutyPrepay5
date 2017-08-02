@@ -16,6 +16,19 @@ For Each V In ObjColl
 Next
 CollObjAy = O
 End Function
+Sub IsStrAy__Tst()
+Dim A$()
+Dim B: B = A
+Dim C()
+Dim D
+Debug.Assert IsStrAy(A) = True
+Debug.Assert IsStrAy(B) = True
+Debug.Assert IsStrAy(C) = False
+Debug.Assert IsStrAy(D) = False
+End Sub
+Function IsStrAy(V) As Boolean
+IsStrAy = VarType(V) = vbArray + vbString
+End Function
 Function IsEmpty(V) As Boolean
 IsEmpty = True
 If IsMissing(V) Then Exit Function

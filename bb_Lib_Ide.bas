@@ -1,4 +1,4 @@
-Attribute VB_Name = "bb_Lib_Ide_Pj"
+Attribute VB_Name = "bb_Lib_Ide"
 Option Compare Database
 Option Explicit
 Sub ExpPj(Optional A As VBProject)
@@ -36,11 +36,55 @@ End Function
 Sub BrwPjSrc()
 BrwPth PjSrcPth
 End Sub
+Sub MdLy__Tst()
+BrwAy MdLy
+End Sub
+Function MdLy(Optional JnContLin As Boolean, Optional A As CodeModule) As String()
+Dim Md As CodeModule: Set Md = DftMd(A)
+Dim N&: N = Md.CountOfLines
+If N = 0 Then Exit Function
+Dim O$()
+ReDim O(N - 1)
+Dim J&
+For J = 0 To N - 1
+    O(J) = Md.Lines(J + 1, 1)
+Next
+If JnContLin Then
+    MdLy = JnContinueLin(O)
+Else
+    MdLy = O
+End If
+End Function
+Sub JnContinueLin__Tst()
+Dim O$(3)
+O(0) = "A _"
+O(1) = "B _"
+O(2) = "C"
+O(3) = "D"
+Dim Act$(): Act = JnContinueLin(O)
+Debug.Assert UB(Act) = 3
+Debug.Assert Act(0) = "A B C"
+Debug.Assert Act(1) = ""
+Debug.Assert Act(2) = ""
+Debug.Assert Act(3) = "D"
+End Sub
+Function JnContinueLin(Ly$()) As String()
+Dim O$(): O = Ly
+Dim J&
+For J = UB(O) - 1 To 0 Step -1
+    If LasChr(O(J)) = "_" Then
+        O(J) = RmvLasNChr(O(J)) & O(J + 1)
+        O(J + 1) = ""
+    End If
+Next
+JnContinueLin = O
+End Function
 Function PjSrcPth$(Optional A As VBProject)
 Dim Ffn$: Ffn = DftPj(A).FileName
 Dim Fn$: Fn = FfnFn(Ffn)
-Dim O$: O = FfnPth(DftPj(A).FileName) & "Src\" & Fn & "\"
-EnsPth O
+Dim O$:
+O = FfnPth(DftPj(A).FileName) & "Src\": EnsPth O
+O = O & Fn & "\":                       EnsPth O
 PjSrcPth = O
 End Function
 Function MdSrcExt$(Optional A As CodeModule)
@@ -76,6 +120,9 @@ Debug.Print MdNm(A)
 End Function
 Function MdNm(Optional A As CodeModule)
 MdNm = DftMd(A).Parent.Name
+End Function
+Function Pj(PjNm) As VBProject
+Set Pj = Application.VBE.VBProjects(PjNm)
 End Function
 Function DftMd(A As CodeModule) As CodeModule
 If IsNothing(A) Then
