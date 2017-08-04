@@ -9,18 +9,28 @@ Dim N&: N = Sz(O)
 ReDim Preserve O(N)
 O(N) = P
 End Sub
+Sub PushNonEmpty(Ay, I)
+If IsEmpty(I) Then Exit Sub
+Push Ay, I
+End Sub
 Sub PushObj(O, P)
 Dim N&: N = Sz(O)
 ReDim Preserve O(N)
 Set O(N) = P
 End Sub
-
 Function Sz&(Ay)
 On Error Resume Next
 Sz = UBound(Ay) + 1
 End Function
 Function UB&(Ay)
 UB = Sz(Ay) - 1
+End Function
+Function AyHas(Ay, Itm) As Boolean
+If IsEmptyAy(Ay) Then Exit Function
+Dim I
+For Each I In Ay
+    If I = Itm Then AyHas = True: Exit Function
+Next
 End Function
 Sub RmvLasNEle(Ay, Optional NEle% = 1)
 ReDim Preserve Ay(UB(Ay) - NEle)

@@ -1,56 +1,142 @@
 Attribute VB_Name = "bb_Lib_Ado"
 Option Compare Database
 Option Explicit
-Function ASqlLng&(Cn As ADODB.Connection, Sql$)
-ASqlLng = ASqlV(Cn, Sql)
+Function ARsDry(Rs As ADODB.Recordset) As Variant()
+Dim O()
+With Rs
+    While Not .EOF
+        Push O, AFldsDr(Rs.Fields)
+        .MoveNext
+    Wend
+End With
+ARsDry = O
 End Function
-Function ASqlV(Cn As ADODB.Connection, Sql$)
+Function ARsDrs(Rs As ADODB.Recordset) As Drs
+Dim O As Drs
+O.Fny = ARsFny(Rs)
+O.Dry = ARsDry(Rs)
+ARsDrs = O
+End Function
+Function ARsFny(Rs As ADODB.Recordset) As String()
+ARsFny = AFldsFny(Rs.Fields)
+End Function
+
+Function AFldsDr(AFlds As ADODB.Fields) As Variant()
+Dim O()
+ReDim O(AFlds.Count - 1)
+Dim J%, F As ADODB.Field
+For Each F In AFlds
+    O(J) = F.Value
+    J = J + 1
+Next
+AFldsDr = O
+End Function
+Function AFldsFny(AFlds As ADODB.Fields) As String()
+Dim O$()
+Dim F As ADODB.Field
+For Each F In AFlds
+    Push O, F.Name
+Next
+AFldsFny = O
+End Function
+Sub FxAqlDrs__Tst()
+Const Fx$ = "N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls"
+Const Sql$ = "Select * from [Sheet1$]"
+BrwDrs FxAqlDrs(Fx, Sql)
+End Sub
+Sub FbAqlDrs__Tst()
+Const Fb$ = "N:\SapAccessReports\DutyPrepay5\DutyPrepay5.accdb"
+Const Sql$ = "Select * from Permit"
+BrwDrs FbAqlDrs(Fb, Sql)
+End Sub
+Sub RunFbAql__Tst()
+Const Fb$ = "N:\SapAccessReports\DutyPrepay5\tmp.accdb"
+Const Sql$ = "Select * into [#a] from Permit"
+RunFbAql Fb, Sql
+End Sub
+Sub RunFxAql__Tst()
+Const Fx$ = "N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls"
+Const Sql$ = "Select * into [Sheet21] from [Sheet1$]"
+RunFxAql Fx, Sql
+End Sub
+Sub RunFxAql(Fx, Sql)
+RunAql FxCnn(Fx), Sql
+End Sub
+Function FxAqlDrs(Fx, Sql) As Drs
+FxAqlDrs = AqlDrs(FxCnn(Fx), Sql)
+End Function
+Sub RunFbAql(Fb, Sql)
+RunAql FbCnn(Fb), Sql
+End Sub
+Function FbAqlDrs(Fb, Sql) As Drs
+FbAqlDrs = AqlDrs(FbCnn(Fb), Sql)
+End Function
+Function AqlLng&(Cn As ADODB.Connection, Sql$)
+AqlLng = AqlV(Cn, Sql)
+End Function
+Function AqlV(Cn As ADODB.Connection, Sql$)
 Dim Rs As New ADODB.Recordset
-With ASqlRs(Cn, Sql)
-    ASqlV = .Fields(0).Value
+With AqlRs(Cn, Sql)
+    AqlV = .Fields(0).Value
     .Close
 End With
 End Function
-Function ASqlRs(Cn As ADODB.Connection, Sql) As ADODB.Recordset
+Function AqlDrs(Cn As ADODB.Connection, Sql) As Drs
+Dim Rs As ADODB.Recordset
+Set Rs = AqlRs(Cn, Sql)
+AqlDrs = ARsDrs(Rs)
+Rs.Close
+End Function
+Function AqlRs(Cn As ADODB.Connection, Sql) As ADODB.Recordset
 Dim O As New ADODB.Recordset
 O.Open Sql, Cn
-Set ASqlRs = O
+Set AqlRs = O
 End Function
-Sub ASqlDrs__Tst()
-Dim Cn As ADODB.Connection: Set Cn = FxAdoCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
+Sub AqlDrs__Tst()
+Dim Cn As ADODB.Connection: Set Cn = FxCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Dim Sql$: Sql = "Select * from [Sheet1$]"
-Dim Drs As Drs: Drs = ASqlDrs(Cn, Sql)
+Dim Drs As Drs: Drs = AqlDrs(Cn, Sql)
 BrwDrs Drs
 End Sub
-Function ASqlDrs(Cn As ADODB.Connection, Sql$) As Drs
-ASqlDrs = ARsDrs(ASqlRs(Cn, Sql))
-End Function
-Sub RunASql(Cn As ADODB.Connection, Sql)
+Sub RunAql(Cn As ADODB.Connection, Sql)
 Cn.Execute Sql
 End Sub
-Sub RunASqlAy(Cn As ADODB.Connection, SqlAy$())
+Sub RunAqlAy(Cn As ADODB.Connection, SqlAy$())
 If IsEmptyAy(SqlAy) Then Exit Sub
 Dim Sql
 For Each Sql In SqlAy
-    RunASql Cn, Sql
+    RunAql Cn, Sql
 Next
 End Sub
-Sub FxAdoCnn__Tst()
+Sub FxCnn__Tst()
 Dim A As ADODB.Connection
-Set A = FxAdoCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
+Set A = FxCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Stop
 End Sub
-Function FxAdoCnn(Fx) As ADODB.Connection
+Sub FbCnn__Tst()
+Dim A As ADODB.Connection
+Set A = FbCnn("N:\SapAccessReports\DutyPrepay5\DutyPrepay5_data.mdb")
+Stop
+End Sub
+
+Function FxCnn(Fx) As ADODB.Connection
 Dim O As New ADODB.Connection
 'Provider=Microsoft.ACE.OLEDB.12.0;Data Source=c:\myFolder\myOldExcelFile.xls;
 'Extended Properties="Excel 8.0;HDR=YES";
 O.ConnectionString = FmtQQ("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=?;Extended Properties=""Excel 8.0;HDR=YES""", Fx)
 O.Open
-Set FxAdoCnn = O
+Set FxCnn = O
 End Function
-Sub FxAdoCat__Tst()
+Function FbCnn(Fb) As ADODB.Connection
+Dim O As New ADODB.Connection
+O.ConnectionString = FmtQQ("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=?;", Fb)
+O.Open
+Set FbCnn = O
+End Function
+
+Sub FxCat__Tst()
 Dim A As ADOX.Catalog
-Set A = FxAdoCat("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
+Set A = FxCat("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Stop
 End Sub
 Sub FxWsNy__Tst()
@@ -59,7 +145,7 @@ End Sub
 Function FxWsNy(Fx) As String()
 Dim T As ADOX.Table
 Dim O$()
-For Each T In FxAdoCat(Fx).Tables
+For Each T In FxCat(Fx).Tables
     Push O, RmvLasNChr(T.Name)
 Next
 FxWsNy = O
@@ -68,7 +154,7 @@ Sub FxWsFny__Tst()
 DmpAy FxWsFny("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls", "Sheet1")
 End Sub
 Function FxWsFny(Fx, WsNm$) As String()
-Dim Cat As ADOX.Catalog: Set Cat = FxAdoCat(Fx)
+Dim Cat As ADOX.Catalog: Set Cat = FxCat(Fx)
 Dim C As ADOX.Column
 Dim O$()
 Dim N$: N = WsNm & "$"
@@ -77,8 +163,8 @@ For Each C In Cat.Tables(N).Columns
 Next
 FxWsFny = O
 End Function
-Function FxAdoCat(Fx) As Catalog
+Function FxCat(Fx) As Catalog
 Dim O As New Catalog
-Set O.ActiveConnection = FxAdoCnn(Fx)
-Set FxAdoCat = O
+Set O.ActiveConnection = FxCnn(Fx)
+Set FxCat = O
 End Function

@@ -1,40 +1,65 @@
 Attribute VB_Name = "bb_Lib_Ide_FunNm"
 Option Compare Database
 Option Explicit
-Sub MdFunNmAy__Tst()
-BrwAy MdFunNmAy
+Sub MdFunDrs__Tst()
+BrwDrs MdFunDrs
 End Sub
-Sub PjFunNmAy__Tst()
-BrwAy PjFunNmAy
+Sub PjFunDrs__Tst()
+WsVis DtWs(PjFunDrs)
 End Sub
 Sub AAA()
-MdFunNmAy__Tst
+PjFunDrs__Tst
 End Sub
-Function PjFunNmAy(Optional A As VBProject) As String()
-End Function
-Function MdFunNmAy(Optional A As CodeModule) As String()
-Dim O$()
-    Dim L$, Lin
-    For Each Lin In MdLy(JnContLin:=True, A:=A)
-        L = SrcLinFunNm(Lin)
-        If L <> "" Then Push O, L
+Function PjFunDrs(Optional A As VBProject) As Dt
+Dim Dry()
+    Dim I, Md As CodeModule
+    For Each I In PjMdAy(A)
+        Set Md = I
+        PushAy Dry, MdFunDrs(Md).Dry
     Next
-MdFunNmAy = O
+Dim O As Dt
+    O.Fny = SplitSpc("Mdy Ty FunNm MdNm")
+    O.Dry = Dry
+PjFunDrs = O
 End Function
-Sub SrcLinFunNm__Tst()
-Dim Act$: Act = SrcLinFunNm("Public Function AA()")
-Debug.Assert Act = "AA:Public:Function:"
+Function IsEmptyMd(Optional A As CodeModule) As Boolean
+IsEmptyMd = DftMd(A).CountOfLines = 0
+End Function
+Function MdFunDrs(Optional A As CodeModule) As Drs
+Dim Dry()
+    If Not IsEmptyMd(A) Then
+        Dim Dr(), Lin
+        Dim Nm$: Nm = MdNm(A)
+        For Each Lin In MdLy(JnContLin:=True, A:=A)
+            Dr = SrcLinFunDr(Lin)
+            If Not IsEmptyAy(Dr) Then
+                Push Dr, Nm
+                Push Dry, Dr
+            End If
+        Next
+    End If
+Dim O As Drs
+    O.Fny = SplitSpc("Mdy Ty FunNm MdNm")
+    O.Dry = Dry
+MdFunDrs = O
+End Function
+Sub SrcLinFunDr__Tst()
+Dim Act(): Act = SrcLinFunDr("Private Function AA()")
+Debug.Assert Sz(Act) = 3
+Debug.Assert Act(0) = "Private"
+Debug.Assert Act(1) = "Function"
+Debug.Assert Act(2) = "AA"
 End Sub
-Function SrcLinFunNm$(SrcLin)
+Function SrcLinFunDr(SrcLin) As Variant()
 Dim O$: O = SrcLin
 Dim Mdy$: Mdy = ParseMdy(O)
-Dim FunTy$: FunTy = ParseFunTy(O): FunTy = RmvPFx(FunTy, "Property ")
-If FunTy = "" Then Exit Function
+Dim Ty$: Ty = ParseFunTy(O): Ty = RmvPFx(Ty, "Property ")
+If Ty = "" Then Exit Function
 Dim Nm$: Nm = ParseNm(O)
-SrcLinFunNm = Nm & ":" & Mdy & ":" & FunTy
+SrcLinFunDr = Array(Mdy, Ty, Nm)
 End Function
 Function ParseMdy$(OLin$)
-ParseMdy = ParseOneOf(OLin, Sy("Public", "Private ", "Friend"))
+ParseMdy = ParseOneOf(OLin, Sy("Public", "Private", "Friend"))
 End Function
 Function ParseFunTy$(OLin$)
 ParseFunTy = ParseOneOf(OLin, Sy("Function", "Sub", "Property Get", "Property Let", "Property Set", "Type", "Enum"))

@@ -1,16 +1,16 @@
 Attribute VB_Name = "bb_Lib_Xls"
 Option Compare Database
 Option Explicit
-Property Get Xls() As Excel.Application
+Function Xls() As Excel.Application
 Static X As Excel.Application
 On Error GoTo XX
 Dim A$: A = X.Name
 Set Xls = X
-Exit Property
+Exit Function
 XX:
 Set X = New Excel.Application
 Set Xls = X
-End Property
+End Function
 Function RgRC(Rg As Range, R, C) As Range
 Set RgRC = Rg.Cells(R, C)
 End Function

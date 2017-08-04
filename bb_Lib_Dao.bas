@@ -1,13 +1,26 @@
 Attribute VB_Name = "bb_Lib_Dao"
 Option Compare Database
 Option Explicit
+Function FldsDr(Flds As Dao.Fields) As Variant()
+Dim O()
+ReDim O(Flds.Count - 1)
+Dim J%, F As Dao.Field
+For Each F In Flds
+    O(J) = F.Value
+    J = J + 1
+Next
+FldsDr = O
+End Function
+
 Function HasFld_Tbl(T As Dao.TableDef, F) As Boolean
 HasFld_Tbl = HasFld_Flds(T.Fields, F)
 End Function
+
 Function HasFld(T, F, Optional D As Database) As Boolean
 AssertT T, D
 HasFld = HasFld_Tbl(Tbl(T, D), F)
 End Function
+
 Function DftDb(D As Database) As Database
 If IsNothing(D) Then
     Set DftDb = CurDb
@@ -15,18 +28,22 @@ Else
     Set DftDb = D
 End If
 End Function
+
 Function TblNxtId&(T, Optional F)
 Dim S$: S = FmtQQ("select Max(?) from ?", Dft(F, T), T)
 TblNxtId = SqlLng(S) + 1
 End Function
+
 Function CurDb() As Database
 Static X As Database
 If IsNothing(X) Then Set X = CurrentDb
 Set CurDb = X
 End Function
+
 Function Tbl(T, Optional D As Database) As Dao.TableDef
 Set Tbl = DftDb(D).TableDefs(T)
 End Function
+
 Function Fld(T, F, Optional D As Database) As Dao.Field
 Set Fld = Tbl(T, D).Fields(F)
 End Function
@@ -48,6 +65,12 @@ End Function
 Function TmpDb() As Database
 Set TmpDb = DBEngine.CreateDatabase(TmpFb, Dao.LanguageConstants.dbLangGeneral)
 End Function
+Function TblFlds(T, Optional D As Database) As Dao.Fields
+Set TblFlds = Tbl(T, D).Fields
+End Function
+Function TblFld(T, F, Optional D As Database) As Dao.Field
+Set TblFld = Tbl(T, D).Fields(F)
+End Function
 Sub DrpTbl(T, Optional D As Database)
 If IsTbl(T, D) Then D.Execute FmtQQ("Drop Table [?]", T)
 End Sub
@@ -60,6 +83,17 @@ For Each V In O
     J = J + 1
 Next
 TblStruLin = T & " = " & JnSpc(O)
+End Function
+Function DaoTyStr$(T As Dao.DataTypeEnum)
+Dim O$
+Select Case T
+Case Dao.DataTypeEnum.dbBoolean: O = "Boolean"
+Case Dao.DataTypeEnum.dbDouble: O = "Double"
+Case Dao.DataTypeEnum.dbText: O = "Text"
+Case Dao.DataTypeEnum.dbDate: O = "Date"
+Case Else: Stop
+End Select
+DaoTyStr = O
 End Function
 Function TblFny(T, Optional D As Database) As String()
 TblFny = FldsFny(Tbl(T, D).Fields)

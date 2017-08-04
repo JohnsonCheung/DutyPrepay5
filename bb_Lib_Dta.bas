@@ -14,6 +14,13 @@ Type Ds
     DsNm As String
     DtAy() As Dt
 End Type
+Function DrsCol(Drs As Drs, ColNm$) As Variant()
+Dim ColIdx%: ColIdx = AyIdx(Drs.Fny, ColNm)
+DrsCol = DryCol(Drs.Dry, ColIdx)
+End Function
+Function DrsStrCol(Drs As Drs, ColNm$) As String()
+DrsStrCol = AySy(DrsCol(Drs, ColNm))
+End Function
 Function DtCsvLy(A As Dt) As String()
 Dim O$()
 Dim QQStr$
@@ -53,34 +60,35 @@ End Sub
 Sub DmpDt(Dt As Dt)
 DmpAy DtLy(Dt)
 End Sub
-
-Sub SelDrs__Tst()
-Dim Drs As Drs: Drs = SelDrs(Flds("Permit"), SplitLvs("Name Type"))
+Sub SelObjColl__Tst()
+BrwDrs SelObjColl(Flds("Permit"), "Name Type")
 Stop
 End Sub
-Function SelDrs(ObjColl, Fny) As Drs
+Function SelObjColl(ObjColl, PrpNy) As Drs
+Dim Ny$()
+    Ny = CvNy(PrpNy)
 Dim Dry()
     Dim Obj
     If Not IsEmptyColl(ObjColl) Then
         For Each Obj In ObjColl
-            Push Dry, SelDr(Obj, Fny)
+            Push Dry, SelObjPrp(Obj, Ny)
         Next
     End If
 Dim O As Drs
-    O.Fny = Fny
+    O.Fny = Ny
     O.Dry = Dry
-SelDrs = O
+SelObjColl = O
 End Function
-Function SelDr(Obj, Fny) As Variant()
+Function SelObjPrp(Obj, PrpNy$()) As Variant()
 Dim U%
-    U = UB(Fny)
+    U = UB(PrpNy)
 Dim O()
     ReDim O(U)
     Dim J%
     For J = 0 To U
-        O(J) = CallByName(Obj, Fny(J), VbGet)
+        O(J) = CallByName(Obj, PrpNy(J), VbGet)
     Next
-SelDr = O
+SelObjPrp = O
 End Function
 Function DtLy(Dt As Dt) As String()
 Dim Rs As Drs
@@ -90,6 +98,40 @@ Dim O$()
     Push O, "*Tbl " & Dt.DtNm
     PushAy O, DrsLy(Rs)
 DtLy = O
+End Function
+Function CvNy(Ny) As String()
+If IsStrAy(Ny) Then CvNy = Ny: Exit Function
+If Not IsStr(Ny) Then Err.Raise 1, , "CvNy: Given [Ny] must be StrAy or Str, but now [" & TypeName(Ny) & "]"
+CvNy = SplitLvs(Ny)
+End Function
+Function SelAy(Ay, IdxAy&())
+Dim U&
+    U = UB(IdxAy)
+Dim O
+    O = Ay
+    ReDim O(U)
+Dim J&
+For J = 0 To U
+    O(J) = Ay(IdxAy(J))
+Next
+SelAy = O
+End Function
+Sub SelDrs__Tst()
+BrwDrs SelDrs(MdFunDrs, "MdNm FunNm Mdy Ty")
+End Sub
+Function SelDrs(A As Drs, Fny) As Drs
+Dim mFny$(): mFny = CvNy(Fny)
+Dim IdxAy&()
+    IdxAy = AyIdxAy(A.Fny, mFny)
+Dim Dry()
+    Dim Dr
+    For Each Dr In A.Dry
+        Push Dry, SelAy(Dr, IdxAy)
+    Next
+Dim O As Drs
+    O.Fny = mFny
+    O.Dry = Dry
+SelDrs = O
 End Function
 Function DrsLy(Drs As Drs) As String()
 If IsEmptyAy(Drs.Fny) Then Exit Function

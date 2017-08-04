@@ -12,6 +12,9 @@ End Function
 Function AddFnSfx(Fn, Sfx)
 AddFnSfx = RmvExt(Fn) & Sfx & ".mdb"
 End Function
+Sub BrwTmpPth()
+BrwPth TmpPth
+End Sub
 Function RmvExt(Fn)
 Dim P%: P = InStrRev(Fn, ".")
 If P = 0 Then RmvExt = Left(Fn, P): Exit Function

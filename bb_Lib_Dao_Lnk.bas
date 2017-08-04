@@ -15,11 +15,12 @@ Dim Tny$()
         WsNy = FxWsNy(Fx)
     Else
         With BrkMapStr(WsNmMapStr)
-            WsNy = .Sy1
-            Tny = .Sy2
+            WsNy = .Sy2
+            Tny = .Sy1
         End With
     End If
-LnkWsAy WsNy, Tny, O
+LnkWsAy Fx, WsNy, Tny, O
+Set FxDb = O
 End Function
 Sub LnkWs(Fx, WsNm, Optional T, Optional D As Database)
 Dim Db As Database: Set Db = DftDb(D)

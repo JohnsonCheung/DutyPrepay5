@@ -60,7 +60,7 @@ Dim O() As Dao.DataTypeEnum
     Next
 FnySimTyAy = O
 End Function
-Private Function InsDtSqlAy(Dt As Dt, Optional D As Database) As String()
+Function InsDtSqlAy(Dt As Dt, Optional D As Database) As String()
 If IsEmptyDt(Dt) Then Exit Function
 Dim SimTyAy() As eSimTy
 SimTyAy = FnySimTyAy(Dt.DtNm, Dt.Fny, D)

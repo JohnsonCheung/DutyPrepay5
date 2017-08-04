@@ -15,8 +15,9 @@ End Property
 Property Get CurPth$()
 CurPth = FfnPth(CurFb)
 End Property
-Property Get PermitImpPth$()
+Function PermitImpPth$()
 Dim O$: O = CurPth & "Import - Permit\"
 EnsPth O
 PermitImpPth = O
-End Property
+End Function
+

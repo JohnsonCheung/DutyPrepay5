@@ -21,3 +21,7 @@ O.Dry = RsDry(Rs)
 O.Fny = RsFny(Rs)
 SqlDrs = O
 End Function
+Function SqlDry(Sql$, Optional D As Database) As Variant()
+SqlDry = RsDry(DftDb(D).OpenRecordset(Sql))
+End Function
+

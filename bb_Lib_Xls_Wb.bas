@@ -17,12 +17,12 @@ Sub ClsWbNoSav(A As Workbook)
 On Error Resume Next
 A.Close False
 End Sub
+Sub WbVis(A As Workbook)
+A.Application.Visible = True
+End Sub
 Function AddWs(A As Workbook, WsNm$) As Worksheet
 Dim O As Worksheet
 Set O = A.Sheets.Add(, LasWs(A))
 O.Name = WsNm
 Set AddWs = O
 End Function
-Sub WbVis(A As Workbook)
-A.Application.Visible = True
-End Sub

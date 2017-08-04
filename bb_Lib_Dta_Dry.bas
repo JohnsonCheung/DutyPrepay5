@@ -21,6 +21,17 @@ Dim O$()
     Push O, Hdr
 DryLy = O
 End Function
+Function DryCol(Dry, Optional ColIdx% = 0) As Variant()
+If IsEmptyAy(Dry) Then Exit Function
+Dim O(), Dr
+For Each Dr In Dry
+    Push O, Dr(ColIdx)
+Next
+DryCol = O
+End Function
+Function DryStrCol(Dry, Optional ColIdx% = 0) As String()
+DryStrCol = AySy(DryCol(Dry, ColIdx))
+End Function
 Sub DmpDry(Dry)
 DmpAy DryLy(Dry)
 End Sub
