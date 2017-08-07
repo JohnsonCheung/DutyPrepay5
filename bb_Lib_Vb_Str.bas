@@ -15,11 +15,19 @@ Const S2$ = "Excel 8.0;HDR=YES;IMEX=2;DATABASE=??;AA=XX"
 Debug.Assert TakBet(S1, "DATABASE=", ";") = "??"
 Debug.Assert TakBet(S2, "DATABASE=", ";") = "??"
 End Sub
+Sub StrBrw(S)
+Dim T$: T = TmpFt
+StrWrt S, T
+FtBrw T
+End Sub
 Function TakBet$(S, S1, S2, Optional NoTrim As Boolean)
 With Brk1(S, S1, NoTrim)
     If .S2 = "" Then Exit Function
     TakBet = Brk1(.S2, S2, NoTrim).S1
 End With
+End Function
+Function LasLin$(S)
+LasLin = AyLasEle(SplitCrLf(S))
 End Function
 Function FstChr$(S)
 FstChr = Left(S, 1)
@@ -44,7 +52,7 @@ Else
     End If
 End If
 End Function
-Function WrtStr(S, Ft)
+Function StrWrt(S, Ft)
 Dim F%: F = FreeFile(1)
 Open Ft For Output As #F
 Print #F, S
@@ -53,6 +61,9 @@ Close #F
 'Set T = Fso.OpenTextFile(Ft, ForWriting, True)
 'T.Write S
 'T.Close
+End Function
+Function LinesCnt&(Lines$)
+LinesCnt = Sz(SplitCrLf(Lines))
 End Function
 Function AlignR$(S, W%)
 Dim L%: L = Len(S)

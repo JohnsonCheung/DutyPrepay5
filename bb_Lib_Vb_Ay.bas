@@ -207,11 +207,11 @@ End Sub
 Function AyBrw(Ay)
 Dim T$
 T = TmpFt
-WrtAy Ay, T
+AyWrt Ay, T
 FtBrw T
 End Function
-Sub WrtAy(Ay, Ft)
-WrtStr JnCrLf(Ay), Ft
+Sub AyWrt(Ay, Ft)
+StrWrt JnCrLf(Ay), Ft
 End Sub
 Function QuoteAy(Ay, QuoteStr$) As String()
 If AyIsEmpty(Ay) Then Exit Function
