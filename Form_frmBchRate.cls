@@ -11,6 +11,7 @@ Option Compare Database
 Option Explicit
 Option Base 0
 Private xYY As Byte, xMM As Byte, xDD As Byte
+
 Private Sub Cmd_AddToDummyPermit_Click()
 If IsNull(Me.IsNoAssign.Value) Then Exit Sub
 If Not Me.IsNoAssign.Value Then MsgBox "SKU[" & Me.Sku.Value & "] does not need to add to dummy permit", vbInformation: Exit Sub
@@ -19,10 +20,12 @@ Cmd_AddToDummyPermit_Click_2Reset Me.Sku.Value
 Cmd_AddToDummyPermit_Click_3UpdPermitThreeSum
 Requery
 End Sub
+
 Private Sub Cmd_AddToDummyPermit_Click_1Add(pSku$)
 Cmd_AddToDummyPermit_Click_1Add_1Permit
 Cmd_AddToDummyPermit_Click_1Add_2PermitD pSku
 End Sub
+
 Private Sub Cmd_AddToDummyPermit_Click_1Add_1Permit()
 With CurrentDb.OpenRecordset("Select * from Permit where Permit=1")
     If .EOF Then
@@ -33,6 +36,7 @@ With CurrentDb.OpenRecordset("Select * from Permit where Permit=1")
     .Close
 End With
 End Sub
+
 Private Sub Cmd_AddToDummyPermit_Click_1Add_2PermitD(pSku$)
 With CurrentDb.OpenRecordset(Fmt_Str("Select * from frmBchRate_OH where Sku='{0}' and IsNoAssign", pSku))
     While Not .EOF
@@ -42,6 +46,7 @@ With CurrentDb.OpenRecordset(Fmt_Str("Select * from frmBchRate_OH where Sku='{0}
     .Close
 End With
 End Sub
+
 Private Sub Cmd_AddToDummyPermit_Click_1Add_2PermitD_1Ins(pSku$, pBchNo$, pQty&)
 Dim mSeqNo%: mSeqNo = Nz(SqlToV("Select Max(SeqNo) from PermitD where Permit=1"), 0) + 10
 Dim mRate@: mRate = Nz(SqlToV(Fmt_Str("Select DutyRateBott from frmBchRate where Sku='{0}'", pSku)), 0)
@@ -59,10 +64,12 @@ With CurrentDb.TableDefs("PermitD").OpenRecordset
     .Close
 End With
 End Sub
+
 Private Sub Cmd_AddToDummyPermit_Click_2Reset(pSku$)
 DoCmd.RunSql Fmt_Str("Update frmBchRate_OH set IsNoAssign=False where IsNoAssign and SKU='{0}'", pSku)
 DoCmd.RunSql Fmt_Str("Update frmBchRate    set IsNoAssign=False where IsNoAssign and SKU='{0}'", pSku)
 End Sub
+
 Private Sub Cmd_AddToDummyPermit_Click_3UpdPermitThreeSum()
 Dim mNSku%: mNSku = Nz(SqlToV("Select Count(*) from PermitD where Permit=1"), 0)
 Dim mQty&: mQty = Nz(SqlToV("Select Sum(Qty) from PermitD where Permit=1"), 0)
@@ -76,9 +83,14 @@ With CurrentDb.OpenRecordset("Select * from Permit where Permit=1")
     .Update
 End With
 End Sub
+
 Private Sub Cmd_Assign_Click()
 bAssign.rr
 zBldRecordSourceTable
+End Sub
+
+Private Sub Cmd_Close_Click()
+DoCmd.Close
 End Sub
 
 Private Sub CmdReadMe_Click()
@@ -90,6 +102,7 @@ End Sub
 Private Sub Form_Close()
 OpnSkuBchRateErr
 End Sub
+
 Private Sub Form_Open(Cancel As Integer)
 'Aim: Set xDteOH
 '     Build "frmBchRate_OH = SKU OH from
@@ -99,6 +112,7 @@ Me.xDteOH.Value = "20" & Format(xYY, "00") & "-" & Format(xMM, "00") & "-" & For
 BuildSkuB
 zBldRecordSourceTable
 End Sub
+
 Private Sub zBldRecordSourceTable()
 'Aim: Refresh table-(frmBchRate frmBchRate_OH) from OH (Co=8600)
 'Refresh frmBchRate = Sku DesSku OH IsNoAssign DutyRate BottPerAc DutyRateBott
@@ -129,6 +143,4 @@ DoCmd.RunSql "Update frmBchRate x inner join qSku a on a.Sku=x.Sku set DesSku=`S
 Me.Requery
 Me.Refresh
 End Sub
-Private Sub Cmd_Close_Click()
-DoCmd.Close
-End Sub
+

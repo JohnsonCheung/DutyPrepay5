@@ -1,6 +1,7 @@
 Attribute VB_Name = "bSkuBchRateErr"
 Option Compare Database
 Option Explicit
+
 Sub OpnSkuBchRateErr()
 'Aim: Build table SkuB and SkuBchRateErr
 '     Open SkuBchRateErr if there is records
@@ -26,3 +27,4 @@ DoCmd.RunSql "Delete from SkuBchRateErr where Round(Diff,1)=0 or Diff is null"
 DoCmd.RunSql "Update SkuBchRateErr x inner join Permit a on x.Permit=a.Permit Set x.PermitDate=a.PermitDate"
 If CurrentDb.TableDefs("SkuBchRateErr").RecordCount > 0 Then DoCmd.OpenTable "SkuBchRateErr", acViewNormal, acReadOnly
 End Sub
+

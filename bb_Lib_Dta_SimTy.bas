@@ -8,17 +8,7 @@ Enum eSimTy
     eLgc
     eOth
 End Enum
-Function SimTyQuoteTp$(A As eSimTy)
-Dim O$
-Select Case A
-Case eTxt: O = "'?'"
-Case eNbr, eLgc: O = "?"
-Case eDte: O = "#?#"
-Case Else
-    Err.Raise 1, , "Given SimTy[" & A & "] should be [eTxt eNbr eDte eLgc]"
-End Select
-SimTyQuoteTp = O
-End Function
+
 Function SimTy(T As DAO.DataTypeEnum) As eSimTy
 Dim O As eSimTy
 Select Case T
@@ -53,3 +43,16 @@ Case Else
 End Select
 SimTy = O
 End Function
+
+Function SimTyQuoteTp$(A As eSimTy)
+Dim O$
+Select Case A
+Case eTxt: O = "'?'"
+Case eNbr, eLgc: O = "?"
+Case eDte: O = "#?#"
+Case Else
+    Err.Raise 1, , "Given SimTy[" & A & "] should be [eTxt eNbr eDte eLgc]"
+End Select
+SimTyQuoteTp = O
+End Function
+

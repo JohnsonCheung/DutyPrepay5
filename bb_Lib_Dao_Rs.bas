@@ -1,6 +1,12 @@
 Attribute VB_Name = "bb_Lib_Dao_Rs"
 Option Compare Database
 Option Explicit
+
+Function RsDrs(A As DAO.Recordset) As Drs
+RsDrs.Fny = RsFny(A)
+RsDrs.Dry = RsDry(A)
+End Function
+
 Function RsDry(A As DAO.Recordset) As Variant()
 Dim O()
 With A
@@ -11,13 +17,11 @@ With A
 End With
 RsDry = O
 End Function
-Function RsDrs(A As DAO.Recordset) As Drs
-RsDrs.Fny = RsFny(A)
-RsDrs.Dry = RsDry(A)
-End Function
+
 Function RsFny(A As DAO.Recordset) As String()
 RsFny = FldsFny(A.Fields)
 End Function
+
 Function RsSy(A As DAO.Recordset) As String()
 Dim O$()
 With A

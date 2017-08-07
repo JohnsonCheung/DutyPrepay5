@@ -8,18 +8,15 @@ Type PermitDftVal
     ByUsr As String
     BankCode As String
 End Type
-Sub zFrmPermit_CmdDelete()
-Form_frmPermit.CmdDelete_Click
+
+Sub A()
+Const cPfx$ = "qryRpt"
+Dim J%
+For J = 0 To CurrentDb.QueryDefs.Count - 1
+    If Left(CurrentDb.QueryDefs(J).Name, Len(cPfx)) = cPfx Then Debug.Print CurrentDb.QueryDefs(J).Sql & vbLf
+Next
 End Sub
-Function VdtYr(pY As Byte) As Boolean
-If pY = 0 Then MsgBox "pY is 0": VdtYr = True
-End Function
-Function VdtMth(pM As Byte) As Boolean
-If pM > 12 Or pM < 1 Then MsgBox "pM must between 1 and 12": VdtMth = True
-End Function
-Sub zCommon_CmdReadMe()
-xOpn.Opn_ReadMe "DutyPrepay"
-End Sub
+
 Property Get PermitDftVal() As PermitDftVal
 Dim O As PermitDftVal
 With CurrentDb.OpenRecordset("Select * from Default")
@@ -31,11 +28,19 @@ With CurrentDb.OpenRecordset("Select * from Default")
 End With
 PermitDftVal = O
 End Property
-Sub A()
-Const cPfx$ = "qryRpt"
-Dim J%
-For J = 0 To CurrentDb.QueryDefs.Count - 1
-    If Left(CurrentDb.QueryDefs(J).Name, Len(cPfx)) = cPfx Then Debug.Print CurrentDb.QueryDefs(J).Sql & vbLf
-Next
+
+Function VdtMth(pM As Byte) As Boolean
+If pM > 12 Or pM < 1 Then MsgBox "pM must between 1 and 12": VdtMth = True
+End Function
+
+Function VdtYr(pY As Byte) As Boolean
+If pY = 0 Then MsgBox "pY is 0": VdtYr = True
+End Function
+
+Sub zCommon_CmdReadMe()
+xOpn.Opn_ReadMe "DutyPrepay"
 End Sub
 
+Sub zFrmPermit_CmdDelete()
+Form_frmPermit.CmdDelete_Click
+End Sub

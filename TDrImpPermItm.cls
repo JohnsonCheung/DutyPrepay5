@@ -15,6 +15,7 @@ Public Qty&
 Public PermitNo
 Public BchNo$
 Public Amt@
+
 Property Get Rate@()
 If Qty = 0 Then Exit Property
 On Error Resume Next

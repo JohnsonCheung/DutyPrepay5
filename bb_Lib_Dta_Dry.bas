@@ -2,13 +2,20 @@ Attribute VB_Name = "bb_Lib_Dta_Dry"
 Option Compare Database
 Option Explicit
 Private M_MaxColWdt%
-Property Get MaxColWdt%()
-If M_MaxColWdt = 0 Then M_MaxColWdt = 100
-MaxColWdt = M_MaxColWdt
-End Property
-Property Let MaxColWdt(V%)
-If 1 <= V And V <= 100 Then M_MaxColWdt = V
-End Property
+
+Sub DmpDry(Dry)
+AyDmp DryLy(Dry)
+End Sub
+
+Function DryCol(Dry, Optional ColIdx% = 0) As Variant()
+If AyIsEmpty(Dry) Then Exit Function
+Dim O(), Dr
+For Each Dr In Dry
+    Push O, Dr(ColIdx)
+Next
+DryCol = O
+End Function
+
 Function DryLy(Dry) As String()
 If IsEmpty(Dry) Then Exit Function
 Dim W%(): W = DryWdtAy(Dry)
@@ -29,20 +36,46 @@ Dim O$()
     Push O, Hdr
 DryLy = O
 End Function
-Function DryCol(Dry, Optional ColIdx% = 0) As Variant()
-If AyIsEmpty(Dry) Then Exit Function
-Dim O(), Dr
-For Each Dr In Dry
-    Push O, Dr(ColIdx)
-Next
-DryCol = O
-End Function
+
 Function DryStrCol(Dry, Optional ColIdx% = 0) As String()
 DryStrCol = AySy(DryCol(Dry, ColIdx))
 End Function
-Sub DmpDry(Dry)
-AyDmp DryLy(Dry)
-End Sub
+
+Property Get MaxColWdt%()
+If M_MaxColWdt = 0 Then M_MaxColWdt = 100
+MaxColWdt = M_MaxColWdt
+End Property
+
+Property Let MaxColWdt(V%)
+If 1 <= V And V <= 100 Then M_MaxColWdt = V
+End Property
+
+Private Function DrLin$(Dr, Wdt%())
+Dim UDr%
+    UDr = UB(Dr)
+Dim O$()
+    Dim U1%: U1 = UB(Wdt)
+    ReDim O(U1)
+    Dim W, V
+    Dim J%
+    J = 0
+    For Each W In Wdt
+        V = ""
+        If UDr >= J Then V = Dr(J)
+        If IsArray(V) Then
+            If AyIsEmpty(V) Then
+                O(J) = AlignL("", W)
+            Else
+                O(J) = AlignL(FmtQQ("Ay?:", UB(V)) & V(0), W)
+            End If
+        Else
+            O(J) = AlignL(V, W)
+        End If
+        J = J + 1
+    Next
+DrLin = Quote(Join(O, " | "), "| * |")
+End Function
+
 Private Function DryWdtAy(Dry) As Integer()
 If AyIsEmpty(Dry) Then Exit Function
 Dim O%()
@@ -80,29 +113,3 @@ For J = 0 To UB(O)
 Next
 DryWdtAy = O
 End Function
-Private Function DrLin$(Dr, Wdt%())
-Dim UDr%
-    UDr = UB(Dr)
-Dim O$()
-    Dim U1%: U1 = UB(Wdt)
-    ReDim O(U1)
-    Dim W, V
-    Dim J%
-    J = 0
-    For Each W In Wdt
-        V = ""
-        If UDr >= J Then V = Dr(J)
-        If IsArray(V) Then
-            If AyIsEmpty(V) Then
-                O(J) = AlignL("", W)
-            Else
-                O(J) = AlignL(FmtQQ("Ay?:", UB(V)) & V(0), W)
-            End If
-        Else
-            O(J) = AlignL(V, W)
-        End If
-        J = J + 1
-    Next
-DrLin = Quote(Join(O, " | "), "| * |")
-End Function
-

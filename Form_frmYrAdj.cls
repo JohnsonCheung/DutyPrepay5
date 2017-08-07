@@ -10,19 +10,7 @@ Attribute VB_Exposed = False
 Option Compare Database
 Option Explicit
 Option Base 0
-Private Sub CmdDetail_Click()
-DoCmd.OpenForm "frmYrAdjD", OpenArgs:=Me.Year.Value - 2000
-End Sub
-Private Sub CmdRpt_Click()
-Dim mY As Byte: mY = CByte(Me.Year.Value - 2000)
-bCmd.CmdRpt mY
-End Sub
-Private Sub Form_Load()
-DoCmd.Maximize
-bYrO.AddYrO
-Me.Requery
-Me.Refresh
-End Sub
+
 Private Sub Cmd_Close_Click()
 On Error GoTo Err_Cmd_Close_Click
 
@@ -37,4 +25,20 @@ Err_Cmd_Close_Click:
     MsgBox Err.Description
     Resume Exit_Cmd_Close_Click
     
+End Sub
+
+Private Sub CmdDetail_Click()
+DoCmd.OpenForm "frmYrAdjD", OpenArgs:=Me.Year.Value - 2000
+End Sub
+
+Private Sub CmdRpt_Click()
+Dim mY As Byte: mY = CByte(Me.Year.Value - 2000)
+bCmd.CmdRpt mY
+End Sub
+
+Private Sub Form_Load()
+DoCmd.Maximize
+bYrO.AddYrO
+Me.Requery
+Me.Refresh
 End Sub

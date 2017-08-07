@@ -5,6 +5,7 @@ Type Map
     Sy1() As String
     Sy2() As String
 End Type
+
 Function BrkMapStr(MapStr$) As Map
 Dim Ay$(): Ay = Split(MapStr, "|")
 Dim Ay1$(), Ay2$()
@@ -20,8 +21,10 @@ Dim O As Map
     O.Sy2 = Ay2
 BrkMapStr = O
 End Function
+
 Private Sub BrkMapStr__Tst()
 End Sub
+
 Sub Tst()
 BrkMapStr__Tst
 End Sub

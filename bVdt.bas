@@ -1,6 +1,7 @@
 Attribute VB_Name = "bVdt"
 Option Compare Database
 Option Explicit
+
 Function VdtBchNo(pBchNo$, pSku$, pRate@, ByRef oRate@) As Boolean
 'Aim: Validate pBchNo:
 '     - Return false for no error for pBchNo=''

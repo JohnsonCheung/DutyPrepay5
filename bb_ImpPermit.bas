@@ -1,6 +1,7 @@
 Attribute VB_Name = "bb_ImpPermit"
 Option Compare Database
 Option Explicit
+
 Sub ImpPermit()
 Dim Fx
 Dim mFxAy$(): mFxAy = FxAy()
@@ -22,6 +23,7 @@ Set M = New Permit
 M.TstEr
 'M.TstOk
 End Sub
+
 Sub Tst()
 ImpPermit__Tst
 End Sub

@@ -246,8 +246,8 @@ Dim C As VBComponent: Set C = Md(MdNm).Parent
 C.Collection.Remove C
 End Sub
 
-Sub MdRmvBdy(Optional A As CodeModule)
-MdRmvLnoCnt MdBdyLnoCnt(A)
+Sub MdRmvBdy(A As CodeModule)
+MdRmvLnoCnt MdBdyLnoCnt(A), A
 End Sub
 
 Sub MdRmvFun(FunNm$, Optional A As CodeModule)
@@ -260,9 +260,9 @@ End If
 MdRmvLnoCnt M, A
 End Sub
 
-Sub MdRmvLnoCnt(LnoCnt As LnoCnt, Optional A As CodeModule)
+Sub MdRmvLnoCnt(LnoCnt As LnoCnt, A As CodeModule)
 If LnoCnt.Cnt = 0 Then Exit Sub
-DftMd(A).DeleteLines LnoCnt.Lno, LnoCnt.Cnt
+A.DeleteLines LnoCnt.Lno, LnoCnt.Cnt
 End Sub
 
 Function MdSrcFfn$(Optional A As CodeModule)
@@ -274,18 +274,20 @@ MdSrcFn = MdCmp(A).Name & MdSrcExt(A)
 End Function
 
 Sub MdSrt(Optional A As CodeModule)
-MdExp A
+Debug.Print MdNm(A)
 Dim Lines$: Lines = MdSrtedBdyLines(A)
 MdRmvBdy A
 MdAppLines Lines, A
 End Sub
 
 Function MdSrtedBdyLines$(Optional A As CodeModule)
+If MdIsEmpty(A) Then Exit Function
 Dim Drs As Drs: Drs = MdFunDrs(WithBdyLines:=True, A:=A)
 Dim Ky$()
     Erase Ky
     Dim Ty$, Mdy$, FunNm$, K$, BdyLines$, IdxAy&(), Dr
     IdxAy = FidxAy(Drs.Fny, "Mdy FunNm Ty BdyLines")
+    If AyIsEmpty(Drs.Dry) Then Exit Function
     For Each Dr In Drs.Dry
         AyAsg_Idx Dr, IdxAy, Mdy, FunNm, Ty, BdyLines
         Push Ky, FunKey(Mdy, Ty, FunNm)
@@ -458,7 +460,6 @@ Sub PjSrt(Optional A As VBProject)
 Dim Md As CodeModule, I
 For Each I In PjMdAy(A)
     Set Md = I
-    Debug.Print MdNm(Md)
     MdSrt Md
 Next
 End Sub

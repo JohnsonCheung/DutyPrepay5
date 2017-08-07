@@ -10,9 +10,11 @@ Attribute VB_Exposed = False
 Option Compare Database
 Option Explicit
 Option Base 0
+
 Private Sub CmdSetBusArea_Click()
 DoCmd.OpenForm "frmBF"
 End Sub
+
 Private Sub Form_Load()
 DoCmd.Maximize
 Me.RecordSource = "SELECT x.BusArea AS CdBusArea, a.BusAreaName AS NmBusArea, x.BrandFamilyName AS CdBF, x.BrandFamilyDesc AS NmBF" & _
@@ -20,3 +22,4 @@ Me.RecordSource = "SELECT x.BusArea AS CdBusArea, a.BusAreaName AS NmBusArea, x.
 " Where BrandFamilyDesc<>'0'" & _
 " ORDER BY a.BusAreaName, x.BrandFamilyDesc;"
 End Sub
+

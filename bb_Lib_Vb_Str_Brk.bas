@@ -5,6 +5,13 @@ Type S1S2
     S1 As String
     S2 As String
 End Type
+
+Function Brk(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStr(S, Sep)
+If P = 0 Then Err.Raise "Brk: Str[" & S & "] does not contains Sep[" & Sep & "]"
+Brk = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
+
 Function Brk1(S, Sep, Optional NoTrim As Boolean) As S1S2
 Dim P&: P = InStr(S, Sep)
 If P = 0 Then
@@ -19,6 +26,7 @@ If P = 0 Then
 End If
 Brk1 = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
+
 Function Brk2(S, Sep, Optional NoTrim As Boolean) As S1S2
 Dim P&: P = InStr(S, Sep)
 If P = 0 Then
@@ -33,11 +41,7 @@ If P = 0 Then
 End If
 Brk2 = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
-Function Brk(S, Sep, Optional NoTrim As Boolean) As S1S2
-Dim P&: P = InStr(S, Sep)
-If P = 0 Then Err.Raise "Brk: Str[" & S & "] does not contains Sep[" & Sep & "]"
-Brk = BrkAt(S, P, Len(Sep), NoTrim)
-End Function
+
 Function BrkAt(S, P&, SepLen%, Optional NoTrim As Boolean) As S1S2
 Dim O As S1S2
 With O
@@ -51,6 +55,7 @@ With O
 End With
 BrkAt = O
 End Function
+
 Function BrkBoth(S, Sep, Optional NoTrim As Boolean) As S1S2
 Dim P&: P = InStr(S, Sep)
 If P = 0 Then
@@ -66,6 +71,7 @@ If P = 0 Then
 End If
 BrkBoth = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
+
 Function BrkQuote(QuoteStr$) As S1S2
 Dim L%: L = Len(QuoteStr)
 Dim O As S1S2

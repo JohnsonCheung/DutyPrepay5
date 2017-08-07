@@ -1,6 +1,7 @@
 Attribute VB_Name = "bb_UpgradeDb"
 Option Compare Database
 Option Explicit
+
 Sub TblPermit_AddFld_IsImport()
 Const T$ = "Permit"
 Const F$ = "IsImport"

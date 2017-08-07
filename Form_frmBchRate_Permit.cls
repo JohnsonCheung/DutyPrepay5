@@ -10,12 +10,14 @@ Attribute VB_Exposed = False
 Option Compare Database
 Option Explicit
 Option Base 0
+
 Private Sub BchNo_BeforeUpdate(Cancel As Integer)
 Dim mRate@
 If IsNull(Me.Sku.Value) Then MsgBox "SKU is empty": Cancel = True: Exit Sub
 Cancel = BchNo_BeforeUpdate_1BchNo(Me.Sku.Value, Me.BchNo.Value): If Cancel Then Exit Sub
 Cancel = VdtBchNo(Nz(Me.BchNo.Value), Nz(Me.Sku.Value, ""), Nz(Me.Rate.Value, 0), mRate)
 End Sub
+
 Private Function BchNo_BeforeUpdate_1BchNo(pSku$, pBchNo) As Boolean
 'Aim: If pBchNo is null, return false for no error
 '     If pSku+pBchNo not found in frmBchRate_OH, prompt message and return true for error

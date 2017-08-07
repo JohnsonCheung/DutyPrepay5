@@ -9,23 +9,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Compare Database
 
-Private Sub Form_Open(Cancel As Integer)
-' Minimize the database window and initialize the form.
-    DoCmd.Maximize
-    ' Move to the switchboard page that is marked as the default.
-    Me.Filter = "[ItemNumber] = 0 AND [Argument] = 'Default' "
-    Me.FilterOn = True
-    
-End Sub
-
-Private Sub Form_Current()
-' Update the caption and fill in the list of options.
-
-    Me.Caption = Nz(Me![ItemText], "")
-    FillOptions
-    
-End Sub
-
 Private Sub FillOptions()
 ' Fill in the options for this switchboard page.
 
@@ -73,6 +56,23 @@ Private Sub FillOptions()
     Set Rs = Nothing
     Set con = Nothing
 
+End Sub
+
+Private Sub Form_Current()
+' Update the caption and fill in the list of options.
+
+    Me.Caption = Nz(Me![ItemText], "")
+    FillOptions
+    
+End Sub
+
+Private Sub Form_Open(Cancel As Integer)
+' Minimize the database window and initialize the form.
+    DoCmd.Maximize
+    ' Move to the switchboard page that is marked as the default.
+    Me.Filter = "[ItemNumber] = 0 AND [Argument] = 'Default' "
+    Me.FilterOn = True
+    
 End Sub
 
 Private Function HandleButtonClick(intBtn As Integer)
@@ -190,4 +190,3 @@ HandleButtonClick_Err:
     End If
     
 End Function
-

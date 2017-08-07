@@ -1,6 +1,30 @@
 Attribute VB_Name = "bb_Lib_Dta_Sq"
 Option Compare Database
 Option Explicit
+
+Function SqDr(Sq, R&, Optional CnoAy) As Variant()
+Dim mCnoAy%()
+    Dim J%
+    If IsMissing(CnoAy) Then
+        ReDim mCnoAy(UBound(Sq, 2) - 1)
+        For J = 0 To UB(mCnoAy)
+            mCnoAy(J) = J + 1
+        Next
+    Else
+        mCnoAy = CnoAy
+    End If
+Dim UCol%
+    UCol = UB(mCnoAy)
+Dim O()
+    ReDim O(UCol)
+    Dim C%
+    For J = 0 To UCol
+        C = mCnoAy(J)
+        O(J) = Sq(R, C)
+    Next
+SqDr = O
+End Function
+
 Function SqSel(Sq, Optional MapStr$) As Drs
 Dim Fny$(), Fm$() 'MapStr
     If MapStr = "" Then
@@ -40,26 +64,4 @@ Dim Dry() 'Sq,SqIdxAy
     Next
 SqSel.Dry = Dry
 SqSel.Fny = Fny
-End Function
-Function SqDr(Sq, R&, Optional CnoAy) As Variant()
-Dim mCnoAy%()
-    Dim J%
-    If IsMissing(CnoAy) Then
-        ReDim mCnoAy(UBound(Sq, 2) - 1)
-        For J = 0 To UB(mCnoAy)
-            mCnoAy(J) = J + 1
-        Next
-    Else
-        mCnoAy = CnoAy
-    End If
-Dim UCol%
-    UCol = UB(mCnoAy)
-Dim O()
-    ReDim O(UCol)
-    Dim C%
-    For J = 0 To UCol
-        C = mCnoAy(J)
-        O(J) = Sq(R, C)
-    Next
-SqDr = O
 End Function

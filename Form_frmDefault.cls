@@ -10,6 +10,7 @@ Attribute VB_Exposed = False
 Option Compare Database
 Option Explicit
 Option Base 0
+
 Private Sub CmdSav_Click()
 DoCmd.Close
 End Sub
