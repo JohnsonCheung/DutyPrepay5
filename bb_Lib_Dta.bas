@@ -44,7 +44,7 @@ For Each Dr In A.Dry
 Next
 End Function
 Function IsEmptyDt(A As Dt) As Boolean
-IsEmptyDt = IsEmptyAy(A.Dry)
+IsEmptyDt = AyIsEmpty(A.Dry)
 End Function
 Function IsEmptyDs(A As Ds) As Boolean
 IsEmptyDs = IsEmptyDtAy(A.DtAy)
@@ -124,7 +124,7 @@ Dim O As Drs
     O.Fny = A.Fny
     AyIns O.Fny, "RowIdx"
 Dim ODry()
-    If Not IsEmptyAy(A.Dry) Then
+    If Not AyIsEmpty(A.Dry) Then
         Dim J&, Dr
         For Each Dr In A.Dry
             AyIns Dr, J: J = J + 1
@@ -180,7 +180,7 @@ Dim O As Drs
 DrsSel = O
 End Function
 Function DrsLy(A As Drs) As String()
-If IsEmptyAy(A.Fny) Then Exit Function
+If AyIsEmpty(A.Fny) Then Exit Function
 Dim Drs As Drs: Drs = DrsAddRowIdxCol(A)
 Dim Dry(): Dry = Drs.Dry
 Push Dry, Drs.Fny
@@ -229,3 +229,8 @@ Dim O As Ds
 DsNew = O
 End Function
 
+Sub Tst()
+DrsSel__Tst
+DsNew__Tst
+ObjCollSel__Tst
+End Sub

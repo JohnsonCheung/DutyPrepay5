@@ -22,3 +22,6 @@ BrkMapStr = O
 End Function
 Private Sub BrkMapStr__Tst()
 End Sub
+Sub Tst()
+BrkMapStr__Tst
+End Sub

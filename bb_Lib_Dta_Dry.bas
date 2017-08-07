@@ -12,7 +12,7 @@ End Property
 Function DryLy(Dry) As String()
 If IsEmpty(Dry) Then Exit Function
 Dim W%(): W = DryWdtAy(Dry)
-If IsEmptyAy(W) Then Exit Function
+If AyIsEmpty(W) Then Exit Function
 Dim HdrAy$()
     ReDim HdrAy(UB(W))
     Dim J%
@@ -30,7 +30,7 @@ Dim O$()
 DryLy = O
 End Function
 Function DryCol(Dry, Optional ColIdx% = 0) As Variant()
-If IsEmptyAy(Dry) Then Exit Function
+If AyIsEmpty(Dry) Then Exit Function
 Dim O(), Dr
 For Each Dr In Dry
     Push O, Dr(ColIdx)
@@ -44,21 +44,21 @@ Sub DmpDry(Dry)
 AyDmp DryLy(Dry)
 End Sub
 Private Function DryWdtAy(Dry) As Integer()
-If IsEmptyAy(Dry) Then Exit Function
+If AyIsEmpty(Dry) Then Exit Function
 Dim O%()
     Dim Dr, UDr%, U%, V, L%, J%
     U = -1
     For Each Dr In Dry
         UDr = UB(Dr)
         If UDr > U Then ReDim Preserve O(UDr)
-        If Not IsEmptyAy(Dr) Then
+        If Not AyIsEmpty(Dr) Then
             J = 0
             For Each V In Dr
                 If IsNull(V) Then
                     L = 0
                 Else
                     If IsArray(V) Then
-                        If IsEmptyAy(V) Then
+                        If AyIsEmpty(V) Then
                             L = 0
                         Else
                             L = Len(V(0))
@@ -93,7 +93,7 @@ Dim O$()
         V = ""
         If UDr >= J Then V = Dr(J)
         If IsArray(V) Then
-            If IsEmptyAy(V) Then
+            If AyIsEmpty(V) Then
                 O(J) = AlignL("", W)
             Else
                 O(J) = AlignL(FmtQQ("Ay?:", UB(V)) & V(0), W)

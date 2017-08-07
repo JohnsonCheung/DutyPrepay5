@@ -53,3 +53,6 @@ End Sub
 Function LnkTblFx$(T, Optional D As Database)
 LnkTblFx = TakBet(Tbl(T, D).Connect, "Database=", ";")
 End Function
+Sub Tst()
+FxDb__Tst
+End Sub

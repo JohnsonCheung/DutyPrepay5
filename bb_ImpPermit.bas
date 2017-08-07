@@ -4,7 +4,7 @@ Option Explicit
 Sub ImpPermit()
 Dim Fx
 Dim mFxAy$(): mFxAy = FxAy()
-If IsEmptyAy(mFxAy) Then Exit Sub
+If AyIsEmpty(mFxAy) Then Exit Sub
 Dim M As Permit
 For Each Fx In mFxAy
     Set M = New Permit
@@ -21,4 +21,7 @@ Dim M As Permit
 Set M = New Permit
 M.TstEr
 'M.TstOk
+End Sub
+Sub Tst()
+ImpPermit__Tst
 End Sub

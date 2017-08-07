@@ -1,11 +1,17 @@
 Attribute VB_Name = "bb_Lib_Xls_Put"
 Option Compare Database
 Option Explicit
-Function DtWs(Dt As Dt) As Worksheet
+Function DtWs(A As Dt) As Worksheet
 Dim O As Worksheet
-Set O = WsNew(Dt.DtNm)
-DtPut Dt, O
+Set O = WsNew(A.DtNm)
+DrsPut DtDrs(A), WsA1(O)
 Set DtWs = O
+End Function
+Function DtDrs(A As Dt) As Drs
+Dim O As Drs
+O.Fny = A.Fny
+O.Dry = A.Dry
+DtDrs = O
 End Function
 Sub DrsPut(A As Drs, At As Range, Optional LoNm$)
 AyPut A.Fny, At
@@ -15,7 +21,7 @@ End Sub
 Function WbAddDt(A As Dt, Wb As Workbook) As Worksheet
 Dim O As Worksheet
 Set O = AddWs(Wb, A.DtNm)
-DtPut A, O
+DrsPut DtDrs(A), WsA1(O)
 Set WbAddDt = O
 End Function
 Private Sub WbAddDs__Tst()
@@ -72,7 +78,7 @@ Next
 DryNCol = M
 End Function
 Function DrySq(Dry, Optional NCol% = 0) As Variant()
-If IsEmptyAy(Dry) Then Exit Function
+If AyIsEmpty(Dry) Then Exit Function
 Dim NRow&
     If NCol = 0 Then NCol = DryNCol(Dry)
     NRow = Sz(Dry)
@@ -89,3 +95,6 @@ Dim C%, R&, Dr
 DrySq = O
 End Function
 
+Sub Tst()
+WbAddDs__Tst
+End Sub

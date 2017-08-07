@@ -1,8 +1,8 @@
 Attribute VB_Name = "bb_Lib_Vb_Ay"
 Option Compare Database
 Option Explicit
-Function IsEmptyAy(Ay) As Boolean
-IsEmptyAy = (Sz(Ay) = 0)
+Function AyIsEmpty(Ay) As Boolean
+AyIsEmpty = (Sz(Ay) = 0)
 End Function
 Sub AyAsg_Idx(Ay, IdxAy&(), ParamArray OAp())
 Dim J%
@@ -72,7 +72,7 @@ Dim O1$()
             Exit For
         End If
     Next
-    If Not IsEmptyAy(A2) Then
+    If Not AyIsEmpty(A2) Then
         If J < 10 Then
             For Each V In A2
                 Push O1, FmtQQ("Ele in [?] not found in {?]: [?]", Ay2Nm, Ay1Nm, V)
@@ -106,7 +106,7 @@ Private Sub ChkEqAy__Tst()
 AyDmp ChkEqAy(Array(1, 2, 3, 3, 4), Array(1, 2, 3, 4, 4))
 End Sub
 Sub AssertChk(Chk$())
-If IsEmptyAy(Chk) Then Exit Sub
+If AyIsEmpty(Chk) Then Exit Sub
 AyBrw Chk
 Err.Raise 1, , "Error checked!"
 End Sub
@@ -127,7 +127,7 @@ Function UB&(Ay)
 UB = Sz(Ay) - 1
 End Function
 Function AyHas(Ay, Itm) As Boolean
-If IsEmptyAy(Ay) Then Exit Function
+If AyIsEmpty(Ay) Then Exit Function
 Dim I
 For Each I In Ay
     If I = Itm Then AyHas = True: Exit Function
@@ -167,7 +167,7 @@ Dim Av(): Av = Ap
 Sy = AySy(Av)
 End Function
 Function AySy(Ay) As String()
-If IsEmptyAy(Ay) Then Exit Function
+If AyIsEmpty(Ay) Then Exit Function
 If IsStrAy(Ay) Then AySy = Ay: Exit Function
 Dim U&, O$(), J&, I
 J = 0
@@ -187,7 +187,7 @@ Next
 AyIdx = -1
 End Function
 Function AyStrAy(Ay) As String()
-If IsEmptyAy(Ay) Then Exit Function
+If AyIsEmpty(Ay) Then Exit Function
 Dim U&: U = UB(Ay)
 Dim O$()
     Dim J&
@@ -198,7 +198,7 @@ Dim O$()
 AyStrAy = O
 End Function
 Sub PushAy(OAy, Ay)
-If IsEmptyAy(Ay) Then Exit Sub
+If AyIsEmpty(Ay) Then Exit Sub
 Dim I
 For Each I In Ay
     Push OAy, I
@@ -214,7 +214,7 @@ Sub WrtAy(Ay, Ft)
 WrtStr JnCrLf(Ay), Ft
 End Sub
 Function QuoteAy(Ay, QuoteStr$) As String()
-If IsEmptyAy(Ay) Then Exit Function
+If AyIsEmpty(Ay) Then Exit Function
 Dim U&: U = UB(Ay)
 Dim O$()
     ReDim O(U)
@@ -230,7 +230,7 @@ Dim O$()
 QuoteAy = O
 End Function
 Function AyIdxAy(Ay, SubAy) As Long()
-If IsEmptyAy(SubAy) Then Exit Function
+If AyIsEmpty(SubAy) Then Exit Function
 Dim O&()
 Dim U&: U = UB(SubAy)
 ReDim O(U)
@@ -285,7 +285,7 @@ AssertEqAy Array(0, 1, 2, 3, 4), AySrtIntoIdxAy(Ay)
 AssertEqAy Array(4, 3, 2, 1, 0), AySrtIntoIdxAy(Ay, True)
 End Sub
 Function AySrtIntoIdxAy(Ay, Optional Des As Boolean) As Long()
-If IsEmptyAy(Ay) Then AySrtIntoIdxAy = Ay: Exit Function
+If AyIsEmpty(Ay) Then AySrtIntoIdxAy = Ay: Exit Function
 Dim Idx&, V, J&
 Dim O&():
 Push O, 0
@@ -314,7 +314,7 @@ End Function
 
 
 Function AySrt(Ay, Optional Des As Boolean)
-If IsEmptyAy(Ay) Then AySrt = Ay: Exit Function
+If AyIsEmpty(Ay) Then AySrt = Ay: Exit Function
 Dim Idx&, V, J&
 Dim O: O = Ay: Erase O
 Push O, Ay(0)
@@ -340,9 +340,14 @@ Next
 AySrt__Idx = O
 End Function
 Sub AyDmp(Ay)
-If IsEmptyAy(Ay) Then Exit Sub
+If AyIsEmpty(Ay) Then Exit Sub
 Dim I
 For Each I In Ay
     Debug.Print I
 Next
+End Sub
+Sub Tst()
+AySrt__Tst
+AySrtIntoIdxAy__Tst
+ChkEqAy__Tst
 End Sub

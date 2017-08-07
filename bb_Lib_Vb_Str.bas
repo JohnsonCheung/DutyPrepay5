@@ -81,3 +81,6 @@ Dim C1$: C1 = UCase(C)
 IsLetter = ("A" <= C1 And C1 <= "Z")
 End Function
 
+Sub Tst()
+TakBet__Tst
+End Sub

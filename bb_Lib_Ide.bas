@@ -23,7 +23,13 @@ MdTy = DftMd(A).Parent.Type
 End Function
 
 Sub MdRmvFun(FunNm$, Optional A As CodeModule)
-MdRmvLnoCnt MdFunLnoCnt(FunNm, A)
+Dim M As LnoCnt: M = MdFunLnoCnt(FunNm, A)
+If M.Cnt = 0 Then
+    Debug.Print FmtQQ("Fun[?] in Md[?] not found, cannot Rmv", FunNm, MdNm(A))
+Else
+    Debug.Print FmtQQ("Fun[?] in Md[?] is removed", FunNm, MdNm(A))
+End If
+MdRmvLnoCnt M
 End Sub
 Sub MdRmvLnoCnt(LnoCnt As LnoCnt, Optional A As CodeModule)
 If LnoCnt.Cnt = 0 Then Exit Sub
@@ -78,7 +84,7 @@ IsPfx = (Left(S, Len(Pfx)) = Pfx)
 End Function
 
 Sub MdAppLy(Ly$(), Optional A As CodeModule)
-If IsEmptyAy(Ly) Then Exit Sub
+If AyIsEmpty(Ly) Then Exit Sub
 DftMd(A).InsertLines MdLasLno(A) + 1, JnCrLf(Ly)
 End Sub
 
@@ -91,11 +97,13 @@ Set Md = DftMd(A)
 Select Case MdTy(Md)
 Case _
     vbext_ComponentType.vbext_ct_StdModule, _
-    vbext_ComponentType.vbext_ct_MSForm, _
     vbext_ComponentType.vbext_ct_ClassModule, _
-    vbext_ComponentType.vbext_ct_Document
+    vbext_ComponentType.vbext_ct_Document, _
+    vbext_ComponentType.vbext_ct_MSForm
     MdRmvFun "Tst", Md
-    MdAppLy MdTstFunLy(Md), Md
+    Dim Ly$(): Ly = MdTstFunLy(Md)
+    If Sz(Ly) > 0 Then Debug.Print "Fun[Tst] in Md[" & MdNm(A) & "] is inserted"
+    MdAppLy Ly, Md
 End Select
 End Sub
 
@@ -103,10 +111,13 @@ Sub PjUpdTstFun(Optional A As VBProject)
 Dim I, Md As CodeModule
 For Each I In PjMdAy(A)
     Set Md = I
+    Debug.Print MdNm(Md)
     MdUpdTstFun Md
 Next
 End Sub
-
+Function MdIsEmpty(Optional A As CodeModule)
+MdIsEmpty = (DftMd(A).CountOfLines = 0)
+End Function
 Sub PjExp(Optional A As VBProject)
 PthClrFil PjSrcPth(A)
 Dim Md As CodeModule, I
@@ -115,7 +126,14 @@ For Each I In PjMdAy(A)
     MdExp Md
 Next
 End Sub
-
+Function PjSrcPth$(Optional A As VBProject)
+Dim Ffn$: Ffn = DftPj(A).FileName
+Dim Fn$: Fn = FfnFn(Ffn)
+Dim O$:
+O = FfnPth(DftPj(A).FileName) & "Src\": PthEns O
+O = O & Fn & "\":                       PthEns O
+PjSrcPth = O
+End Function
 Sub MdSrt(Optional A As CodeModule)
 MdExp A
 Dim Ly$(): Ly = MdSrtedBdyLy(A)
@@ -174,10 +192,12 @@ Dim M As CodeModule: Set M = DftMd(A)
 MdBdyLinCnt = M.CountOfLines - M.CountOfDeclarationLines
 End Function
 Function MdTstFunNy(Optional A As CodeModule) As String()
+If MdIsEmpty(A) Then Exit Function
 Dim M As Drs: M = MdFunDrs(A:=A)
 Dim Dr
 Dim O$(), Mdy$, Ty$, FunNm$, IFunNm%
 Fiy M.Fny, "FunNm", IFunNm
+If AyIsEmpty(M.Dry) Then Exit Function
 For Each Dr In M.Dry
     FunNm = Dr(IFunNm)
     If IsSfx(FunNm, "__Tst") Then
@@ -199,7 +219,7 @@ Dim M As Drs: M = MdFunDrs(A:=A)
 Dim O$(), Mdy$, Ty$, FunNm$, Dr
 Dim IMdy%, ITy%, IFunNm%
 Fiy M.Fny, "Mdy Ty FunNm", IMdy, ITy, IFunNm
-If IsEmptyAy(M.Dry) Then Exit Function
+If AyIsEmpty(M.Dry) Then Exit Function
 For Each Dr In M.Dry
     If IsSfx(Dr(IFunNm), "__Tst") Then
         If Dr(IMdy) <> "Private" Or Dr(ITy) <> "Sub" Then
@@ -338,7 +358,7 @@ End Function
 Function MdTstFunLy(Optional A As CodeModule) As String()
 Dim O$(), Ay$()
 Ay = MdTstFunNy(A)
-If IsEmptyAy(Ay) Then Exit Function
+If AyIsEmpty(Ay) Then Exit Function
 Push O, "Sub Tst()"
 PushAy O, AySrt(MdTstFunNy(A))
 Push O, "End Sub"
@@ -380,6 +400,17 @@ End Sub
 Function MdLy_Jn(Optional A As CodeModule) As String()
 MdLy_Jn = JnContinueLin(MdLy(A))
 End Function
+Function JnContinueLin(Ly$()) As String()
+Dim O$(): O = Ly
+Dim J&
+For J = UB(O) - 1 To 0 Step -1
+    If LasChr(O(J)) = "_" Then
+        O(J) = RmvLasNChr(O(J)) & O(J + 1)
+        O(J + 1) = ""
+    End If
+Next
+JnContinueLin = O
+End Function
 Function MdLy(Optional A As CodeModule) As String()
 Dim Md As CodeModule: Set Md = DftMd(A)
 Dim N&: N = Md.CountOfLines
@@ -405,29 +436,7 @@ Debug.Assert Act(1) = ""
 Debug.Assert Act(2) = ""
 Debug.Assert Act(3) = "D"
 End Sub
-Function JnContinueLin(Ly$()) As String()
-Dim O$(): O = Ly
-Dim J&
-For J = UB(O) - 1 To 0 Step -1
-    If LasChr(O(J)) = "_" Then
-        O(J) = RmvLasNChr(O(J)) & O(J + 1)
-        O(J + 1) = ""
-    End If
-Next
-JnContinueLin = O
-End Function
-Sub PjSrcPthBrw(Optional A As VBProject)
-PthBrw PjSrcPth(A)
-End Sub
-Function PjSrcPth$(Optional A As VBProject)
-Dim Ffn$: Ffn = DftPj(A).FileName
-Dim Fn$: Fn = FfnFn(Ffn)
-Dim O$:
-O = FfnPth(DftPj(A).FileName) & "Src\": PthEns O
-O = O & Fn & "\":                       PthEns O
-PjSrcPth = O
-End Function
-Function MdSrcExt$(Optional A As CodeModule)
+Private Function MdSrcExt$(Optional A As CodeModule)
 Dim O$
 Select Case MdCmpTy(A)
 Case vbext_ct_ClassModule: O = ".cls"
@@ -489,8 +498,8 @@ JnContinueLin__Tst
 MdFunDrs__Tst
 MdFunLnoCnt__Tst
 MdLy__Tst
-MdSrtedBdyLy__Tst
 MdSrt__Tst
+MdSrtedBdyLy__Tst
 PjFunDrs__Tst
 PjMdAy__Tst
 SrcLinBrk__Tst

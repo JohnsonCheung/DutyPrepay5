@@ -97,3 +97,6 @@ O.DtNm = "Sample"
 O.Dry = Array(Array(1))
 O.Fny = SplitLvs("A B C")
 End Property
+Sub Tst()
+InsDtSqlAy__Tst
+End Sub

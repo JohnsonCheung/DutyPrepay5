@@ -2,7 +2,7 @@ Attribute VB_Name = "bb_Lib_Dao_RunSql"
 Option Compare Database
 Option Explicit
 Sub RunSqlAy(SqlAy$(), Optional D As Database)
-If IsEmptyAy(SqlAy) Then Exit Sub
+If AyIsEmpty(SqlAy) Then Exit Sub
 Dim Db As Database: Set Db = DftDb(D)
 Dim Sql
 For Each Sql In SqlAy

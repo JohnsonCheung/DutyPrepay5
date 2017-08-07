@@ -31,7 +31,6 @@ With CurrentDb.OpenRecordset("Select * from Default")
 End With
 PermitDftVal = O
 End Property
-
 Sub A()
 Const cPfx$ = "qryRpt"
 Dim J%

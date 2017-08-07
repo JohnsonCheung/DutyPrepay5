@@ -37,7 +37,7 @@ If IsStr(V) Then
     If V = "" Then Exit Function
 End If
 If IsArray(V) Then
-    If IsEmptyAy(V) Then Exit Function
+    If AyIsEmpty(V) Then Exit Function
 End If
 IsEmpty = False
 End Function
@@ -51,3 +51,6 @@ Else
     Dft = V
 End If
 End Function
+Sub Tst()
+IsStrAy__Tst
+End Sub

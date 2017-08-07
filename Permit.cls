@@ -105,8 +105,8 @@ End Sub
 
 Private Function ErMsgAy() As String()
 Dim O$()
-PushAy O, Er_MissingCol: If Not IsEmptyAy(O) Then ErMsgAy = O: Exit Function
-PushAy O, Er_DtaTy:  If Not IsEmptyAy(O) Then ErMsgAy = O: Exit Function
+PushAy O, Er_MissingCol: If Not AyIsEmpty(O) Then ErMsgAy = O: Exit Function
+PushAy O, Er_DtaTy:  If Not AyIsEmpty(O) Then ErMsgAy = O: Exit Function
 PushAy O, Er_DupSKU
 PushAy O, Er_ZerQty
 PushAy O, Er_NonIntQty
@@ -117,7 +117,7 @@ End Function
 Private Function Er_ZerAmt() As String()
 Const S$ = "Select PermitNo,Sku from Imp1 where Amt<=0"
 Dim Dry: Dry = SqlDry(S, WrkDb)
-If IsEmptyAy(Dry) Then Exit Function
+If AyIsEmpty(Dry) Then Exit Function
 Dim O$()
 Dim Dr
 For Each Dr In Dry
@@ -155,7 +155,7 @@ Dim Miss$()
             Push Miss, F
         End If
     Next
-If IsEmptyAy(Miss) Then Exit Function
+If AyIsEmpty(Miss) Then Exit Function
 Dim O$()
     Push O, "Missing column: " & JnComma(QuoteAy(Miss, "[]"))
 Er_MissingCol = O
@@ -247,7 +247,7 @@ End Function
 
 Private Function Er__MsgAy(Sql$, QQStr$) As String()
 Dim Dry: Dry = SqlDry(Sql, WrkDb)
-If IsEmptyAy(Dry) Then Exit Function
+If AyIsEmpty(Dry) Then Exit Function
 Dim O$()
 Dim Dr
 For Each Dr In Dry
@@ -275,7 +275,7 @@ Fx = Tst_ResPth & "ErNonIntQty.xls": AssertEqAy Exp, Er_NonIntQty
 End Sub
 
 Function IsEr() As Boolean
-IsEr = Not IsEmptyAy(ErMsgAy)
+IsEr = Not AyIsEmpty(ErMsgAy)
 End Function
 
 Private Sub MovToER()
@@ -600,4 +600,15 @@ WrkDb.Close
 Kill Fb
 Log FmtQQ("TmpFb[?] killed", Fb)
 X:
+End Sub
+Sub Tst()
+Er_DtaTy__Tst
+Er_DupSKU__Tst
+Er_EmptySKU__Tst
+Er_MissingCol__Tst
+Er_NonIntQty__Tst
+Er_Sheet1__Tst
+ErMsgAy__Tst
+ImpPermItmDrs__Tst
+WrkDb__Tst
 End Sub

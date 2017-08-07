@@ -419,3 +419,8 @@ Private Function zzFxYrRpt$(pY As Byte)
 zzFxYrRpt = fct.CurMdbDir & "Output\Duty prepay report - Year " & pY + 2000 & ".xls"
 End Function
 
+Sub Tst()
+CmdKE24Import__Tst
+CmdRpt__Tst
+CmdRpt_1CrtOup__Tst
+End Sub

@@ -6,7 +6,7 @@ Dim Av(): Av = Ap
 FmtQQ = FmtQQAv(QQStr, Av)
 End Function
 Function FmtQQAv$(QQStr$, Av)
-If IsEmptyAy(Av) Then FmtQQAv = QQStr: Exit Function
+If AyIsEmpty(Av) Then FmtQQAv = QQStr: Exit Function
 Dim O$
     Dim I
     O = QQStr

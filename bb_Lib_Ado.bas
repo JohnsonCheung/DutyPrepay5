@@ -102,7 +102,7 @@ Sub RunAql(Cn As ADODB.Connection, Sql)
 Cn.Execute Sql
 End Sub
 Sub RunAqlAy(Cn As ADODB.Connection, SqlAy$())
-If IsEmptyAy(SqlAy) Then Exit Sub
+If AyIsEmpty(SqlAy) Then Exit Sub
 Dim Sql
 For Each Sql In SqlAy
     RunAql Cn, Sql
@@ -168,3 +168,15 @@ Dim O As New Catalog
 Set O.ActiveConnection = FxCnn(Fx)
 Set FxCat = O
 End Function
+Sub Tst()
+AqlDrs__Tst
+FbAqlDrs__Tst
+FbCnn__Tst
+FxAqlDrs__Tst
+FxCat__Tst
+FxCnn__Tst
+FxWsFny__Tst
+FxWsNy__Tst
+RunFbAql__Tst
+RunFxAql__Tst
+End Sub
