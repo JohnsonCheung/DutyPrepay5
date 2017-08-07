@@ -11,10 +11,12 @@ XX:
 Set X = New Access.Application
 Set Acs = X
 End Function
-Sub BrwDb(D As Database)
-BrwFb D.Name
+Sub DbBrw(D As Database)
+Dim N$: N = D.Name
+D.Close
+FbBrw N
 End Sub
-Sub BrwFb(Fb$)
+Sub FbBrw(Fb$)
 Acs.OpenCurrentDatabase Fb
 Acs.Visible = True
 End Sub
