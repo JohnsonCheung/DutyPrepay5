@@ -31,13 +31,24 @@ IsWs = True
 Exit Function
 X:
 End Function
-Function NewWs(Optional WsNm$, Optional Vis As Boolean) As Worksheet
+Function LoNew(A As Worksheet, Optional LoNm$) As ListObject
+Dim O As ListObject: Set O = A.ListObjects.Add(xlSrcRange, WsDtaRg(A))
+If LoNm <> "" Then O.Name = LoNm
+Set LoNew = O
+End Function
+Function WsLasCno%(A As Worksheet)
+WsLasCno = WsLasCell(A).Column
+End Function
+Function WsLasRno%(A As Worksheet)
+WsLasRno = WsLasCell(A).Row
+End Function
+Function WsNew(Optional WsNm$, Optional Vis As Boolean) As Worksheet
 Dim Wb As Workbook
 Set Wb = NewWb
 DltWs Wb, "Sheet2"
 DltWs Wb, "Sheet3"
 If WsNm <> "" Then WbWs(Wb, "Sheet1").Name = WsNm
-Set NewWs = WbWs(Wb, 1)
+Set WsNew = WbWs(Wb, 1)
 If Vis Then WbVis Wb
 End Function
 Function WsRCRC(A As Worksheet, R1, C1, R2, C2) As Range

@@ -11,14 +11,20 @@ End Function
 Function RmvLasNChr$(S, Optional N% = 1)
 RmvLasNChr = Left(S, Len(S) - 1)
 End Function
-Function RmvFstNChr(S, Optional N% = 1)
+Function RmvLasChr$(S)
+RmvLasChr = RmvLasNChr(S)
+End Function
+Function RmvFstNChr$(S, Optional N% = 1)
 RmvFstNChr = Mid(S, N + 1)
 End Function
-Function RmvPFx$(S, Pfx)
+Function RmvFstChr$(S)
+RmvFstChr = RmvFstNChr(S)
+End Function
+Function RmvPfx$(S, Pfx)
 Dim L%: L = Len(Pfx)
 If Left(S, L) = Pfx Then
-    RmvPFx = Mid(S, L + 1)
+    RmvPfx = Mid(S, L + 1)
 Else
-    RmvPFx = S
+    RmvPfx = S
 End If
 End Function

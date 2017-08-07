@@ -16,7 +16,7 @@ For Each V In ObjColl
 Next
 CollObjAy = O
 End Function
-Sub IsStrAy__Tst()
+Private Sub IsStrAy__Tst()
 Dim A$()
 Dim B: B = A
 Dim C()

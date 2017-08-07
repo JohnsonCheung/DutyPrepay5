@@ -14,6 +14,19 @@ Type Ds
     DsNm As String
     DtAy() As Dt
 End Type
+Function FidxAy(Fny$(), FldNmLvs$) As Long()
+'Return Field Idx Ay
+FidxAy = AyIdxAy(Fny, SplitSpc(FldNmLvs))
+End Function
+Sub Fiy(Fny$(), FldNmLvs$, ParamArray OAp())
+'Fiy=Field Index Array
+Dim Ay$(): Ay = SplitSpc(FldNmLvs)
+Dim I&(): I = AyIdxAy(Fny, Ay)
+Dim J%
+For J = 0 To UB(I)
+    OAp(J) = I(J)
+Next
+End Sub
 Function DrsCol(Drs As Drs, ColNm$) As Variant()
 Dim ColIdx%: ColIdx = AyIdx(Drs.Fny, ColNm)
 DrsCol = DryCol(Drs.Dry, ColIdx)
@@ -43,43 +56,46 @@ Function DtAySz%(DtAy() As Dt)
 On Error Resume Next
 DtAySz = UBound(DtAy) + 1
 End Function
-Sub BrwDt(Dt As Dt)
-BrwAy DtLy(Dt)
+Sub DtBrw(Dt As Dt)
+AyBrw DtLy(Dt)
 End Sub
-Sub BrwDry(Dry)
-BrwAy DryLy(Dry)
+Sub DsBrw(A As Ds)
+AyBrw DsLy(A)
 End Sub
-Sub BrwDrs(Drs As Drs)
-BrwAy DrsLy(Drs)
+Sub DryBrw(Dry)
+AyBrw DryLy(Dry)
 End Sub
-Sub NewDs__Tst()
+Sub DrsBrw(Drs As Drs)
+AyBrw DrsLy(Drs)
+End Sub
+Private Sub DsNew__Tst()
 Dim Ds As Ds
-Ds = NewDs("Permit PermitD")
+Ds = DsNew("Permit PermitD")
 Stop
 End Sub
-Sub DmpDt(Dt As Dt)
-DmpAy DtLy(Dt)
+Sub DtDmp(Dt As Dt)
+AyDmp DtLy(Dt)
 End Sub
-Sub SelObjColl__Tst()
-BrwDrs SelObjColl(Flds("Permit"), "Name Type")
+Private Sub ObjCollSel__Tst()
+DrsBrw ObjCollSel(Flds("Permit"), "Name Type")
 Stop
 End Sub
-Function SelObjColl(ObjColl, PrpNy) As Drs
+Function ObjCollSel(ObjColl, PrpNy) As Drs
 Dim Ny$()
-    Ny = CvNy(PrpNy)
+    Ny = NyCv(PrpNy)
 Dim Dry()
     Dim Obj
     If Not IsEmptyColl(ObjColl) Then
         For Each Obj In ObjColl
-            Push Dry, SelObjPrp(Obj, Ny)
+            Push Dry, ObjSelPrp(Obj, Ny)
         Next
     End If
 Dim O As Drs
     O.Fny = Ny
     O.Dry = Dry
-SelObjColl = O
+ObjCollSel = O
 End Function
-Function SelObjPrp(Obj, PrpNy$()) As Variant()
+Function ObjSelPrp(Obj, PrpNy$()) As Variant()
 Dim U%
     U = UB(PrpNy)
 Dim O()
@@ -88,7 +104,35 @@ Dim O()
     For J = 0 To U
         O(J) = CallByName(Obj, PrpNy(J), VbGet)
     Next
-SelObjPrp = O
+ObjSelPrp = O
+End Function
+
+Function DsLy(A As Ds) As String()
+Dim O$()
+    Push O, "*Ds " & A.DsNm
+If Not IsEmptyDtAy(A.DtAy) Then
+    Dim J%
+    For J = 0 To UBound(A.DtAy)
+        PushAy O, DtLy(A.DtAy(J))
+    Next
+End If
+DsLy = O
+End Function
+
+Function DrsAddRowIdxCol(A As Drs) As Drs
+Dim O As Drs
+    O.Fny = A.Fny
+    AyIns O.Fny, "RowIdx"
+Dim ODry()
+    If Not IsEmptyAy(A.Dry) Then
+        Dim J&, Dr
+        For Each Dr In A.Dry
+            AyIns Dr, J: J = J + 1
+            Push ODry, Dr
+        Next
+    End If
+O.Dry = ODry
+DrsAddRowIdxCol = O
 End Function
 Function DtLy(Dt As Dt) As String()
 Dim Rs As Drs
@@ -99,12 +143,14 @@ Dim O$()
     PushAy O, DrsLy(Rs)
 DtLy = O
 End Function
-Function CvNy(Ny) As String()
-If IsStrAy(Ny) Then CvNy = Ny: Exit Function
-If Not IsStr(Ny) Then Err.Raise 1, , "CvNy: Given [Ny] must be StrAy or Str, but now [" & TypeName(Ny) & "]"
-CvNy = SplitLvs(Ny)
+
+Function NyCv(Ny) As String()
+If IsStrAy(Ny) Then NyCv = Ny: Exit Function
+If Not IsStr(Ny) Then Err.Raise 1, , "NyCv: Given [Ny] must be StrAy or Str, but now [" & TypeName(Ny) & "]"
+NyCv = SplitLvs(Ny)
 End Function
-Function SelAy(Ay, IdxAy&())
+
+Function AySel(Ay, IdxAy&())
 Dim U&
     U = UB(IdxAy)
 Dim O
@@ -114,27 +160,28 @@ Dim J&
 For J = 0 To U
     O(J) = Ay(IdxAy(J))
 Next
-SelAy = O
+AySel = O
 End Function
-Sub SelDrs__Tst()
-BrwDrs SelDrs(MdFunDrs, "MdNm FunNm Mdy Ty")
+Private Sub DrsSel__Tst()
+DrsBrw DrsSel(MdFunDrs, "MdNm FunNm Mdy Ty")
 End Sub
-Function SelDrs(A As Drs, Fny) As Drs
-Dim mFny$(): mFny = CvNy(Fny)
+Function DrsSel(A As Drs, Fny) As Drs
+Dim mFny$(): mFny = NyCv(Fny)
 Dim IdxAy&()
     IdxAy = AyIdxAy(A.Fny, mFny)
 Dim Dry()
     Dim Dr
     For Each Dr In A.Dry
-        Push Dry, SelAy(Dr, IdxAy)
+        Push Dry, AySel(Dr, IdxAy)
     Next
 Dim O As Drs
     O.Fny = mFny
     O.Dry = Dry
-SelDrs = O
+DrsSel = O
 End Function
-Function DrsLy(Drs As Drs) As String()
-If IsEmptyAy(Drs.Fny) Then Exit Function
+Function DrsLy(A As Drs) As String()
+If IsEmptyAy(A.Fny) Then Exit Function
+Dim Drs As Drs: Drs = DrsAddRowIdxCol(A)
 Dim Dry(): Dry = Drs.Dry
 Push Dry, Drs.Fny
 Dim Ay$(): Ay = DryLy(Dry)
@@ -146,6 +193,19 @@ Dim O$()
     Push O, Lin
 DrsLy = O
 End Function
+Function TnyDs(TblNmLvs_or_Tny, Optional DsNm$ = "Ds", Optional D As Database) As Ds
+Dim Tny$(): Tny = NyCv(TblNmLvs_or_Tny)
+Dim O As Ds
+    O.DsNm = DsNm
+    Dim J%
+    Dim U%: U = UB(Tny)
+    ReDim O.DtAy(U)
+    For J = 0 To UB(Tny)
+        O.DtAy(J) = TblDt(Tny(J), D)
+    Next
+TnyDs = O
+End Function
+
 Function TblDt(T, Optional D As Database) As Dt
 Dim O As Dt
 O.DtNm = T
@@ -153,7 +213,7 @@ O.Dry = RsDry(Tbl(T, D).OpenRecordset)
 O.Fny = TblFny(T, D)
 TblDt = O
 End Function
-Function NewDs(TblNmLvs$, Optional DsNm$ = "Ds", Optional D As Database) As Ds
+Function DsNew(TblNmLvs$, Optional DsNm$ = "Ds", Optional D As Database) As Ds
 Dim DtAy() As Dt
     Dim U%, Tny$()
     Tny = SplitLvs(TblNmLvs)
@@ -166,6 +226,6 @@ Dim DtAy() As Dt
 Dim O As Ds
     O.DsNm = DsNm
     O.DtAy = DtAy
-NewDs = O
+DsNew = O
 End Function
 

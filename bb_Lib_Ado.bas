@@ -39,22 +39,22 @@ For Each F In AFlds
 Next
 AFldsFny = O
 End Function
-Sub FxAqlDrs__Tst()
+Private Sub FxAqlDrs__Tst()
 Const Fx$ = "N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls"
 Const Sql$ = "Select * from [Sheet1$]"
-BrwDrs FxAqlDrs(Fx, Sql)
+DrsBrw FxAqlDrs(Fx, Sql)
 End Sub
-Sub FbAqlDrs__Tst()
+Private Sub FbAqlDrs__Tst()
 Const Fb$ = "N:\SapAccessReports\DutyPrepay5\DutyPrepay5.accdb"
 Const Sql$ = "Select * from Permit"
-BrwDrs FbAqlDrs(Fb, Sql)
+DrsBrw FbAqlDrs(Fb, Sql)
 End Sub
-Sub RunFbAql__Tst()
+Private Sub RunFbAql__Tst()
 Const Fb$ = "N:\SapAccessReports\DutyPrepay5\tmp.accdb"
 Const Sql$ = "Select * into [#a] from Permit"
 RunFbAql Fb, Sql
 End Sub
-Sub RunFxAql__Tst()
+Private Sub RunFxAql__Tst()
 Const Fx$ = "N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls"
 Const Sql$ = "Select * into [Sheet21] from [Sheet1$]"
 RunFxAql Fx, Sql
@@ -92,11 +92,11 @@ Dim O As New ADODB.Recordset
 O.Open Sql, Cn
 Set AqlRs = O
 End Function
-Sub AqlDrs__Tst()
+Private Sub AqlDrs__Tst()
 Dim Cn As ADODB.Connection: Set Cn = FxCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Dim Sql$: Sql = "Select * from [Sheet1$]"
 Dim Drs As Drs: Drs = AqlDrs(Cn, Sql)
-BrwDrs Drs
+DrsBrw Drs
 End Sub
 Sub RunAql(Cn As ADODB.Connection, Sql)
 Cn.Execute Sql
@@ -108,12 +108,12 @@ For Each Sql In SqlAy
     RunAql Cn, Sql
 Next
 End Sub
-Sub FxCnn__Tst()
+Private Sub FxCnn__Tst()
 Dim A As ADODB.Connection
 Set A = FxCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Stop
 End Sub
-Sub FbCnn__Tst()
+Private Sub FbCnn__Tst()
 Dim A As ADODB.Connection
 Set A = FbCnn("N:\SapAccessReports\DutyPrepay5\DutyPrepay5_data.mdb")
 Stop
@@ -134,13 +134,13 @@ O.Open
 Set FbCnn = O
 End Function
 
-Sub FxCat__Tst()
+Private Sub FxCat__Tst()
 Dim A As ADOX.Catalog
 Set A = FxCat("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Stop
 End Sub
-Sub FxWsNy__Tst()
-DmpAy FxWsNy("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
+Private Sub FxWsNy__Tst()
+AyDmp FxWsNy("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 End Sub
 Function FxWsNy(Fx) As String()
 Dim T As ADOX.Table
@@ -150,8 +150,8 @@ For Each T In FxCat(Fx).Tables
 Next
 FxWsNy = O
 End Function
-Sub FxWsFny__Tst()
-DmpAy FxWsFny("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls", "Sheet1")
+Private Sub FxWsFny__Tst()
+AyDmp FxWsFny("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls", "Sheet1")
 End Sub
 Function FxWsFny(Fx, WsNm$) As String()
 Dim Cat As ADOX.Catalog: Set Cat = FxCat(Fx)

@@ -7,7 +7,7 @@ Sub CmdGenFxPermit_Tst()
 CmdGenFxPermit 10
 End Sub
 Sub CmdOpnPermitImpPth()
-BrwPth PermitImpPth
+PthBrw PermitImpPth
 End Sub
 Sub CmdBldOpn(pY As Byte)
 'Aim: Build Year Opening (table YrOd) by pY
@@ -56,7 +56,7 @@ Private Sub CmdBldOpn_3YrO(pY As Byte)
 DoCmd.RunSql Fmt_Str("SELECT Yr, Count(1) AS NSku, Sum(x.OpnQty) AS OpnQty, Sum(x.OpnTot) AS OpnTot INTO [#Tot] FROM YrOD WHERE Yr={0} GROUP BY Yr;", pY)
 DoCmd.RunSql "UPDATE YrO x INNER JOIN [#Tot] a ON a.Yr = x.Yr SET x.NSku=a.NSku, x.OpnQty = a.OpnQty, x.OpnTot = a.OpnTot, x.DteUpd = Now();"
 End Sub
-Sub CmdKE24Import__Tst()
+Private Sub CmdKE24Import__Tst()
 CmdKE24Import 10, 1
 End Sub
 Sub CmdKE24Import(pY As Byte, pM As Byte)
@@ -137,7 +137,7 @@ DoCmd.RunSql "Delete From KE24 where " & mCndn
 DoCmd.RunSql "Update KE24H set NCopaOrd=0,NCopaLin=0,NCus=0,NSKU=0,Qty=0,Tot=0,DteUpd=Now() where " & mCndn
 Done
 End Sub
-Sub CmdRpt__Tst()
+Private Sub CmdRpt__Tst()
 CmdRpt 10
 End Sub
 Sub CmdRpt(pY As Byte)

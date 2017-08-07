@@ -1,6 +1,14 @@
 Attribute VB_Name = "bb_Lib_Dta_Dry"
 Option Compare Database
 Option Explicit
+Private M_MaxColWdt%
+Property Get MaxColWdt%()
+If M_MaxColWdt = 0 Then M_MaxColWdt = 100
+MaxColWdt = M_MaxColWdt
+End Property
+Property Let MaxColWdt(V%)
+If 1 <= V And V <= 100 Then M_MaxColWdt = V
+End Property
 Function DryLy(Dry) As String()
 If IsEmpty(Dry) Then Exit Function
 Dim W%(): W = DryWdtAy(Dry)
@@ -33,7 +41,7 @@ Function DryStrCol(Dry, Optional ColIdx% = 0) As String()
 DryStrCol = AySy(DryCol(Dry, ColIdx))
 End Function
 Sub DmpDry(Dry)
-DmpAy DryLy(Dry)
+AyDmp DryLy(Dry)
 End Sub
 Private Function DryWdtAy(Dry) As Integer()
 If IsEmptyAy(Dry) Then Exit Function
@@ -49,29 +57,50 @@ Dim O%()
                 If IsNull(V) Then
                     L = 0
                 Else
-                    L = Len(V)
+                    If IsArray(V) Then
+                        If IsEmptyAy(V) Then
+                            L = 0
+                        Else
+                            L = Len(V(0))
+                        End If
+                    Else
+                        L = Len(V)
+                    End If
+                    
                 End If
                 If L > O(J) Then O(J) = L
                 J = J + 1
             Next
         End If
     Next
+Dim M%
+M = MaxColWdt
+For J = 0 To UB(O)
+    If O(J) > M Then O(J) = M
+Next
 DryWdtAy = O
 End Function
 Private Function DrLin$(Dr, Wdt%())
 Dim UDr%
     UDr = UB(Dr)
 Dim O$()
-    Dim U%
-    U = UB(Dr)
-    ReDim O(U)
+    Dim U1%: U1 = UB(Wdt)
+    ReDim O(U1)
     Dim W, V
     Dim J%
     J = 0
     For Each W In Wdt
         V = ""
         If UDr >= J Then V = Dr(J)
-        O(J) = AlignL(V, W)
+        If IsArray(V) Then
+            If IsEmptyAy(V) Then
+                O(J) = AlignL("", W)
+            Else
+                O(J) = AlignL(FmtQQ("Ay?:", UB(V)) & V(0), W)
+            End If
+        Else
+            O(J) = AlignL(V, W)
+        End If
         J = J + 1
     Next
 DrLin = Quote(Join(O, " | "), "| * |")

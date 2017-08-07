@@ -27,3 +27,6 @@ R = UBound(Sq, 1)
 C = UBound(Sq, 2)
 Set ReSzRg = RgRCRC(Cell, 1, 1, R, C)
 End Function
+Function RgWs(A As Range) As Worksheet
+Set RgWs = A.Parent
+End Function

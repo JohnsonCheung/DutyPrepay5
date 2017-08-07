@@ -1,7 +1,7 @@
 Attribute VB_Name = "bb_Lib_Dta_Sq"
 Option Compare Database
 Option Explicit
-Function SelSq(Sq, Optional MapStr$) As Drs
+Function SqSel(Sq, Optional MapStr$) As Drs
 Dim Fny$(), Fm$() 'MapStr
     If MapStr = "" Then
         Fny = AyStrAy(SqDr(Sq, 1))
@@ -38,8 +38,8 @@ Dim Dry() 'Sq,SqIdxAy
         Next
         Push Dry, Dr
     Next
-SelSq.Dry = Dry
-SelSq.Fny = Fny
+SqSel.Dry = Dry
+SqSel.Fny = Fny
 End Function
 Function SqDr(Sq, R&, Optional CnoAy) As Variant()
 Dim mCnoAy%()

@@ -10,7 +10,10 @@ With SqlRs(Sql, D)
     .Close
 End With
 End Function
-Function SqlRs(Sql$, Optional D As Database) As Dao.Recordset
+Function SqlSy(Sql$, Optional D As Database) As String()
+SqlSy = RsSy(DftDb(D).OpenRecordset(Sql))
+End Function
+Function SqlRs(Sql$, Optional D As Database) As DAO.Recordset
 Set SqlRs = DftDb(D).OpenRecordset(Sql)
 End Function
 Function SqlDrs(Sql$, Optional D As Database) As Drs

@@ -20,6 +20,5 @@ Dim O As Map
     O.Sy2 = Ay2
 BrkMapStr = O
 End Function
-Sub BrkMapStr__Tst()
-
+Private Sub BrkMapStr__Tst()
 End Sub

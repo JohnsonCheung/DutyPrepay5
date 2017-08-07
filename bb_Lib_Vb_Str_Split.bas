@@ -7,3 +7,7 @@ End Function
 Function SplitSpc(S) As String()
 SplitSpc = Split(S, " ")
 End Function
+Function SplitCrLf(S) As String()
+SplitCrLf = Split(S, vbCrLf)
+End Function
+

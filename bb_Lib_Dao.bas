@@ -1,10 +1,10 @@
 Attribute VB_Name = "bb_Lib_Dao"
 Option Compare Database
 Option Explicit
-Function FldsDr(Flds As Dao.Fields) As Variant()
+Function FldsDr(Flds As DAO.Fields) As Variant()
 Dim O()
 ReDim O(Flds.Count - 1)
-Dim J%, F As Dao.Field
+Dim J%, F As DAO.Field
 For Each F In Flds
     O(J) = F.Value
     J = J + 1
@@ -12,7 +12,7 @@ Next
 FldsDr = O
 End Function
 
-Function HasFld_Tbl(T As Dao.TableDef, F) As Boolean
+Function HasFld_Tbl(T As DAO.TableDef, F) As Boolean
 HasFld_Tbl = HasFld_Flds(T.Fields, F)
 End Function
 
@@ -40,35 +40,37 @@ If IsNothing(X) Then Set X = CurrentDb
 Set CurDb = X
 End Function
 
-Function Tbl(T, Optional D As Database) As Dao.TableDef
+Function Tbl(T, Optional D As Database) As DAO.TableDef
 Set Tbl = DftDb(D).TableDefs(T)
 End Function
 
-Function Fld(T, F, Optional D As Database) As Dao.Field
+Function Fld(T, F, Optional D As Database) As DAO.Field
 Set Fld = Tbl(T, D).Fields(F)
 End Function
-Function FldsFny(Flds As Dao.Fields) As String()
+Function FldsFny(Flds As DAO.Fields) As String()
 Dim O$()
-Dim F As Dao.Field
+Dim F As DAO.Field
 For Each F In Flds
     Push O, F.Name
 Next
 FldsFny = O
 End Function
+Sub BrwTbl(T, Optional D As DAO.Database)
+DtBrw TblDt(T, D)
+End Sub
+Sub BrwSql(Sql$, Optional D As DAO.Database)
+DrsBrw SqlDrs(Sql, D)
+End Sub
 Function Tny(Optional A As Database) As String()
-Dim O$(), T As TableDef
-For Each T In DftDb(A).TableDefs
-    Push O, T.Name
-Next
-Tny = O
+Tny = SqlSy("Select Name from MSysObjects where Type in (1,6) and Left(Name,4)<>'MSYS'", A)
 End Function
 Function TmpDb() As Database
-Set TmpDb = DBEngine.CreateDatabase(TmpFb, Dao.LanguageConstants.dbLangGeneral)
+Set TmpDb = DBEngine.CreateDatabase(TmpFb, DAO.LanguageConstants.dbLangGeneral)
 End Function
-Function TblFlds(T, Optional D As Database) As Dao.Fields
+Function TblFlds(T, Optional D As Database) As DAO.Fields
 Set TblFlds = Tbl(T, D).Fields
 End Function
-Function TblFld(T, F, Optional D As Database) As Dao.Field
+Function TblFld(T, F, Optional D As Database) As DAO.Field
 Set TblFld = Tbl(T, D).Fields(F)
 End Function
 Sub DrpTbl(T, Optional D As Database)
@@ -84,13 +86,13 @@ For Each V In O
 Next
 TblStruLin = T & " = " & JnSpc(O)
 End Function
-Function DaoTyStr$(T As Dao.DataTypeEnum)
+Function DaoTyStr$(T As DAO.DataTypeEnum)
 Dim O$
 Select Case T
-Case Dao.DataTypeEnum.dbBoolean: O = "Boolean"
-Case Dao.DataTypeEnum.dbDouble: O = "Double"
-Case Dao.DataTypeEnum.dbText: O = "Text"
-Case Dao.DataTypeEnum.dbDate: O = "Date"
+Case DAO.DataTypeEnum.dbBoolean: O = "Boolean"
+Case DAO.DataTypeEnum.dbDouble: O = "Double"
+Case DAO.DataTypeEnum.dbText: O = "Text"
+Case DAO.DataTypeEnum.dbDate: O = "Date"
 Case Else: Stop
 End Select
 DaoTyStr = O
@@ -98,22 +100,22 @@ End Function
 Function TblFny(T, Optional D As Database) As String()
 TblFny = FldsFny(Tbl(T, D).Fields)
 End Function
-Function HasFld_Flds(Flds As Dao.Fields, F) As Boolean
-Dim I As Dao.Field
+Function HasFld_Flds(Flds As DAO.Fields, F) As Boolean
+Dim I As DAO.Field
 For Each I In Flds
     If I.Name = F Then HasFld_Flds = True: Exit Function
 Next
 End Function
-Sub AddFld(T, F, Ty As Dao.DataTypeEnum, Optional D As Dao.Database)
-Dim mFld As New Dao.Field
+Sub AddFld(T, F, Ty As DAO.DataTypeEnum, Optional D As DAO.Database)
+Dim mFld As New DAO.Field
 mFld.Name = F
 mFld.Type = Ty
 Flds(T, D).Append mFld
 End Sub
-Property Get Flds(T, Optional D As Dao.Database) As Dao.Fields
+Property Get Flds(T, Optional D As DAO.Database) As DAO.Fields
 Set Flds = Tbl(T, D).Fields
 End Property
-Sub AssertT(T, Optional D As Dao.Database)
+Sub AssertT(T, Optional D As DAO.Database)
 On Error GoTo X:
 Dim A$
 A = D.TableDefs(T).Name

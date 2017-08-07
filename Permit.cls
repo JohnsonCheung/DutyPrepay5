@@ -10,21 +10,81 @@ Attribute VB_Exposed = False
 Option Compare Database
 Option Explicit
 Private Fx
-Private ImpTim$
-Private ImpDte As Date
-Sub Import(P_Fx)
+Private ImpTim As Date
+Private Const Tst_OkFn = "Stock Card.xlsx"
+Private Const Tst_ErFn = "Error.xlsx"
+
+Private Function Tst_OkFx$()
+Tst_OkFx = Tst_ResPth & Tst_OkFn
+End Function
+
+Private Function Tst_ErFfn$()
+Tst_ErFfn = Tst_ResPth & Tst_ErFn
+End Function
+
+Private Sub Class_Initialize()
+ImpTim = Now
+End Sub
+
+Sub TstOk()
+Fx = Tst_OkFx
+WrkDb__Tst
+End Sub
+Sub TstEr()
+'Er_MissingCol__Tst
+Er_EmptySKU__Tst
+'Er_NonIntQty__Tst
+'Er_DtaTy__Tst
+'Er_Sheet1__Tst
+End Sub
+Private Function Tst_FxAy() As String()
+Tst_FxAy = PthFfnAy(PermitImpPth)
+End Function
+Private Sub Tst_RstOkFx()
+FilCpyToPth Tst_OkFx, PermitImpPth
+End Sub
+Private Function Tst_ResPth$()
+Tst_ResPth = PjSrcPth & "TstRes\"
+End Function
+
+Private Sub WrkDb__Tst()
+Dim D As Database: Set D = WrkDb
+Dim Fb$: Fb = D.Name
+Dim mTny$(): mTny = Tny(D)
+Debug.Assert Sz(mTny) = 4
+AssertEqAy SplitSpc("Permit PermitD Imp Imp1"), mTny
+End Sub
+
+Sub Impport(P_Fx)
 Fx = P_Fx
-Stop
 If IsEr Then
     WrtER
     MovToER
     Log MsgEr
 Else
-    RunSqlAy InsTbl_Permit_and_PermitD_SqlAy, WrkDb
+    Dim A As Boolean
+    A = CallByName(Me, "IsEr", VbMethod)
+    InsTbl_Permit_and_PermitD
     RmvWsEr
     MovToOK
     Log MsgOK
 End If
+RmvErPthIfEmpty
+End Sub
+Private Sub InsTbl_Permit_and_PermitD()
+RunSqlAy InsTbl_Permit_and_PermitD_SqlAy, WrkDb
+End Sub
+Private Sub RstTstFfn()
+If HasFil(PermitImpPth) Then Exit Sub
+FileCopy TstFfn, PermitImpPth & FfnFn(TstFfn)
+End Sub
+
+Private Function TstFfn$()
+TstFfn = PermitImpPth & "Tst\Stock card.xlsx"
+End Function
+
+Private Sub RmvErPthIfEmpty()
+RmvPthIfEmpty ErPth & "..\"
 End Sub
 
 Private Function HasErWs() As Boolean
@@ -40,26 +100,23 @@ Wb.Close True
 End Sub
 
 Private Sub ErMsgAy__Tst()
-DmpAy ErMsgAy
+AyDmp ErMsgAy
 End Sub
 
 Private Function ErMsgAy() As String()
-Static Z As Boolean, O$()
-If Not Z Then
-    Z = True
-    PushAy O, Er_MissingColumn: If Not IsEmptyAy(O) Then ErMsgAy = O: Exit Function
-    PushAy O, Er_InvalidDtaTy:  If Not IsEmptyAy(O) Then ErMsgAy = O: Exit Function
-    PushAy O, Er_DupSKU
-    PushAy O, Er_ZerQty
-    PushAy O, Er_NonIntQty
-    PushAy O, Er_ZerAmt
-End If
+Dim O$()
+PushAy O, Er_MissingCol: If Not IsEmptyAy(O) Then ErMsgAy = O: Exit Function
+PushAy O, Er_DtaTy:  If Not IsEmptyAy(O) Then ErMsgAy = O: Exit Function
+PushAy O, Er_DupSKU
+PushAy O, Er_ZerQty
+PushAy O, Er_NonIntQty
+PushAy O, Er_ZerAmt
 ErMsgAy = O
 End Function
 
 Private Function Er_ZerAmt() As String()
 Const S$ = "Select PermitNo,Sku from Imp1 where Amt<=0"
-Dim Dry: Dry = SqlDry(S, WrkDb1)
+Dim Dry: Dry = SqlDry(S, WrkDb)
 If IsEmptyAy(Dry) Then Exit Function
 Dim O$()
 Dim Dr
@@ -69,37 +126,28 @@ Next
 Er_ZerAmt = O
 End Function
 
-Private Function WrkDb1() As Database
-Static X As Database
-If IsNothing(X) Then
-    Set X = WrkDb
-    RunSql "Select " & _
-    "SKU," & _
-    "[Material Description] As Des," & _
-    "[Order Qty#]           As Qty," & _
-    "[Permit Number]        As PermitNo," & _
-    "[Batch Number]         As BchNo," & _
-    "[Duty Paid Amount]     As Amt" & _
-    " Into Imp1 from Imp", X
-End If
-Set WrkDb1 = X
-End Function
-
 Private Function WrkDb() As Database
-Static X As Database
-If IsNothing(X) Then
-    Set X = TmpDb
-    LnkWs Fx, "Sheet1", "Imp", X
+Static O As Database
+If IsNothing(O) Then
+    Set O = TmpDb
+    LnkFx Fx, "Sheet1", "Imp", O
+    LnkFb DtaFb, "Permit", , O
+    LnkFb DtaFb, "PermitD", , O
+    RunSql "Select " & _
+        "SKU," & _
+        "[Material Description] As Des," & _
+        "[Order Qty#]           As Qty," & _
+        "[Permit Number]        As PermitNo," & _
+        "[Batch Number]         As BchNo," & _
+        "[Duty Paid Amount]     As Amt" & _
+        " Into Imp1 from Imp", O
 End If
-Set WrkDb = X
+Set WrkDb = O
 End Function
 
-Sub Er_MissingColumn__Tst()
-DmpAy Er_MissingColumn
-End Sub
 
-Private Function Er_MissingColumn() As String()
-Dim Fny$(): Fny = TblFny("Imp", WrkDb)
+Private Function Er_MissingCol() As String()
+Dim Fny$(): Fny = FxWsFny(Fx, "Sheet1")
 Dim Miss$()
     Dim F
     For Each F In Sy("Material Description", "Order Qty#", "Permit Number", "Batch Number", "Duty Paid Amount")
@@ -110,20 +158,34 @@ Dim Miss$()
 If IsEmptyAy(Miss) Then Exit Function
 Dim O$()
     Push O, "Missing column: " & JnComma(QuoteAy(Miss, "[]"))
-Er_MissingColumn = O
+Er_MissingCol = O
 End Function
 
-Private Function Er_InvalidDtaTyMsg$(F$, ExpT As Dao.DataTypeEnum)
-Dim T As Dao.DataTypeEnum: T = TblFld("Imp", F, WrkDb).Type
-If T <> ExpT Then Er_InvalidDtaTyMsg = FmtQQ("Column[?] should be [?], but now it is[?]", F, DaoTyStr(T), DaoTyStr(ExpT))
+Private Function Er_DtaTyMsg$(F$, ExpT As DAO.DataTypeEnum)
+Dim T As DAO.DataTypeEnum: T = TblFld("Imp", F, WrkDb).Type
+If T <> ExpT Then Er_DtaTyMsg = FmtQQ("Column[?] should be [?], but now it is[?]", F, DaoTyStr(ExpT), DaoTyStr(T))
 End Function
 
-Private Sub Er_InvalidDtaTy__Tst()
-DmpAy Er_InvalidDtaTy
+Private Sub Er_DtaTy__Tst()
+Dim Exp1$(), Exp2$(), Exp3$()
+Push Exp1, "Column[SKU] should be [Text], but now it is[Double]"
+Fx = Tst_ResPth & "ErDtaTy_Fx1.xls": AssertEqAy Exp1, Er_DtaTy
+End Sub
+
+Private Sub Er_MissingCol__Tst()
+Dim Exp$()
+Push Exp, "Missing column: [Material Description],[Order Qty#],[Permit Number],[Batch Number],[Duty Paid Amount]"
+Fx = Tst_ResPth & "ErMissingCol.xls": AssertEqAy Exp, Er_MissingCol
 End Sub
 
 Private Sub Er_Sheet1__Tst()
-DmpAy Er_Sheet1
+Dim Exp1$(), Exp2$(), Exp3$()
+Push Exp1, "The workbook should have 1 or 2 worksheets, but now it is [3] worksheets: [Sheet1] [Sheet2] [Sheet3]"
+Push Exp2, "Worksheet[Sheet1] not found"
+Push Exp3, "The 2 worksheet name should be [Sheet1] and [Error], but now they are [Sheet1] and [Sheet2]"
+Fx = Tst_ResPth & "ErSheet1_Fx1.xls": AssertEqAy Exp1, Er_Sheet1
+Fx = Tst_ResPth & "ErSheet1_Fx2.xls": AssertEqAy Exp2, Er_Sheet1
+Fx = Tst_ResPth & "ErSheet1_Fx3.xls": AssertEqAy Exp3, Er_Sheet1
 End Sub
 
 Private Function Er_Sheet1() As String()
@@ -133,13 +195,13 @@ Dim WsNy$(): WsNy = FxWsNy(Fx)
 Dim NWs%: NWs = Sz(WsNy)
 Dim O$()
     If NWs <> 1 And NWs <> 2 Then
-        Push O, FmtQQ("Excel should one or two worksheets, but now it is [?] worksheets", NWs)
+        Push O, FmtQQ("The workbook should have 1 or 2 worksheets, but now it is [?] worksheets: " & JnSpc(QuoteAy(WsNy, "[]")), NWs)
         Er_Sheet1 = O
         Exit Function
     End If
     If NWs = 1 Then
         If WsNy(0) <> "Sheet1" Then
-            Push O, "Worksheet name [Sheet1] not found"
+            Push O, "Worksheet[Sheet1] not found"
         End If
     End If
     If NWs = 2 Then
@@ -150,60 +212,69 @@ Dim O$()
 Er_Sheet1 = O
 End Function
 
-Private Function Er_InvalidDtaTy() As String()
+Private Function Er_DtaTy() As String()
 Dim O$()
-PushNonEmpty O, Er_InvalidDtaTyMsg("Material Description", dbText)
-PushNonEmpty O, Er_InvalidDtaTyMsg("Order Qty#", dbDouble)
-PushNonEmpty O, Er_InvalidDtaTyMsg("Permit Number", dbText)
-PushNonEmpty O, Er_InvalidDtaTyMsg("Batch Number", dbText)
-PushNonEmpty O, Er_InvalidDtaTyMsg("Duty Paid Amount", dbDouble)
-Er_InvalidDtaTy = O
+PushNonEmpty O, Er_DtaTyMsg("SKU", dbText)
+PushNonEmpty O, Er_DtaTyMsg("Material Description", dbText)
+PushNonEmpty O, Er_DtaTyMsg("Order Qty#", dbDouble)
+PushNonEmpty O, Er_DtaTyMsg("Permit Number", dbText)
+PushNonEmpty O, Er_DtaTyMsg("Batch Number", dbText)
+PushNonEmpty O, Er_DtaTyMsg("Duty Paid Amount", dbDouble)
+Er_DtaTy = O
 End Function
 
 Private Sub Er_DupSKU__Tst()
-DmpAy Er_DupSKU
+AyDmp Er_DupSKU()
 End Sub
 
 Private Function Er_DupSKU() As String()
-Dim Dry(): Dry = SqlDry("Select Distinct PermitNo,SKU,Count(*) as Cnt from Imp1 Group By PermitNo,SKU Having Count(*)>1", WrkDb1)
-Dim O$()
-    Dim Dr
-    If Not IsEmptyAy(Dry) Then
-        Dim PermitNo$, Sku$, Cnt%
-        For Each Dr In Dry
-            PermitNo = Dr(0)
-            Sku = Dr(1)
-            Cnt = Dr(2)
-            Push O, FmtQQ("There are [?] records with Same PermitNo[?] and SKU[?]", Cnt, PermitNo, Sku)
-        Next
-    End If
-Er_DupSKU = O
+Const S$ = "Select Distinct PermitNo,SKU,Count(*) as Cnt from Imp1 Group By PermitNo,SKU Having Count(*)>1"
+Const Q$ = "There are [?] records with Same PermitNo[?] and SKU[?]"
+Er_DupSKU = Er__MsgAy(S, Q)
 End Function
 
 Private Function Er_ZerQty() As String()
 Const S$ = "Select PermitNo,Sku from Imp1 where Qty<=0"
-Dim Dry: Dry = SqlDry(S, WrkDb1)
-If IsEmptyAy(Dry) Then Exit Function
-Dim O$()
-Dim Dr
-For Each Dr In Dry
-    Push O, FmtQQ("PermitNo[?] Sku[?] has zero or negative quantity")
-Next
-Er_ZerQty = O
+Const Q$ = "PermitNo[?] Sku[?] has zero or negative quantity"
+Er_ZerQty = Er__MsgAy(S, Q)
 End Function
 
 Private Function Er_NonIntQty() As String()
-Const S$ = "Select PermitNo,Sku from Imp1 where Val(Qty)<>Qty"
-Dim Dry: Dry = SqlDry(S, WrkDb1)
+Const S$ = "Select PermitNo,Sku,Qty from Imp1 where Int(Qty)<>Qty"
+Const Q$ = "PermitNo[?] Sku[?] has non-integer quantity[?]"
+Er_NonIntQty = Er__MsgAy(S, Q)
+End Function
+
+Private Function Er__MsgAy(Sql$, QQStr$) As String()
+Dim Dry: Dry = SqlDry(Sql, WrkDb)
 If IsEmptyAy(Dry) Then Exit Function
 Dim O$()
 Dim Dr
 For Each Dr In Dry
-    Push O, FmtQQ("PermitNo[?] Sku[?] has non-integer quantity")
+    Push O, FmtQQAv(QQStr, Dr)
 Next
+Er__MsgAy = O
 End Function
 
-Private Function IsEr() As Boolean
+Private Function Er_EmptySKU() As String()
+Const S$ = "Select PermitNo,Qty from Imp1 where Trim(IIf(IsNull(SKU),'',SKU))=''"
+Const Q$ = "PermitNo[?] Qty[?] has Blank SKU"
+Er_EmptySKU = Er__MsgAy(S, Q)
+End Function
+
+Private Sub Er_EmptySKU__Tst()
+Dim Exp$()
+Push Exp, "PermitNo[Permit1] Qty[1] has Blank SKU"
+Fx = Tst_ResPth & "ErEmptySKU.xls": AssertEqAy Exp, Er_EmptySKU
+End Sub
+
+Private Sub Er_NonIntQty__Tst()
+Dim Exp$()
+Push Exp, "PermitNo[Permit1] Sku[Sku-1] has non-integer quantity[1.1]"
+Fx = Tst_ResPth & "ErNonIntQty.xls": AssertEqAy Exp, Er_NonIntQty
+End Sub
+
+Function IsEr() As Boolean
 IsEr = Not IsEmptyAy(ErMsgAy)
 End Function
 
@@ -216,27 +287,31 @@ Fso.MoveFile Fx, OkFfn
 End Sub
 
 Private Function OkPth$()
-Dim O$: O = PermitImpPth & "OK\"
-EnsPth O
-OkPth = O
+Dim O$: O = PermitImpPth & "OK\": PthEns O
+OkPth = MkPth(O)
+End Function
+
+Private Function MkPth$(P)
+Dim O$: O = P & Format(ImpTim, "YYYYMMDD_HHMMSS") & "\"
+PthEns O
+MkPth = O
 End Function
 
 Private Function ErPth$()
-Dim O$: O = PermitImpPth & "ER\"
-EnsPth O
-ErPth = O
+Dim O$: O = PermitImpPth & "ER\": PthEns O
+ErPth = MkPth(O)
+End Function
+
+Private Function FxFn$()
+FxFn = FfnFn(Fx)
 End Function
 
 Private Function OkFfn$()
-Dim O$: O = OkPth & ImpTim & "\"
-EnsPth O
-OkFfn = O & Fx
+OkFfn = OkPth & FxFn
 End Function
 
 Private Function ErFfn$()
-Dim O$: O = ErPth & ImpTim & "\"
-EnsPth O
-ErFfn = O & Fx
+ErFfn = ErPth & FxFn
 End Function
 
 Private Sub WrtER()
@@ -244,14 +319,52 @@ Dim Wb As Workbook: Set Wb = ImpPermWb
 DltWs Wb, "Error"
 Dim Ws As Worksheet: Set Ws = Wb.Sheets.Add
 Ws.Name = "Error"
-PutAy WsA1(Ws), ErMsgAy
+AyPut ErMsgAy, WsA1(Ws)
 Wb.Close True
 End Sub
+Private Sub ImpPermItmDrs__Tst()
+Dim Exp$()
+Dim Act$()
+Fx = Tst_ResPth & "Stock Card.xls": AssertEqAy Exp, Act
+End Sub
+Private Function ImpPermItmDrs() As Drs
+'Oup: Drs: Permit SKU SeqNo Qty BchNo Amt
+'Inp: Imp1: SKU Qty PermitNo BchNo Amt
+Dim Dry(): Dry = SqlDry("Select SKU,Qty,PermitNo,BchNo,Amt from Imp1", WrkDb)
+Dim ODry()
+    Dim ODr()
+    Dim Sku$, Qty@, PermitNo$, BchNo$, Amt#, SeqNo%
+    Dim Dr, LasPermitNo
+    For Each Dr In Dry
+        AyAsg Dr, Sku, Qty, PermitNo, BchNo, Amt
+        If LasPermitNo <> PermitNo Then
+            LasPermitNo = PermitNo
+            SeqNo = 0
+        End If
+        Erase ODr
+        Push ODr, DicOfId_ByPermitNo(PermitNo)
+        Push ODr, Sku
+        Push ODr, SeqNo: SeqNo = SeqNo + 1
+        Push ODr, Qty
+        Push ODr, BchNo
+        Push ODr, Amt
+        Push ODry, ODr
+    Next
+Dim O As Drs
+    O.Fny = SplitSpc("Permit SKU SeqNo Qty BchNo Amt")
+    O.Dry = ODry
+ImpPermItmDrs = O
+'Inp:
+'|---------|-----------------------------------------|-------|----------------|------------|-----|
+'| SKU     | Des                                     | Qty   | PermitNo       | BchNo      | Amt |
+'|---------|-----------------------------------------|-------|----------------|------------|-----|
+'| 1056951 | HY-VSOPP40-F0,2L--C24-HNG DP-M12        | 1680  | E2016006258RLA | 2016006258 | $   |
+End Function
 
 Private Function ImpPermHdrDrs() As Drs
-'Summing following in WrkDb1->Imp1
+'Summing following in WrkDb->Imp1
 Const Sql$ = "Select Distinct PermitNo,Count(*) as NSKU,Sum(x.Qty) as Qty,Sum(x.Amt) as Amt from Imp1 x Group By PermitNo"
-ImpPermHdrDrs = SqlDrs(Sql, WrkDb1)
+ImpPermHdrDrs = SqlDrs(Sql, WrkDb)
 'PermitNo NSKU Qty Amt
 '|---------|-----------------------------------------|-------|----------------|------------|-----|
 '| SKU     | Des                                     | Qty   | PermitNo       | BchNo      | Amt |
@@ -278,38 +391,73 @@ ImpPermHdrDrs = SqlDrs(Sql, WrkDb1)
 '| 1061270 | HY-PARAD40-0,7L-LGB-C3-HNG DP M13       | 180   | E2016021483RLA | 2016021483 |     |
 '|---------|-----------------------------------------|-------|----------------|------------|-----|
 End Function
-Function Ins_TblPermitD_SqlAy() As String()
 
-End Function
-Function Ins_TblPermit_SqlAy() As String()
+Private Function Ins_TblPermitD_SqlAy() As String()
+'PermitD = * Permit Sku SeqNo Qty BchNo Rate Amt DteCrt
 Dim ODry()
     Dim M As PermitDftVal: M = PermitDftVal
     Dim Dr
     Dim ODr()
     Dim Dry()
+    Dim Id&: Id = TblNxtId("PermitD")
+    Dim Permit&, Sku$, SeqNo%, Qty&, BchNo$, Amt@
+    For Each Dr In ImpPermItmDrs.Dry 'Permit SKU SeqNo Qty BchNo Amt
+                                     '0      1   2     3   4     5
+        AyAsg Dr, Permit, Sku, SeqNo, Qty, BchNo, Amt
+        Erase ODr
+        Push ODr, Id: Id = Id + 1
+        Push ODr, Permit
+        Push ODr, Sku
+        Push ODr, SeqNo
+        Push ODr, Qty
+        Push ODr, Amt / Qty
+        Push ODr, BchNo
+        Push ODr, Amt
+        Push ODr, Now
+        Push ODry, ODr
+    Next
+Dim Dt As Dt
+    Dt.Fny = SplitSpc("PermitD Permit Sku SeqNo Qty BchNo Rate Amt DteCrt")
+    Dt.Dry = ODry
+    Dt.DtNm = "PermitD"
+Dim O$()
+    O = InsDtSqlAy(Dt)
+AyBrw O
+Ins_TblPermitD_SqlAy = O
+End Function
+
+Private Function Ins_TblPermit_SqlAy() As String()
+Dim ODry()
+    Dim M As PermitDftVal: M = PermitDftVal
+    Dim Dr
+    Dim ODr()
+    Dim Dry()
+    Dim PermitNo$, NSku%, Qty&, Amt#
     For Each Dr In ImpPermHdrDrs.Dry 'PermitNo NSKU Qty Amt
+        AyAsg Dr, PermitNo, NSku, Qty, Amt
         Erase ODr
         Push ODr, DicOfId_ByPermitNo(Dr(0))
-        Push ODr, Dr(0) ' PermitNo
-        Push ODr, ImpDte
-        Push ODr, ImpDte
-        Push ODr, Dr(1) 'NSKU
-        Push ODr, Dr(2) 'Qty
-        Push ODr, Dr(3) 'Amt
+        Push ODr, PermitNo ' PermitNo
+        Push ODr, Format(ImpTim, "YYYY-MM-DD")
+        Push ODr, Format(ImpTim, "YYYY-MM-DD")
+        Push ODr, NSku
+        Push ODr, Qty
+        Push ODr, Amt
         Push ODr, M.GLAc
         Push ODr, M.GLAcName
         Push ODr, M.BankCode
         Push ODr, M.ByUsr
         Push ODr, Now
-        Push ODr, Empty
         Push ODr, True
         Push ODry, ODr
     Next
 Dim Dt As Dt
-    Dt.Fny = SplitSpc("Permit PermitNo PermitDate PostDate NSku Qty Tot GLAc GLAcName BankCode ByUsr DteCrt DteUpd IsImport")
-    Dt.Dry = Dry
+    Dt.Fny = SplitSpc("Permit PermitNo PermitDate PostDate NSku Qty Tot GLAc GLAcName BankCode ByUsr DteCrt IsImport")
+    Dt.Dry = ODry
     Dt.DtNm = "Permit"
-Ins_TblPermit_SqlAy = InsDtSqlAy(Dt)
+Dim O$()
+    O = InsDtSqlAy(Dt)
+Ins_TblPermit_SqlAy = O
 End Function
 
 Private Function InsTbl_Permit_and_PermitD_SqlAy() As String()
@@ -318,23 +466,36 @@ Push O, Dlt_TblPermit_Sql
 Push O, Dlt_TblPermitD_Sql
 PushAy O, Ins_TblPermit_SqlAy
 PushAy O, Ins_TblPermitD_SqlAy
+InsTbl_Permit_and_PermitD_SqlAy = O
 End Function
-Private Function DicOfId_ByPermitNo() As Dictionary
 
+Private Function DicOfId_ByPermitNo() As Dictionary
+Static Z As Boolean, X As Dictionary
+If Not Z Then
+    Z = True
+    Set X = New Dictionary
+    Dim Id&: Id = TblNxtId("Permit")
+    Dim I
+    For Each I In PermitNoAy
+        X.Add I, Id: Id = Id + 1
+    Next
+End If
+Set DicOfId_ByPermitNo = X
 End Function
+
 Private Function Dlt_TblPermit_Sql$()
 Const S$ = "Delete From Permit Where PermitNo in (?)"
 Dlt_TblPermit_Sql = FmtQQ(S, PermitNoLis)
 End Function
 Private Function Dlt_TblPermitD_Sql$()
-Const S$ = "Delete From PermitD Where PermitNo in (?)"
+Const S$ = "Delete From PermitD Where Permit in (Select Permit from Permit where PermitNo in (?))"
 Dlt_TblPermitD_Sql = FmtQQ(S, PermitNoLis)
 End Function
 Private Function PermitNoLis$()
 PermitNoLis = JnComma(QuoteAy(PermitNoAy, "'"))
 End Function
 Private Function PermitNoAy() As String()
-Static Z As Boolean, X$()
+Static Z As Boolean, X
 If Not Z Then
     Z = True
     X = DrsStrCol(ImpPermHdrDrs, "PermitNo")
@@ -375,10 +536,10 @@ If Not IsEr Then
 End If
 'TblPemitD_SqlAy = O
 End Function
-Function ImpPermWs() As Worksheet
+Private Function ImpPermWs() As Worksheet
 Set ImpPermWs = ImpPermWb.Sheets(1)
 End Function
-Function ImpPermWb() As Workbook
+Private Function ImpPermWb() As Workbook
 Set ImpPermWb = OpnWb(Fx)
 End Function
 
@@ -420,7 +581,7 @@ If Not Z Then
     Z = True
     Dim Sq: Sq = WsSq(ImpPermWs)
     ClsWsNoSav Ws
-    X = SelSq(Sq, MapStr)
+    X = SqSel(Sq, MapStr)
 End If
 ImpPermDrs = X
 End Function
@@ -432,7 +593,11 @@ End Function
 Private Function MsgEr$()
 End Function
 
-Private Sub Class_Initialize()
-ImpDte = Date
-ImpTim = NowStr
+Private Sub Class_Terminate()
+On Error GoTo X
+Dim Fb$: Fb = WrkDb.Name
+WrkDb.Close
+Kill Fb
+Log FmtQQ("TmpFb[?] killed", Fb)
+X:
 End Sub

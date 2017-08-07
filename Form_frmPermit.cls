@@ -31,7 +31,7 @@ bFrmPermit.Exp
 End Sub
 
 Private Sub CmdOpnImpFdr_Click()
-BrwPth PermitImpPth
+PthBrw PermitImpPth
 End Sub
 
 Private Sub CmdPrint_Click()

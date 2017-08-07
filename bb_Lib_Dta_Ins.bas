@@ -51,9 +51,9 @@ End Function
 Private Function FnySimTyAy(T, Fny$(), Optional D As Database) As eSimTy()
 Dim U%
     U = UB(Fny)
-Dim O() As Dao.DataTypeEnum
+Dim O() As DAO.DataTypeEnum
     ReDim O(U)
-    Dim J%, Flds As Dao.Fields
+    Dim J%, Flds As DAO.Fields
     Set Flds = Tbl(T, D).Fields
     For J = 0 To U
         O(J) = SimTy(Flds(Fny(J)).Type)
@@ -82,7 +82,7 @@ Dim O$()
     Next
 InsDtSqlAy = O
 End Function
-Sub InsDtSqlAy__Tst()
+Private Sub InsDtSqlAy__Tst()
 EnsTbl_Tmp1
 Dim Dt As Dt: Dt = TblDt("Tmp1")
 Dim O$(): O = InsDtSqlAy(Dt)

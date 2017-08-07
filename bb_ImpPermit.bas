@@ -1,22 +1,24 @@
 Attribute VB_Name = "bb_ImpPermit"
 Option Compare Database
 Option Explicit
-
 Sub ImpPermit()
-Dim mFxAy$(): mFxAy = FxAy
+Dim Fx
+Dim mFxAy$(): mFxAy = FxAy()
 If IsEmptyAy(mFxAy) Then Exit Sub
-Dim M As Permit, Fx
+Dim M As Permit
 For Each Fx In mFxAy
     Set M = New Permit
-    M.Import (Fx)
+    M.Impport Fx
 Next
 End Sub
 
-
-Private Property Get FxAy() As String()
+Private Function FxAy() As String()
 FxAy = PthFfnAy(PermitImpPth, "*.xlsx")
-End Property
+End Function
 
-Sub AA()
-ImpPermit
+Private Sub ImpPermit__Tst()
+Dim M As Permit
+Set M = New Permit
+M.TstEr
+'M.TstOk
 End Sub

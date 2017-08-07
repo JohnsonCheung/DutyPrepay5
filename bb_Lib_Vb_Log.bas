@@ -9,16 +9,16 @@ Print #F, NowStr & " " & Msg
 If FilNum = 0 Then Close #F
 End Sub
 Property Get LogFilNum%()
-LogFilNum = OpnApp(LogFt)
+LogFilNum = FtOpnApp(LogFt)
 End Property
 Property Get LogFt$()
 LogFt = LogPth & "Log.txt"
 End Property
 Property Get LogPth$()
 Dim O$: O = WrkPth & "Log\"
-EnsPth O
+PthEns O
 LogPth = O
 End Property
 Sub BrwLog()
-BrwFt LogFt
+FtBrw LogFt
 End Sub

@@ -3,38 +3,54 @@ Option Compare Database
 Option Explicit
 Function DtWs(Dt As Dt) As Worksheet
 Dim O As Worksheet
-Set O = NewWs
-PutDt Dt, O
+Set O = WsNew(Dt.DtNm)
+DtPut Dt, O
 Set DtWs = O
 End Function
-Sub PutDt(A As Dt, Ws As Worksheet)
-PutAy WsA1(Ws), A.Fny
-PutSq WsRC(Ws, 2, 1), DrySq(A.Dry, Sz(A.Fny))
+Sub DrsPut(A As Drs, At As Range, Optional LoNm$)
+AyPut A.Fny, At
+SqPut RgRC(At, 2, 1), DrySq(A.Dry, Sz(A.Fny))
+LoNew RgWs(At), LoNm
 End Sub
-Function AddDtToWb(A As Dt, Wb As Workbook) As Worksheet
+Function WbAddDt(A As Dt, Wb As Workbook) As Worksheet
 Dim O As Worksheet
 Set O = AddWs(Wb, A.DtNm)
-PutDt A, O
-Set AddDtToWb = O
+DtPut A, O
+Set WbAddDt = O
 End Function
-Sub AddDsToWb__Tst()
+Private Sub WbAddDs__Tst()
 Dim Ds As Ds, Wb As Workbook
-Ds = NewDs("Permit PermitD")
+Ds = DsNew("Permit PermitD")
 Set Wb = NewWb
-AddDsToWb Ds, Wb
+WbAddDs Ds, Wb
 WbVis Wb
 Stop
 Wb.Close False
 End Sub
-Sub PutSq(Cell As Range, Sq)
+Sub SqPut(Cell As Range, Sq)
 ReSzRg(Cell, Sq).Value = Sq
 End Sub
-Sub PutAy(Cell As Range, Ay)
-PutSq Cell, AySqH(Ay)
+Function DrsWs(A As Drs, Optional WsNm$ = "Sheet1") As Worksheet
+Dim O As Worksheet: Set O = WsNew(WsNm, Vis:=True)
+DrsPut A, WsA1(O)
+Set DrsWs = O
+End Function
+Sub AyPut(Ay, Cell As Range)
+SqPut Cell, AySqH(Ay)
 End Sub
 Function TblWs(T, Optional D As Database) As Worksheet
 Set TblWs = DtWs(TblDt(T, D))
 End Function
+
+Sub DryPut(AtCell As Range, Dry)
+AtCell.Value = DrySq(Dry)
+End Sub
+Sub WbAddDs(A As Ds, Wb As Workbook)
+Dim J%
+For J = 0 To DtAySz(A.DtAy) - 1
+    WbAddDt A.DtAy(J), Wb
+Next
+End Sub
 
 Function AySqH(Ay) As Variant()
 Dim O(), C%
@@ -47,15 +63,6 @@ For Each V In Ay
 Next
 AySqH = O
 End Function
-Sub PutDry(AtCell As Range, Dry)
-AtCell.Value = DrySq(Dry)
-End Sub
-Sub AddDsToWb(A As Ds, Wb As Workbook)
-Dim J%
-For J = 0 To DtAySz(A.DtAy) - 1
-    AddDtToWb A.DtAy(J), Wb
-Next
-End Sub
 Function DryNCol%(Dry)
 Dim Dr, O%, M%
 For Each Dr In Dry

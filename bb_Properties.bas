@@ -6,7 +6,7 @@ End Property
 Property Get CurFb$()
 CurFb = CurrentDb.Name
 End Property
-Property Get DtaDb() As Dao.Database
+Property Get DtaDb() As DAO.Database
 Set DtaDb = DBEngine.OpenDatabase(DtaFb)
 End Property
 Property Get WrkPth$()
@@ -17,7 +17,7 @@ CurPth = FfnPth(CurFb)
 End Property
 Function PermitImpPth$()
 Dim O$: O = CurPth & "Import - Permit\"
-EnsPth O
+PthEns O
 PermitImpPth = O
 End Function
 
