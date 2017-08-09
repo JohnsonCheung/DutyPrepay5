@@ -7,6 +7,7 @@ SqPut Cell, AySqH(Ay)
 End Sub
 
 Function AySqH(Ay) As Variant()
+If AyIsEmpty(Ay) Then Exit Function
 Dim O(), C%
 ReDim O(1 To 1, 1 To Sz(Ay))
 C = 0
@@ -21,7 +22,7 @@ End Function
 Sub DrsPut(A As Drs, At As Range, Optional LoNm$)
 AyPut A.Fny, At
 SqPut RgRC(At, 2, 1), DrySq(A.Dry, Sz(A.Fny))
-LoNew RgWs(At), LoNm
+LoCrt RgWs(At), LoNm
 End Sub
 
 Function DrsWs(A As Drs, Optional WsNm$ = "Sheet1") As Worksheet
@@ -30,42 +31,28 @@ DrsPut A, WsA1(O)
 Set DrsWs = O
 End Function
 
-Function DryNCol%(Dry)
-Dim Dr, O%, M%
-For Each Dr In Dry
-    M = Sz(Dr)
-    If M > O Then O = M
-Next
-DryNCol = M
-End Function
-
 Sub DryPut(AtCell As Range, Dry)
 AtCell.Value = DrySq(Dry)
 End Sub
 
-Function DrySq(Dry, Optional NCol% = 0) As Variant()
-If AyIsEmpty(Dry) Then Exit Function
-Dim NRow&
-    If NCol = 0 Then NCol = DryNCol(Dry)
-    NRow = Sz(Dry)
-Dim O()
-    ReDim O(1 To NRow, 1 To NCol)
-Dim C%, R&, Dr
-    R = 0
-    For Each Dr In Dry
-        R = R + 1
-        For C = 0 To UB(Dr)
-            O(R, C + 1) = Dr(C)
-        Next
-    Next
-DrySq = O
+Function DsNDt%(A As Ds)
+DsNDt = DtAySz(A.DtAy)
 End Function
 
-Function DtDrs(A As Dt) As Drs
-Dim O As Drs
-O.Fny = A.Fny
-O.Dry = A.Dry
-DtDrs = O
+Function DsWb(A As Ds) As Workbook
+Dim O As Workbook
+Set O = WbNew
+With WbFstWs(O)
+    .Name = "Ds"
+    .Range("A1").Value = A.DsNm
+End With
+If Not DsIsEmpty(A) Then
+    Dim J%
+    For J = 0 To DsNDt(A) - 1
+        WbAddDt O, A.DtAy(J)
+    Next
+End If
+Set DsWb = O
 End Function
 
 Function DtWs(A As Dt) As Worksheet
@@ -83,30 +70,21 @@ Function TblWs(T, Optional D As Database) As Worksheet
 Set TblWs = DtWs(TblDt(T, D))
 End Function
 
-Sub WbAddDs(A As Ds, Wb As Workbook)
-Dim J%
-For J = 0 To DtAySz(A.DtAy) - 1
-    WbAddDt A.DtAy(J), Wb
-Next
-End Sub
-
-Function WbAddDt(A As Dt, Wb As Workbook) As Worksheet
+Function WbAddDt(A As Workbook, Dt As Dt) As Worksheet
 Dim O As Worksheet
-Set O = WbAddWs(Wb, A.DtNm)
-DrsPut DtDrs(A), WsA1(O)
+Set O = WbAddWs(A, Dt.DtNm)
+DrsPut DtDrs(Dt), WsA1(O)
 Set WbAddDt = O
 End Function
 
-Private Sub WbAddDs__Tst()
-Dim Ds As Ds, Wb As Workbook
-Ds = DsNew("Permit PermitD")
-Set Wb = WbNew
-WbAddDs Ds, Wb
+Private Sub DsWb__Tst()
+Dim Wb As Workbook
+Set Wb = DsWb(DsNew("Permit PermitD"))
 WbVis Wb
 Stop
 Wb.Close False
 End Sub
 
 Sub Tst()
-WbAddDs__Tst
+DsWb__Tst
 End Sub

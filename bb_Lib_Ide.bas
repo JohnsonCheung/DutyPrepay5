@@ -262,7 +262,7 @@ End Sub
 
 Sub MdRmvLnoCnt(LnoCnt As LnoCnt, A As CodeModule)
 If LnoCnt.Cnt = 0 Then Exit Sub
-A.DeleteLines LnoCnt.Lno, LnoCnt.Cnt
+DftMd(A).DeleteLines LnoCnt.Lno, LnoCnt.Cnt
 End Sub
 
 Function MdSrcFfn$(Optional A As CodeModule)
@@ -468,7 +468,7 @@ Function PjTstFunNy_WithEr(Optional A As VBProject) As String()
 Dim O$(), I, Md As CodeModule
 For Each I In PjMdAy(A)
     Set Md = I
-    PushAy O, AddAyPfx(MdTstFunNy_WithEr(Md), MdNm(Md) & ".")
+    PushAy O, AyAddPfx(MdTstFunNy_WithEr(Md), MdNm(Md) & ".")
 Next
 PjTstFunNy_WithEr = O
 End Function

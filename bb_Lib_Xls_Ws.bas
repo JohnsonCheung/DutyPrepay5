@@ -10,10 +10,66 @@ Exit Function
 X:
 End Function
 
-Function LoNew(A As Worksheet, Optional LoNm$) As ListObject
-Dim O As ListObject: Set O = A.ListObjects.Add(xlSrcRange, WsDtaRg(A))
+Sub LoAdjColWdt(A As ListObject)
+Dim C As Range: Set C = LoEntCol(A)
+C.AutoFit
+Dim EntC As Range, J%
+For J = 1 To C.Columns.Count
+    Set EntC = RgEntC(C, J)
+    If EntC.ColumnWidth > 100 Then EntC.ColumnWidth = 100
+Next
+End Sub
+
+Function LoC(A As ListObject, C, Optional InclTot As Boolean, Optional InclHdr As Boolean) As Range
+Dim mC%, R1&, R2&
+R1 = LoR1(A, InclHdr)
+R2 = LoR2(A, InclTot)
+mC = LoWsCno(A, C)
+Set LoC = WsCRR(LoWs(A), mC, R1, R2)
+End Function
+
+Function LoCC(A As ListObject, C1, C2, Optional InclTot As Boolean, Optional InclHdr As Boolean) As Range
+Dim R1&, R2&, mC1%, mC2%
+R1 = LoR1(A, InclHdr)
+R2 = LoR2(A, InclTot)
+mC1 = LoWsCno(A, C1)
+mC2 = LoWsCno(A, C2)
+Set LoCC = WsRCRC(LoWs(A), R1, mC1, R2, mC2)
+End Function
+
+Function LoCrt(A As Worksheet, Optional LoNm$) As ListObject
+Dim O As ListObject: Set O = A.ListObjects.Add(xlSrcRange, WsDtaRg(A), , xlYes)
 If LoNm <> "" Then O.Name = LoNm
-Set LoNew = O
+LoAdjColWdt O
+Set LoCrt = O
+End Function
+
+Function LoEntCol(A As ListObject) As Range
+Set LoEntCol = LoCC(A, 1, LoNCol(A)).EntireColumn
+End Function
+
+Function LoNCol%(A As ListObject)
+LoNCol = A.ListColumns.Count
+End Function
+
+Function LoR1&(A As ListObject, Optional InclHdr As Boolean)
+LoR1 = A.DataBodyRange.Row - IIf(InclHdr, 1, 0)
+End Function
+
+Function LoR2&(A As ListObject, Optional InclTot As Boolean)
+LoR2 = A.DataBodyRange.Row + IIf(InclTot, 1, 0)
+End Function
+
+Sub LoVis(A As ListObject)
+A.Application.Visible = True
+End Sub
+
+Function LoWs(A As ListObject) As Worksheet
+Set LoWs = A.Parent
+End Function
+
+Function LoWsCno%(A As ListObject, Idx_or_ColNm)
+LoWsCno = A.ListColumns(Idx_or_ColNm).DataBodyRange.Column
 End Function
 
 Function WbWs(A As Workbook, Idx_or_WsNm) As Worksheet
@@ -27,6 +83,10 @@ End Function
 Sub WsClsNoSav(A As Worksheet)
 WbClsNoSav WsWb(A)
 End Sub
+
+Function WsCRR(A As Worksheet, C, R1, R2) As Range
+Set WsCRR = WsRCRC(A, R1, C, R2, C)
+End Function
 
 Sub WsDlt(A As Workbook, Idx_or_WsNm)
 If IsWs(A, Idx_or_WsNm) Then WbWs(A, Idx_or_WsNm).Delete
@@ -82,3 +142,19 @@ End Sub
 Function WsWb(A As Worksheet) As Workbook
 Set WsWb = A.Parent
 End Function
+
+Sub LoAdjColWdt__Tst()
+Dim Ws As Worksheet: Set Ws = WsNew(Vis:=True)
+Dim Sq(1 To 2, 1 To 2)
+Sq(1, 1) = "A"
+Sq(1, 2) = "B"
+Sq(2, 1) = "123123"
+Sq(2, 2) = String(1234, "A")
+Ws.Range("A1:B2").Value = Sq
+LoAdjColWdt LoCrt(Ws)
+WsClsNoSav Ws
+End Sub
+
+Sub Tst()
+LoAdjColWdt__Tst
+End Sub

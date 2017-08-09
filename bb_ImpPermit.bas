@@ -2,6 +2,10 @@ Attribute VB_Name = "bb_ImpPermit"
 Option Compare Database
 Option Explicit
 
+Sub AA()
+ImpPermit__Tst
+End Sub
+
 Sub ImpPermit()
 Dim Fx
 Dim mFxAy$(): mFxAy = FxAy()
@@ -9,7 +13,7 @@ If AyIsEmpty(mFxAy) Then Exit Sub
 Dim M As Permit
 For Each Fx In mFxAy
     Set M = New Permit
-    M.Impport Fx
+    M.AFx = Fx
 Next
 End Sub
 
@@ -20,8 +24,7 @@ End Function
 Private Sub ImpPermit__Tst()
 Dim M As Permit
 Set M = New Permit
-M.TstEr
-'M.TstOk
+M.Tst
 End Sub
 
 Sub Tst()

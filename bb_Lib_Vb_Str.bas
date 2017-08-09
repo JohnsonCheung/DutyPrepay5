@@ -37,6 +37,15 @@ Function HasSubStr(S, SubStr) As Boolean
 HasSubStr = InStr(S, SubStr) > 0
 End Function
 
+Function InstrN&(S, SubStr, N%)
+Dim P&, J%
+For J = 1 To N
+    P = InStr(P + 1, S, SubStr)
+    If P = 0 Then Exit Function
+Next
+InstrN = P
+End Function
+
 Function IsDigit(C) As Boolean
 IsDigit = "0" <= C And C <= "9"
 End Function
@@ -100,6 +109,268 @@ With Brk1(S, S1, NoTrim)
 End With
 End Function
 
+SubStr = "."
+N = 1
+Exp = 1
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 2
+Exp = 6
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 2
+Exp = 6
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 2
+Exp = 6
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 1
+Exp = 1
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 2
+Exp = 6
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 2
+Exp = 6
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
+Private Sub InstrN__Tst()
+Dim Act&, Exp&, S, SubStr, N%
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 1
+Exp = 1
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 2
+Exp = 6
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 3
+Exp = 11
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+
+'    12345678901234
+S = ".aaaa.aaaa.bbb"
+SubStr = "."
+N = 4
+Exp = 0
+Act = InstrN(S, SubStr, N)
+Debug.Assert Exp = Act
+End Sub
+
 Private Sub TakBet__Tst()
 Const S1$ = "Excel 8.0;HDR=YES;IMEX=2;DATABASE=??"
 Const S2$ = "Excel 8.0;HDR=YES;IMEX=2;DATABASE=??;AA=XX"
@@ -108,5 +379,6 @@ Debug.Assert TakBet(S2, "DATABASE=", ";") = "??"
 End Sub
 
 Sub Tst()
+InstrN__Tst
 TakBet__Tst
 End Sub

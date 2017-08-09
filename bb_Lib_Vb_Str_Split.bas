@@ -13,3 +13,7 @@ End Function
 Function SplitSpc(S) As String()
 SplitSpc = Split(S, " ")
 End Function
+
+Function SplitVBar(S) As String()
+SplitVBar = Split(S, "|")
+End Function

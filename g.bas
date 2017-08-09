@@ -17,7 +17,7 @@ For J = 0 To CurrentDb.QueryDefs.Count - 1
 Next
 End Sub
 
-Property Get PermitDftVal() As PermitDftVal
+Function PermitDftVal() As PermitDftVal
 Dim O As PermitDftVal
 With CurrentDb.OpenRecordset("Select * from Default")
     O.GLAc = !GLAc
@@ -27,7 +27,7 @@ With CurrentDb.OpenRecordset("Select * from Default")
     .Close
 End With
 PermitDftVal = O
-End Property
+End Function
 
 Function VdtMth(pM As Byte) As Boolean
 If pM > 12 Or pM < 1 Then MsgBox "pM must between 1 and 12": VdtMth = True

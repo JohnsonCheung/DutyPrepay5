@@ -1,0 +1,406 @@
+*Tbl TblFld
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| RowIdx | Tbl               | SeqNo | Fld                   | Pk | Ty       | Sz  | Dft   | Req   | Des                                           |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 0      | #Assign_OH        | 0     | SKU                   |    | Text     | 15  |       | False |                                               |
+| 1      | #Assign_OH        | 1     | BchNo                 |    | Text     | 10  |       | False |                                               |
+| 2      | #Assign_OH        | 2     | OH                    |    | Double   | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 3      | #MaxClsMth        | 0     | Yr                    |    | Byte     | 1   |       | False |                                               |
+| 4      | #MaxClsMth        | 1     | YpIO                  |    | Byte     | 1   |       | False |                                               |
+| 5      | #MaxClsMth        | 2     | MaxClsMth             |    | Long     | 4   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 6      | #Mge              | 0     | Yr                    |    | Byte     | 1   |       | False |                                               |
+| 7      | #Mge              | 1     | Mth                   |    | Int      | 2   |       | False |                                               |
+| 8      | #Mge              | 2     | Sku                   |    | Text     | 50  |       | False |                                               |
+| 9      | #Mge              | 3     | YpIO                  |    | Int      | 2   |       | False |                                               |
+| 10     | #Mge              | 4     | Q                     |    | Double   | 8   |       | False |                                               |
+| 11     | #Mge              | 5     | A                     |    | Currency | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 12     | #MgeIO            | 0     | Yr                    |    | Byte     | 1   |       | False |                                               |
+| 13     | #MgeIO            | 1     | Sku                   |    | Text     | 50  |       | False |                                               |
+| 14     | #MgeIO            | 2     | YpIO                  |    | Int      | 2   |       | False |                                               |
+| 15     | #MgeIO            | 3     | Q                     |    | Double   | 8   |       | False |                                               |
+| 16     | #MgeIO            | 4     | A                     |    | Currency | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 17     | @Permit           | 0     | Sku                   |    | Text     | 15  |       | False |                                               |
+| 18     | @Permit           | 1     | SKU Description       |    | Text     | 100 |       | False |                                               |
+| 19     | @Permit           | 2     | Amt                   |    | Currency | 8   |       | False |                                               |
+| 20     | @Permit           | 3     | Rate                  |    | Currency | 8   |       | False |                                               |
+| 21     | @Permit           | 4     | Qty                   |    | Int      | 2   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 22     | @PermitRpt        | 0     | SnoFinStream          |    | Byte     | 1   |       | False |                                               |
+| 23     | @PermitRpt        | 1     | SnoSHBrandG           |    | Byte     | 1   |       | False |                                               |
+| 24     | @PermitRpt        | 2     | SnoHse                |    | Long     | 4   |       | False |                                               |
+| 25     | @PermitRpt        | 3     | SnoSHBrand            |    | Long     | 4   |       | False |                                               |
+| 26     | @PermitRpt        | 4     | SnoB                  |    | Long     | 4   |       | False |                                               |
+| 27     | @PermitRpt        | 5     | NmFinStream           |    | Text     | 50  |       | False |                                               |
+| 28     | @PermitRpt        | 6     | CdSHBrandG            |    | Text     | 50  |       | False |                                               |
+| 29     | @PermitRpt        | 7     | NmHse                 |    | Text     | 50  |       | False |                                               |
+| 30     | @PermitRpt        | 8     | NmSHBrand             |    | Text     | 50  |       | False |                                               |
+| 31     | @PermitRpt        | 9     | NmB                   |    | Text     | 250 |       | False |                                               |
+| 32     | @PermitRpt        | 10    | PermitNo              |    | Text     | 50  |       | False |                                               |
+| 33     | @PermitRpt        | 11    | PermitYear            |    | Int      | 2   |       | False |                                               |
+| 34     | @PermitRpt        | 12    | PermitMonth           |    | Int      | 2   |       | False |                                               |
+| 35     | @PermitRpt        | 13    | PermitDay             |    | Int      | 2   |       | False |                                               |
+| 36     | @PermitRpt        | 14    | PermitDate            |    | Date     | 8   |       | False |                                               |
+| 37     | @PermitRpt        | 15    | PostDate              |    | Date     | 8   |       | False |                                               |
+| 38     | @PermitRpt        | 16    | GLAc                  |    | Text     | 15  |       | False |                                               |
+| 39     | @PermitRpt        | 17    | GLAcName              |    | Text     | 50  |       | False |                                               |
+| 40     | @PermitRpt        | 18    | BankCode              |    | Text     | 10  |       | False |                                               |
+| 41     | @PermitRpt        | 19    | ByUsr                 |    | Text     | 20  |       | False |                                               |
+| 42     | @PermitRpt        | 20    | DteCrtHdr             |    | Date     | 8   |       | False |                                               |
+| 43     | @PermitRpt        | 21    | DteUpdHdr             |    | Date     | 8   |       | False |                                               |
+| 44     | @PermitRpt        | 22    | Sku                   |    | Text     | 15  |       | False |                                               |
+| 45     | @PermitRpt        | 23    | DesSku                |    | Text     | 100 |       | False |                                               |
+| 46     | @PermitRpt        | 24    | SeqNo                 |    | Currency | 8   |       | False |                                               |
+| 47     | @PermitRpt        | 25    | Qty                   |    | Int      | 2   |       | False |                                               |
+| 48     | @PermitRpt        | 26    | BchNo                 |    | Text     | 10  |       | False |                                               |
+| 49     | @PermitRpt        | 27    | Rate                  |    | Currency | 8   |       | False |                                               |
+| 50     | @PermitRpt        | 28    | Amt                   |    | Currency | 8   |       | False |                                               |
+| 51     | @PermitRpt        | 29    | DteCrt                |    | Date     | 8   |       | False |                                               |
+| 52     | @PermitRpt        | 30    | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 53     | @RptM             | 0     | Yr                    | *  | Byte     | 1   |       | True  |                                               |
+| 54     | @RptM             | 1     | Mth                   | *  | Byte     | 1   |       | True  |                                               |
+| 55     | @RptM             | 2     | Sku                   | *  | Text     | 15  |       | True  |                                               |
+| 56     | @RptM             | 3     | YpIO                  | *  | Byte     | 1   |       | True  |                                               |
+| 57     | @RptM             | 4     | Q                     |    | Long     | 4   |       | False |                                               |
+| 58     | @RptM             | 5     | A                     |    | Currency | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 59     | @RptY             | 0     | Yr                    | *  | Byte     | 1   |       | True  |                                               |
+| 60     | @RptY             | 1     | Sku                   | *  | Text     | 15  |       | True  |                                               |
+| 61     | @RptY             | 2     | YpIO                  | *  | Byte     | 1   |       | True  |                                               |
+| 62     | @RptY             | 3     | Q                     |    | Long     | 4   |       | False |                                               |
+| 63     | @RptY             | 4     | A                     |    | Currency | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 64     | >KE24             | 0     | Period/year           |    | Text     | 255 |       | False |                                               |
+| 65     | >KE24             | 1     | Document number       |    | Text     | 255 |       | False |                                               |
+| 66     | >KE24             | 2     | Item number           |    | Text     | 255 |       | False |                                               |
+| 67     | >KE24             | 3     | Reference document    |    | Text     | 255 |       | False |                                               |
+| 68     | >KE24             | 4     | Reference item no#    |    | Text     | 255 |       | False |                                               |
+| 69     | >KE24             | 5     | Company Code          |    | Text     | 255 |       | False |                                               |
+| 70     | >KE24             | 6     | Currency key          |    | Text     | 255 |       | False |                                               |
+| 71     | >KE24             | 7     | Posting date          |    | Date     | 8   |       | False |                                               |
+| 72     | >KE24             | 8     | Product               |    | Text     | 255 |       | False |                                               |
+| 73     | >KE24             | 9     | Customer              |    | Text     | 255 |       | False |                                               |
+| 74     | >KE24             | 10    | D&T invoiced          |    | Double   | 8   |       | False |                                               |
+| 75     | >KE24             | 11    | Billing qty in SKU    |    | Double   | 8   |       | False |                                               |
+| 76     | >KE24             | 12    | Unit Qty SKU          |    | Text     | 255 |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 77     | 1Rec              | 0     | x                     |    | Text     | 1   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 78     | CoSHBrand         | 0     | Co                    |    | Byte     | 1   |       | True  |                                               |
+| 79     | CoSHBrand         | 1     | CdSHBrand             |    | Text     | 6   |       | True  | Stock Holding Brand                           |
+| 80     | CoSHBrand         | 2     | TarStkMths            |    | Int      | 2   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 81     | CoSHBrandG        | 0     | Co                    | *  | Byte     | 1   |       | False |                                               |
+| 82     | CoSHBrandG        | 1     | SHBrandG              | *  | Byte     | 1   | 0     | False | Stock Holding Brand                           |
+| 83     | CoSHBrandG        | 2     | TarStkMths            |    | Int      | 2   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 84     | Default           | 0     | GLAc                  |    | Text     | 15  |       | False |                                               |
+| 85     | Default           | 1     | GLAcName              |    | Text     | 50  |       | True  |                                               |
+| 86     | Default           | 2     | BankCode              |    | Text     | 10  |       | True  |                                               |
+| 87     | Default           | 3     | ByUsr                 |    | Text     | 20  |       | True  |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 88     | FinStream         | 0     | CdFinStream           | *  | Text     | 1   |       | True  |                                               |
+| 89     | FinStream         | 1     | NmFinStream           |    | Text     | 50  |       | True  |                                               |
+| 90     | FinStream         | 2     | SnoFinStream          |    | Byte     | 1   | 0     | True  |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 91     | frmBchRate        | 0     | SKU                   | *  | Text     | 15  |       | True  |                                               |
+| 92     | frmBchRate        | 1     | DesSku                |    | Text     | 255 |       | False |                                               |
+| 93     | frmBchRate        | 2     | OH                    |    | Long     | 4   |       | False |                                               |
+| 94     | frmBchRate        | 3     | IsNoAssign            |    | Boolean  | 1   | 0     | False |                                               |
+| 95     | frmBchRate        | 4     | DutyRate              |    | Currency | 8   |       | False | ZHT0 rate from SKU_StkHld->TaxRate            |
+| 96     | frmBchRate        | 5     | BottPerAc             |    | Int      | 2   |       | False | tblSKU->BtlPerCs                              |
+| 97     | frmBchRate        | 6     | DutyRateBott          |    | Currency | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 98     | frmBchRate_OH     | 0     | SKU                   |    | Text     | 15  |       | True  |                                               |
+| 99     | frmBchRate_OH     | 1     | BchNo                 |    | Text     | 10  |       | False |                                               |
+| 100    | frmBchRate_OH     | 2     | OH                    |    | Long     | 4   |       | False |                                               |
+| 101    | frmBchRate_OH     | 3     | IsNoAssign            |    | Boolean  | 1   | 0     | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 102    | frmPermitD        | 0     | PermitD               | *  | Long     | 4   |       | False |                                               |
+| 103    | frmPermitD        | 1     | DesSku                |    | Text     | 255 |       | False |                                               |
+| 104    | frmPermitD        | 2     | DutyRateZHT0          |    | Currency | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 105    | Hse               | 0     | Hse                   | *  | Long     | 4   |       | False |                                               |
+| 106    | Hse               | 1     | NmHse                 |    | Text     | 50  |       | False |                                               |
+| 107    | Hse               | 2     | SnoHse                |    | Long     | 4   | 0     | False |                                               |
+| 108    | Hse               | 3     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 109    | Hse               | 4     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 110    | KE24              | 0     | CopaNo                | *  | Text     | 10  |       | True  |                                               |
+| 111    | KE24              | 1     | CopaLNo               | *  | Long     | 4   | 0     | True  |                                               |
+| 112    | KE24              | 2     | Yr                    |    | Byte     | 1   | 0     | False |                                               |
+| 113    | KE24              | 3     | Mth                   |    | Byte     | 1   | 0     | True  |                                               |
+| 114    | KE24              | 4     | PostDate              |    | Date     | 8   |       | True  |                                               |
+| 115    | KE24              | 5     | Cus                   |    | Text     | 10  |       | False |                                               |
+| 116    | KE24              | 6     | Sku                   |    | Text     | 15  |       | True  |                                               |
+| 117    | KE24              | 7     | Qty                   |    | Long     | 4   | 0     | True  |                                               |
+| 118    | KE24              | 8     | Tot                   |    | Currency | 8   | 0     | True  |                                               |
+| 119    | KE24              | 9     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 120    | KE24H             | 0     | Yr                    | *  | Byte     | 1   | 0     | False |                                               |
+| 121    | KE24H             | 1     | Mth                   | *  | Byte     | 1   |       | True  |                                               |
+| 122    | KE24H             | 2     | Qty                   |    | Long     | 4   | 0     | True  |                                               |
+| 123    | KE24H             | 3     | Tot                   |    | Currency | 8   | 0     | True  |                                               |
+| 124    | KE24H             | 4     | NCopaOrd              |    | Long     | 4   | 0     | True  |                                               |
+| 125    | KE24H             | 5     | NCopaLin              |    | Long     | 4   | 0     | True  |                                               |
+| 126    | KE24H             | 6     | NSku                  |    | Long     | 4   | 0     | True  |                                               |
+| 127    | KE24H             | 7     | NCus                  |    | Long     | 4   | 0     | True  |                                               |
+| 128    | KE24H             | 8     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 129    | KE24H             | 9     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 130    | OH                | 0     | YY                    | *  | Byte     | 1   | 0     | False | Year                                          |
+| 131    | OH                | 1     | MM                    | *  | Byte     | 1   | 0     | False | Month                                         |
+| 132    | OH                | 2     | DD                    | *  | Byte     | 1   |       | False | Day                                           |
+| 133    | OH                | 3     | Co                    | *  | Byte     | 1   |       | False |                                               |
+| 134    | OH                | 4     | YpStk                 | *  | Byte     | 1   | 0     | True  |                                               |
+| 135    | OH                | 5     | Sku                   | *  | Text     | 15  |       | True  |                                               |
+| 136    | OH                | 6     | BchNo                 | *  | Text     | 10  |       | False |                                               |
+| 137    | OH                | 7     | Bott                  |    | Long     | 4   |       | True  |                                               |
+| 138    | OH                | 8     | Val                   |    | Currency | 8   | 0     | True  | HKD / Bott                                    |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 139    | Permit            | 0     | Permit                | *  | Long     | 4   |       | False |                                               |
+| 140    | Permit            | 1     | PermitNo              |    | Text     | 50  |       | True  |                                               |
+| 141    | Permit            | 2     | PermitDate            |    | Date     | 8   |       | True  |                                               |
+| 142    | Permit            | 3     | PostDate              |    | Date     | 8   |       | False |                                               |
+| 143    | Permit            | 4     | NSku                  |    | Int      | 2   | 0     | True  |                                               |
+| 144    | Permit            | 5     | Qty                   |    | Long     | 4   | 0     | True  |                                               |
+| 145    | Permit            | 6     | Tot                   |    | Currency | 8   | 0     | True  |                                               |
+| 146    | Permit            | 7     | GLAc                  |    | Text     | 15  |       | True  |                                               |
+| 147    | Permit            | 8     | GLAcName              |    | Text     | 50  |       | True  |                                               |
+| 148    | Permit            | 9     | BankCode              |    | Text     | 10  |       | True  |                                               |
+| 149    | Permit            | 10    | ByUsr                 |    | Text     | 20  |       | True  |                                               |
+| 150    | Permit            | 11    | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 151    | Permit            | 12    | DteUpd                |    | Date     | 8   |       | False |                                               |
+| 152    | Permit            | 13    | IsImport              |    | Boolean  | 1   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 153    | PermitD           | 0     | PermitD               | *  | Long     | 4   |       | False |                                               |
+| 154    | PermitD           | 1     | Permit                |    | Long     | 4   | 0     | False |                                               |
+| 155    | PermitD           | 2     | Sku                   |    | Text     | 15  |       | True  |                                               |
+| 156    | PermitD           | 3     | SeqNo                 |    | Currency | 8   | 0     | True  |                                               |
+| 157    | PermitD           | 4     | Qty                   |    | Int      | 2   | 0     | False |                                               |
+| 158    | PermitD           | 5     | BchNo                 |    | Text     | 10  |       | False |                                               |
+| 159    | PermitD           | 6     | Rate                  |    | Currency | 8   | 0     | False | Per bottle                                    |
+| 160    | PermitD           | 7     | Amt                   |    | Currency | 8   | 0     | False |                                               |
+| 161    | PermitD           | 8     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 162    | PermitD           | 9     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 163    | SHBrand           | 0     | CdSHBrand             | *  | Text     | 6   |       | False | Stock Holding Brand                           |
+| 164    | SHBrand           | 1     | NmSHBrand             |    | Text     | 50  |       | True  |                                               |
+| 165    | SHBrand           | 2     | SnoSHBrand            |    | Long     | 4   | 0     | False |                                               |
+| 166    | SHBrand           | 3     | SHBrandG              |    | Byte     | 1   |       | False |                                               |
+| 167    | SHBrand           | 4     | CdFinStream           |    | Text     | 1   |       | True  |                                               |
+| 168    | SHBrand           | 5     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 169    | SHBrand           | 6     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 170    | SHBrandG          | 0     | SHBrandG              | *  | Byte     | 1   | 0     | False | Stock Holding Brand                           |
+| 171    | SHBrandG          | 1     | CdSHBrandG            |    | Text     | 50  |       | True  |                                               |
+| 172    | SHBrandG          | 2     | SnoSHBrandG           |    | Byte     | 1   | 0     | True  |                                               |
+| 173    | SHBrandG          | 3     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 174    | SHBrandG          | 4     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 175    | SHBrandQ          | 0     | CdQly                 | *  | Text     | 5   |       | False |                                               |
+| 176    | SHBrandQ          | 1     | CdSHBrand             |    | Text     | 6   |       | False |                                               |
+| 177    | SHBrandQ          | 2     | Hse                   |    | Long     | 4   |       | False |                                               |
+| 178    | SHBrandQ          | 3     | SnoSHBrandQ           |    | Long     | 4   | 0     | False |                                               |
+| 179    | SHBrandQ          | 4     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 180    | SHBrandQ          | 5     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 181    | Sku               | 0     | Sku                   | *  | Text     | 15  |       | True  |                                               |
+| 182    | Sku               | 1     | DutyRate              |    | Currency | 8   | 0     | False |                                               |
+| 183    | Sku               | 2     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 184    | Sku               | 3     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 185    | SKU_StkHld        | 0     | SKU                   | *  | Text     | 18  |       | False |                                               |
+| 186    | SKU_StkHld        | 1     | Topaz                 |    | Long     | 4   |       | False |                                               |
+| 187    | SKU_StkHld        | 2     | TaxRate               |    | Currency | 8   |       | False | Tax rate / Actual Case                        |
+| 188    | SKU_StkHld        | 3     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 189    | SKU_StkHld        | 4     | DteUpdTopaz           |    | Date     | 8   |       | False |                                               |
+| 190    | SKU_StkHld        | 5     | DteUpdTaxRate         |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 191    | SKU_Topaz         | 0     | SKU                   | *  | Text     | 18  |       | False |                                               |
+| 192    | SKU_Topaz         | 1     | Topaz                 |    | Long     | 4   |       | False |                                               |
+| 193    | SKU_Topaz         | 2     | TaxRate               |    | Currency | 8   |       | False | Tax rate / Actual Case                        |
+| 194    | SKU_Topaz         | 3     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 195    | SKU_Topaz         | 4     | DteUpdTopaz           |    | Date     | 8   |       | False |                                               |
+| 196    | SKU_Topaz         | 5     | DteUpdTaxRate         |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 197    | Sku88             | 0     | Sku88                 | *  | Text     | 15  |       | True  | Those Sku start with 88 in business supported |
+| 198    | Sku88             | 1     | Sku                   |    | Text     | 15  |       | False | Those Sku in SAP                              |
+| 199    | Sku88             | 2     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 200    | Sku88             | 3     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 201    | SkuB              | 0     | Sku                   | *  | Text     | 15  |       | True  |                                               |
+| 202    | SkuB              | 1     | BchNo                 | *  | Text     | 10  |       | False |                                               |
+| 203    | SkuB              | 2     | DutyRateB             |    | Currency | 8   |       | True  | Duty Rate / Bottle                            |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 204    | SkuBchRateErr     | 0     | Permit                |    | Long     | 4   |       | False |                                               |
+| 205    | SkuBchRateErr     | 1     | PermitNo              |    | Text     | 50  |       | False |                                               |
+| 206    | SkuBchRateErr     | 2     | PermitDate            |    | Date     | 8   |       | False |                                               |
+| 207    | SkuBchRateErr     | 3     | SeqNo                 |    | Long     | 4   |       | False |                                               |
+| 208    | SkuBchRateErr     | 4     | Sku                   |    | Text     | 15  |       | False |                                               |
+| 209    | SkuBchRateErr     | 5     | BchNo                 |    | Text     | 10  |       | False |                                               |
+| 210    | SkuBchRateErr     | 6     | Rate                  |    | Currency | 8   |       | False |                                               |
+| 211    | SkuBchRateErr     | 7     | DutyRateB             |    | Currency | 8   |       | False |                                               |
+| 212    | SkuBchRateErr     | 8     | Diff                  |    | Currency | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 213    | Switchboard Items | 0     | SwitchboardID         | *  | Long     | 4   |       | False |                                               |
+| 214    | Switchboard Items | 1     | ItemNumber            | *  | Int      | 2   | 0     | False |                                               |
+| 215    | Switchboard Items | 2     | ItemText              |    | Text     | 255 |       | False |                                               |
+| 216    | Switchboard Items | 3     | Command               |    | Int      | 2   |       | False |                                               |
+| 217    | Switchboard Items | 4     | Argument              |    | Text     | 255 |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 218    | tblSAPBrand       | 0     | BrandNo               |    | Long     | 4   |       | False |                                               |
+| 219    | tblSAPBrand       | 1     | BrandName             |    | Text     | 50  |       | False |                                               |
+| 220    | tblSAPBrand       | 2     | BrandDescription      |    | Text     | 250 |       | False |                                               |
+| 221    | tblSAPBrand       | 3     | SAPBrdName            |    | Text     | 50  |       | False |                                               |
+| 222    | tblSAPBrand       | 4     | SAPBrdDesc            |    | Text     | 50  |       | False |                                               |
+| 223    | tblSAPBrand       | 5     | QualityGp             |    | Text     | 50  |       | False |                                               |
+| 224    | tblSAPBrand       | 6     | QualityGpDesc         |    | Text     | 50  |       | False |                                               |
+| 225    | tblSAPBrand       | 7     | BrandFamily           |    | Long     | 4   | 0     | False |                                               |
+| 226    | tblSAPBrand       | 8     | StdCaseSize           |    | Single   | 4   | 0     | False |                                               |
+| 227    | tblSAPBrand       | 9     | SeqNo                 |    | Long     | 4   | 0     | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 228    | tblSAPBrand1      | 0     | BrandNo               |    | Long     | 4   |       | False |                                               |
+| 229    | tblSAPBrand1      | 1     | BrandName             |    | Text     | 50  |       | False |                                               |
+| 230    | tblSAPBrand1      | 2     | BrandDescription      |    | Text     | 250 |       | False |                                               |
+| 231    | tblSAPBrand1      | 3     | SAPBrdName            |    | Text     | 50  |       | False |                                               |
+| 232    | tblSAPBrand1      | 4     | SAPBrdDesc            |    | Text     | 50  |       | False |                                               |
+| 233    | tblSAPBrand1      | 5     | QualityGp             |    | Text     | 50  |       | False |                                               |
+| 234    | tblSAPBrand1      | 6     | QualityGpDesc         |    | Text     | 50  |       | False |                                               |
+| 235    | tblSAPBrand1      | 7     | BrandFamily           |    | Long     | 4   | 0     | False |                                               |
+| 236    | tblSAPBrand1      | 8     | StdCaseSize           |    | Single   | 4   | 0     | False |                                               |
+| 237    | tblSAPBrand1      | 9     | SeqNo                 |    | Long     | 4   | 0     | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 238    | tblSAPBrandFamily | 0     | BrandFamilyNo         | *  | Long     | 4   |       | False |                                               |
+| 239    | tblSAPBrandFamily | 1     | BrandFamilyName       |    | Text     | 50  |       | False |                                               |
+| 240    | tblSAPBrandFamily | 2     | BrandFamilyDesc       |    | Text     | 250 |       | False |                                               |
+| 241    | tblSAPBrandFamily | 3     | Appellation           |    | Long     | 4   | 0     | False |                                               |
+| 242    | tblSAPBrandFamily | 4     | AppellDesc            |    | Text     | 50  |       | False |                                               |
+| 243    | tblSAPBrandFamily | 5     | BusArea               |    | Text     | 4   |       | False |                                               |
+| 244    | tblSAPBrandFamily | 6     | MktStream             |    | Byte     | 1   | 0     | False |                                               |
+| 245    | tblSAPBrandFamily | 7     | SeqNo                 |    | Long     | 4   | 0     | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 246    | tblSAPBusArea     | 0     | BusArea               | *  | Text     | 4   |       | False |                                               |
+| 247    | tblSAPBusArea     | 1     | BusAreaName           |    | Text     | 50  |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 248    | tblSAPProduct     | 0     | ProductNo             |    | Long     | 4   |       | False |                                               |
+| 249    | tblSAPProduct     | 1     | ProductName           |    | Text     | 50  |       | False |                                               |
+| 250    | tblSAPProduct     | 2     | ProdDescription       |    | Text     | 250 |       | False |                                               |
+| 251    | tblSAPProduct     | 3     | BrandNo               |    | Long     | 4   | 0     | False | SAP Quality Group Number                      |
+| 252    | tblSAPProduct     | 4     | BrandName             |    | Text     | 50  |       | False |                                               |
+| 253    | tblSAPProduct     | 5     | BrandDesc             |    | Text     | 50  |       | False |                                               |
+| 254    | tblSAPProduct     | 6     | QualityGp             |    | Text     | 50  |       | False |                                               |
+| 255    | tblSAPProduct     | 7     | QualityGpDesc         |    | Text     | 50  |       | False |                                               |
+| 256    | tblSAPProduct     | 8     | Quality               |    | Text     | 50  |       | False |                                               |
+| 257    | tblSAPProduct     | 9     | QualityDesc           |    | Text     | 50  |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 258    | tblSAPProduct1    | 0     | ProductNo             |    | Long     | 4   |       | False |                                               |
+| 259    | tblSAPProduct1    | 1     | ProductName           |    | Text     | 50  |       | False |                                               |
+| 260    | tblSAPProduct1    | 2     | ProdDescription       |    | Text     | 250 |       | False |                                               |
+| 261    | tblSAPProduct1    | 3     | BrandNo               |    | Long     | 4   | 0     | False | SAP Quality Group Number                      |
+| 262    | tblSAPProduct1    | 4     | BrandName             |    | Text     | 50  |       | False |                                               |
+| 263    | tblSAPProduct1    | 5     | BrandDesc             |    | Text     | 50  |       | False |                                               |
+| 264    | tblSAPProduct1    | 6     | QualityGp             |    | Text     | 50  |       | False |                                               |
+| 265    | tblSAPProduct1    | 7     | QualityGpDesc         |    | Text     | 50  |       | False |                                               |
+| 266    | tblSAPProduct1    | 8     | Quality               |    | Text     | 50  |       | False |                                               |
+| 267    | tblSAPProduct1    | 9     | QualityDesc           |    | Text     | 50  |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 268    | tblSKU            | 0     | SKUNo                 | *  | Decimal  | 16  |       | True  |                                               |
+| 269    | tblSKU            | 1     | RepSiteCode           |    | Int      | 2   |       | True  |                                               |
+| 270    | tblSKU            | 2     | SKUTxt                |    | Text     | 30  |       | False |                                               |
+| 271    | tblSKU            | 3     | CreatedOn             |    | Date     | 8   |       | False |                                               |
+| 272    | tblSKU            | 4     | AmendedOn             |    | Date     | 8   |       | False |                                               |
+| 273    | tblSKU            | 5     | DeleteMark            |    | Boolean  | 1   |       | True  |                                               |
+| 274    | tblSKU            | 6     | DeleteRequestedBy     |    | Long     | 4   |       | False |                                               |
+| 275    | tblSKU            | 7     | BPCSUpdateOn          |    | Date     | 8   |       | False |                                               |
+| 276    | tblSKU            | 8     | BPCSUpload            |    | Boolean  | 1   |       | True  |                                               |
+| 277    | tblSKU            | 9     | BPCSNo                |    | Text     | 20  |       | False |                                               |
+| 278    | tblSKU            | 10    | AlternateNo           |    | Text     | 30  |       | False |                                               |
+| 279    | tblSKU            | 11    | ProductNo             |    | Decimal  | 16  |       | True  |                                               |
+| 280    | tblSKU            | 12    | SKUDescription        |    | Text     | 100 |       | False |                                               |
+| 281    | tblSKU            | 13    | SKUDescriptionShort   |    | Text     | 100 |       | False |                                               |
+| 282    | tblSKU            | 14    | SKUDescriptionFull    |    | Text     | 100 |       | False |                                               |
+| 283    | tblSKU            | 15    | SKUDescriptionCustoms |    | Text     | 100 |       | False |                                               |
+| 284    | tblSKU            | 16    | SKUDescriptionLocal   |    | Text     | 100 |       | False |                                               |
+| 285    | tblSKU            | 17    | SuffixDesc            |    | Text     | 15  |       | False |                                               |
+| 286    | tblSKU            | 18    | BtlPerCs              |    | Decimal  | 16  |       | False |                                               |
+| 287    | tblSKU            | 19    | Size                  |    | Decimal  | 16  |       | False |                                               |
+| 288    | tblSKU            | 20    | Vintage               |    | Text     | 15  |       | False |                                               |
+| 289    | tblSKU            | 21    | DeclaredStrength      |    | Decimal  | 16  |       | False |                                               |
+| 290    | tblSKU            | 22    | CsWeightGross         |    | Decimal  | 16  |       | False |                                               |
+| 291    | tblSKU            | 23    | CsWeightNet           |    | Decimal  | 16  |       | False |                                               |
+| 292    | tblSKU            | 24    | CsLength              |    | Decimal  | 16  |       | False |                                               |
+| 293    | tblSKU            | 25    | CsWidth               |    | Decimal  | 16  |       | False |                                               |
+| 294    | tblSKU            | 26    | CsHeight              |    | Decimal  | 16  |       | False |                                               |
+| 295    | tblSKU            | 27    | CsPerPallet           |    | Long     | 4   |       | False |                                               |
+| 296    | tblSKU            | 28    | DCCode                |    | Text     | 50  |       | False |                                               |
+| 297    | tblSKU            | 29    | PriceListItem         |    | Boolean  | 1   |       | True  |                                               |
+| 298    | tblSKU            | 30    | Status                |    | Long     | 4   |       | True  |                                               |
+| 299    | tblSKU            | 31    | PromotionProduct      |    | Decimal  | 16  |       | True  |                                               |
+| 300    | tblSKU            | 32    | Filter                |    | Long     | 4   |       | False |                                               |
+| 301    | tblSKU            | 33    | StockClass            |    | Long     | 4   |       | False |                                               |
+| 302    | tblSKU            | 34    | LEB_LeadSKU           |    | Boolean  | 1   |       | True  |                                               |
+| 303    | tblSKU            | 35    | SKUGroup              |    | Decimal  | 16  |       | False |                                               |
+| 304    | tblSKU            | 36    | MProductNo            |    | Decimal  | 16  |       | False |                                               |
+| 305    | tblSKU            | 37    | Ordinal               |    | Decimal  | 16  |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 306    | Tmp1              | 0     | AA                    |    | Long     | 4   |       | False |                                               |
+| 307    | Tmp1              | 1     | BB                    |    | Text     | 10  |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 308    | Tmp2              | 0     | AA                    |    | Long     | 4   |       | False |                                               |
+| 309    | Tmp2              | 1     | BB                    |    | Text     | 10  |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 310    | Topaz             | 0     | Topaz                 | *  | Long     | 4   |       | False |                                               |
+| 311    | Topaz             | 1     | CdTopaz               |    | Text     | 20  |       | False |                                               |
+| 312    | Topaz             | 2     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 313    | YpIO              | 0     | YpIO                  | *  | Byte     | 1   | 0     | True  |                                               |
+| 314    | YpIO              | 1     | NmYpIO                |    | Text     | 8   |       | True  |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 315    | YpStk             | 0     | YpStk                 | *  | Byte     | 1   | 0     | True  | Stock Type                                    |
+| 316    | YpStk             | 1     | NmYpStk               |    | Text     | 50  |       | False | Stock Type Name                               |
+| 317    | YpStk             | 2     | IsTaxPaid             |    | Boolean  | 1   | 0     | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 318    | YrAdjD            | 0     | Yr                    | *  | Byte     | 1   |       | False |                                               |
+| 319    | YrAdjD            | 1     | Sku                   | *  | Text     | 15  |       | False |                                               |
+| 320    | YrAdjD            | 2     | AdjTot                |    | Currency | 8   |       | False |                                               |
+| 321    | YrAdjD            | 3     | DteCrt                |    | Date     | 8   |       | False |                                               |
+| 322    | YrAdjD            | 4     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 323    | YrAdjDW           | 0     | Sku                   | *  | Text     | 255 |       | False |                                               |
+| 324    | YrAdjDW           | 1     | OpnQty                |    | Long     | 4   |       | False |                                               |
+| 325    | YrAdjDW           | 2     | OpnTot                |    | Currency | 8   |       | False |                                               |
+| 326    | YrAdjDW           | 3     | OpnRate               |    | Currency | 8   |       | False |                                               |
+| 327    | YrAdjDW           | 4     | ClsQty                |    | Long     | 4   |       | False |                                               |
+| 328    | YrAdjDW           | 5     | ClsTot                |    | Currency | 8   |       | False |                                               |
+| 329    | YrAdjDW           | 6     | ClsRate               |    | Currency | 8   |       | False |                                               |
+| 330    | YrAdjDW           | 7     | AdjTot                |    | Currency | 8   |       | False |                                               |
+| 331    | YrAdjDW           | 8     | AdjRate               |    | Currency | 8   |       | False |                                               |
+| 332    | YrAdjDW           | 9     | NewTot                |    | Currency | 8   |       | False |                                               |
+| 333    | YrAdjDW           | 10    | NewRate               |    | Currency | 8   |       | False |                                               |
+| 334    | YrAdjDW           | 11    | DteCrt                |    | Date     | 8   |       | False |                                               |
+| 335    | YrAdjDW           | 12    | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 336    | YrO               | 0     | Yr                    | *  | Byte     | 1   | 0     | False |                                               |
+| 337    | YrO               | 1     | NSku                  |    | Int      | 2   | 0     | False |                                               |
+| 338    | YrO               | 2     | OpnQty                |    | Long     | 4   | 0     | True  |                                               |
+| 339    | YrO               | 3     | OpnTot                |    | Currency | 8   | 0     | True  |                                               |
+| 340    | YrO               | 4     | AdjNSku               |    | Long     | 4   |       | False |                                               |
+| 341    | YrO               | 5     | AdjTot                |    | Currency | 8   |       | False |                                               |
+| 342    | YrO               | 6     | AdjDteUpd             |    | Date     | 8   |       | False |                                               |
+| 343    | YrO               | 7     | DteCrt                |    | Date     | 8   | Now() | True  |                                               |
+| 344    | YrO               | 8     | DteUpd                |    | Date     | 8   |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 345    | YrOD              | 0     | Yr                    | *  | Byte     | 1   | 0     | False |                                               |
+| 346    | YrOD              | 1     | Sku                   | *  | Text     | 50  |       | False |                                               |
+| 347    | YrOD              | 2     | OpnQty                |    | Long     | 4   | 0     | False |                                               |
+| 348    | YrOD              | 3     | OpnRate               |    | Currency | 8   | 0     | False |                                               |
+| 349    | YrOD              | 4     | OpnTot                |    | Currency | 8   | 0     | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|
+| 350    | #SkuBchRateErr    | 0     | Sku                   |    | Text     | 15  |       | False |                                               |
+| 351    | #SkuBchRateErr    | 1     | BchNo                 |    | Text     | 10  |       | False |                                               |
+|--------|-------------------|-------|-----------------------|----|----------|-----|-------|-------|-----------------------------------------------|

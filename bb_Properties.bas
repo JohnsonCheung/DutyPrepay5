@@ -1,21 +1,22 @@
 Attribute VB_Name = "bb_Properties"
 Option Compare Database
+Option Explicit
 
-Property Get CurFb$()
+Function CurFb$()
 CurFb = CurrentDb.Name
-End Property
+End Function
 
-Property Get CurPth$()
+Function CurPth$()
 CurPth = FfnPth(CurFb)
-End Property
+End Function
 
-Property Get DtaDb() As DAO.Database
+Function DtaDb() As Dao.Database
 Set DtaDb = DBEngine.OpenDatabase(DtaFb)
-End Property
+End Function
 
-Property Get DtaFb$()
-DtaFb = AddFnSfx(CurFb, "_Data")
-End Property
+Function DtaFb$()
+DtaFb = FfnRplExt(FfnAddFnSfx(CurFb, "_Data"), ".mdb")
+End Function
 
 Function PermitImpPth$()
 Dim O$: O = CurPth & "Import - Permit\"
@@ -23,6 +24,6 @@ PthEns O
 PermitImpPth = O
 End Function
 
-Property Get WrkPth$()
+Function WrkPth$()
 WrkPth = CurPth & "WorkingDir\"
-End Property
+End Function

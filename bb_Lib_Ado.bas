@@ -69,6 +69,10 @@ Function ARsFny(Rs As ADODB.Recordset) As String()
 ARsFny = AFldsFny(Rs.Fields)
 End Function
 
+Function CatCnn(A As Catalog) As ADODB.Connection
+Set CatCnn = A.ActiveConnection
+End Function
+
 Function FbAqlDrs(Fb, Sql) As Drs
 FbAqlDrs = AqlDrs(FbCnn(Fb), Sql)
 End Function

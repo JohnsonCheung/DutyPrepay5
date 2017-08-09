@@ -3,7 +3,7 @@ Option Compare Database
 Option Explicit
 
 Function PthFfnAy(P, Optional Spec$ = "*.*") As String()
-PthFfnAy = AddAyPfx(PthFnAy(P, Spec), P)
+PthFfnAy = AyAddPfx(PthFnAy(P, Spec), P)
 End Function
 
 Function PthFnAy(P, Optional Spec$ = "*.*") As String()

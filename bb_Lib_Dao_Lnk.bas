@@ -23,7 +23,7 @@ Sub LnkFb(Fb, TblNm_or_Ny, Optional Tar, Optional D As Database)
 Dim Src$(): Src = NyCv(TblNm_or_Ny)
 Dim mTar$(): mTar = NyCv(Dft(Tar, Src))
 Dim Db As Database: Set Db = DftDb(D)
-Dim Tbl As DAO.TableDef
+Dim Tbl As Dao.TableDef
 Dim J%
 For J = 0 To UB(mTar)
     Set Tbl = Db.CreateTableDef(mTar(J))
@@ -38,7 +38,7 @@ Sub LnkFx(Fx, WsNm_or_Ny, Optional Tar, Optional D As Database)
 Dim Src$(): Src = NyCv(WsNm_or_Ny)
 Dim mTar$(): mTar = NyCv(Dft(Tar, Src))
 Dim Db As Database: Set Db = DftDb(D)
-Dim Tbl As DAO.TableDef
+Dim Tbl As Dao.TableDef
 Dim J%
 For J = 0 To UB(mTar)
     Set Tbl = Db.CreateTableDef(mTar(J))
@@ -55,7 +55,7 @@ End Function
 
 Private Sub FxDb__Tst()
 Dim Db As Database: Set Db = FxDb("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
-AyDmp Tny(Db)
+AyDmp DbTny(Db)
 Db.Close
 End Sub
 

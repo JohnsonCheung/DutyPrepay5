@@ -19,7 +19,7 @@ Function SqlLng&(Sql$, Optional D As Database)
 SqlLng = SqlV(Sql, D)
 End Function
 
-Function SqlRs(Sql$, Optional D As Database) As DAO.Recordset
+Function SqlRs(Sql$, Optional D As Database) As Dao.Recordset
 Set SqlRs = DftDb(D).OpenRecordset(Sql)
 End Function
 

@@ -2,17 +2,6 @@ Attribute VB_Name = "bb_Lib_Vb_Ay"
 Option Compare Database
 Option Explicit
 
-Function AddAyPfx(Ay, Pfx) As String()
-Dim O$(), U&, J&
-U = UB(Ay)
-If U = -1 Then Exit Function
-ReDim Preserve O(U)
-For J = 0 To U
-    O(J) = Pfx & Ay(J)
-Next
-AddAyPfx = O
-End Function
-
 Sub AssertChk(Chk$())
 If AyIsEmpty(Chk) Then Exit Sub
 AyBrw Chk
@@ -22,6 +11,33 @@ End Sub
 Sub AssertEqAy(Ay1, Ay2, Optional Ay1Nm$ = "Exp", Optional Ay2Nm$ = "Act")
 AssertChk ChkEqAy(Ay1, Ay2, Ay1Nm, Ay2Nm)
 End Sub
+
+Function AyAdd(Ay, ParamArray AyAp())
+Dim Av(): Av = AyAp
+Dim A
+Dim O: O = Ay
+For Each A In Av
+    PushAy O, A
+Next
+AyAdd = O
+End Function
+
+Function AyAddOneAy(Ay1, Ay2)
+Dim O: O = Ay1
+PushAy O, Ay2
+AyAddOneAy = O
+End Function
+
+Function AyAddPfx(Ay, Pfx) As String()
+Dim O$(), U&, J&
+U = UB(Ay)
+If U = -1 Then Exit Function
+ReDim Preserve O(U)
+For J = 0 To U
+    O(J) = Pfx & Ay(J)
+Next
+AyAddPfx = O
+End Function
 
 Sub AyAsg(Ay, ParamArray OAp())
 Dim Av(): Av = OAp
@@ -102,6 +118,63 @@ Function AyLasEle(Ay)
 AyLasEle = Ay(UB(Ay))
 End Function
 
+Function AyMinus(Ay, ParamArray AyAp())
+Dim O: O = Ay
+Dim Av(): Av = AyAp
+Dim Ay1, V
+For Each Ay1 In Av
+    If AyIsEmpty(O) Then AyMinus = O: Exit Function
+    O = AyMinusOneAy(O, Ay1)
+Next
+AyMinus = O
+End Function
+
+Function AyMinusOneAy(Ay1, Ay2)
+If AyIsEmpty(Ay1) Then AyMinusOneAy = Ay1: Exit Function
+Dim O: O = Ay1: Erase O
+Dim mAy2: mAy2 = Ay2
+Dim V
+For Each V In Ay1
+    If AyHas(mAy2, V) Then
+        AyRmvEle mAy2, V
+    Else
+        Push O, V
+    End If
+Next
+AyMinusOneAy = O
+End Function
+
+Sub AyRmvEle(Ay, Optional Ele, Optional At& = -1)
+Dim Idx&
+    If IsMissing(Ele) Then
+        Idx = At
+    Else
+        Idx = AyIdx(Ay, Ele)
+    End If
+AyRmvEleAtCnt Ay, Idx, 1
+End Sub
+
+Sub AyRmvEleAtCnt(Ay, At&, Optional Cnt& = 1)
+If Cnt <= 0 Then Exit Sub
+If At < 0 Then Exit Sub
+Dim U&: U = UB(Ay)
+If At > U Then Exit Sub
+If U = 0 Then Exit Sub
+Dim J&
+For J = At To U - Cnt
+    Ay(J) = Ay(J + Cnt)
+Next
+ReDim Preserve Ay(U - Cnt)
+End Sub
+
+Sub AyRmvFstEle(Ay)
+AyRmvEle Ay, At:=0
+End Sub
+
+Sub AyRmvLasEle(Ay)
+AyRmvEle Ay, At:=UB(Ay)
+End Sub
+
 Function AySrt(Ay, Optional Des As Boolean)
 If AyIsEmpty(Ay) Then AySrt = Ay: Exit Function
 Dim Idx&, V, J&
@@ -150,41 +223,36 @@ Next
 AySy = O
 End Function
 
+Sub AyTrim(Ay)
+Dim J&
+For J = 0 To UB(Ay)
+    Ay(J) = Trim(Ay(J))
+Next
+End Sub
+
 Sub AyWrt(Ay, Ft)
 StrWrt JnCrLf(Ay), Ft
 End Sub
 
 Function ChkEqAy(Ay1, Ay2, Optional Ay1Nm$ = "Exp", Optional Ay2Nm$ = "Act") As String()
+Dim U&: U = UB(Ay1)
 Dim O$()
-    If Sz(Ay1) <> Sz(Ay2) Then Push O, FmtQQ("Array [?] and [?] has different Sz: [?] [?]", Ay1Nm, Ay2Nm, Sz(Ay1), Sz(Ay2)): GoTo X
+    If U <> UB(Ay2) Then Push O, FmtQQ("Array [?] and [?] has different Sz: [?] [?]", Ay1Nm, Ay2Nm, Sz(Ay1), Sz(Ay2)): GoTo X
+If AyIsEmpty(Ay1) Then Exit Function
 Dim O1$()
     Dim A2: A2 = Ay2
-    Dim J%, ReachLimit As Boolean
-    Dim V
-    For Each V In Ay1
-        If AyHas(A2, V) Then
-            RmvEle A2, V
-        Else
-            Push O1, FmtQQ("Ele in [?] not found in {?]: [?]", Ay1Nm, Ay2Nm, V)
-            J = J + 1
+    Dim J&, ReachLimit As Boolean
+    Dim Cnt%
+    For J = 0 To U
+        If Ay1(J) <> Ay2(J) Then
+            Push O1, FmtQQ("[?]-th Ele is diff: ?[?]<>?[?]", Ay1Nm, Ay2Nm, Ay1(J), Ay2(J))
+            Cnt = Cnt + 1
         End If
-        If J > 10 Then
+        If Cnt > 10 Then
             ReachLimit = True
             Exit For
         End If
     Next
-    If Not AyIsEmpty(A2) Then
-        If J < 10 Then
-            For Each V In A2
-                Push O1, FmtQQ("Ele in [?] not found in {?]: [?]", Ay2Nm, Ay1Nm, V)
-                J = J + 1
-                If J > 10 Then
-                    ReachLimit = True
-                    Exit For
-                End If
-            Next
-        End If
-    End If
 If IsEmpty(O1) Then Exit Function
 Dim O2$()
     Push O2, FmtQQ("Array [?] and [?] both having size[?] have differnt element(s):", Ay1Nm, Ay2Nm, Sz(Ay1))
@@ -258,24 +326,6 @@ Dim O$()
 QuoteAy = O
 End Function
 
-Sub RmvEle(Ay, Ele, Optional At& = -1)
-Dim Idx&
-    If At < 0 Then
-        Idx = AyIdx(Ay, Ele)
-    Else
-        Idx = At
-    End If
-If Idx = -1 Then Exit Sub
-Dim U&: U = UB(Ay)
-If At > U Then Exit Sub
-If U = 0 Then Erase Ay: Exit Sub
-Dim J&
-For J = Idx To U - 1
-    Ay(J) = Ay(J + 1)
-Next
-ReDim Preserve Ay(U - 1)
-End Sub
-
 Sub RmvLasNEle(Ay, Optional NEle% = 1)
 ReDim Preserve Ay(UB(Ay) - NEle)
 End Sub
@@ -336,6 +386,37 @@ Private Sub Tst_ResPthBrw()
 PthBrw Tst_ResPth
 End Sub
 
+Sub AyAddOneAy__Tst()
+Dim Act(), Exp(), Ay1(), Ay2()
+Ay1 = Array(1, 2, 2, 2, 4, 5)
+Ay2 = Array(2, 2)
+Act = AyAddOneAy(Ay1, Ay2)
+Exp = Array(1, 2, 2, 2, 4, 5, 2, 2)
+AssertEqAy Exp, Act
+AssertEqAy Ay1, Array(1, 2, 2, 2, 4, 5)
+AssertEqAy Ay2, Array(2, 2)
+End Sub
+
+Sub AyMinusOneAy__Tst()
+Dim Act(), Exp()
+Dim Ay1(), Ay2()
+Ay1 = Array(1, 2, 2, 2, 4, 5)
+Ay2 = Array(2, 2)
+Act = AyMinusOneAy(Ay1, Ay2)
+Exp = Array(1, 2, 4, 5)
+AssertEqAy Exp, Act
+'
+Act = AyMinus(Array(1, 2, 2, 2, 4, 5), Array(2, 2), Array(5))
+Exp = Array(1, 2, 4)
+AssertEqAy Exp, Act
+End Sub
+
+Private Sub AyRmvEleAtCnt__Tst()
+Dim Ay(): Ay = Array(1, 2, 3, 4, 5)
+AyRmvEleAtCnt Ay, 1, 2
+AssertEqAy Array(1, 4, 5), Ay
+End Sub
+
 Private Sub AySrt__Tst()
 Dim Exp, Act
 Dim Ay
@@ -380,6 +461,9 @@ AyDmp ChkEqAy(Array(1, 2, 3, 3, 4), Array(1, 2, 3, 4, 4))
 End Sub
 
 Sub Tst()
+AyAddOneAy__Tst
+AyMinusOneAy__Tst
+AyRmvEleAtCnt__Tst
 AySrt__Tst
 AySrtIntoIdxAy__Tst
 ChkEqAy__Tst

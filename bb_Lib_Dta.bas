@@ -44,28 +44,13 @@ O.Dry = ODry
 DrsAddRowIdxCol = O
 End Function
 
-Sub DrsBrw(Drs As Drs)
-AyBrw DrsLy(Drs)
+Sub DrsBrw(Drs As Drs, Optional MaxColWdt& = 100)
+AyBrw DrsLy(Drs, MaxColWdt)
 End Sub
 
 Function DrsCol(Drs As Drs, ColNm$) As Variant()
 Dim ColIdx%: ColIdx = AyIdx(Drs.Fny, ColNm)
 DrsCol = DryCol(Drs.Dry, ColIdx)
-End Function
-
-Function DrsLy(A As Drs) As String()
-If AyIsEmpty(A.Fny) Then Exit Function
-Dim Drs As Drs: Drs = DrsAddRowIdxCol(A)
-Dim Dry(): Dry = Drs.Dry
-Push Dry, Drs.Fny
-Dim Ay$(): Ay = DryLy(Dry)
-Dim Lin$: Lin = Pop(Ay)
-Dim Hdr$: Hdr = Pop(Ay)
-Dim O$()
-    PushAy O, Array(Lin, Hdr)
-    PushAy O, Ay
-    Push O, Lin
-DrsLy = O
 End Function
 
 Function DrsSel(A As Drs, Fny) As Drs
@@ -95,13 +80,13 @@ Sub DsBrw(A As Ds)
 AyBrw DsLy(A)
 End Sub
 
-Function DsLy(A As Ds) As String()
+Function DsLy(A As Ds, Optional MaxColWdt& = 1000) As String()
 Dim O$()
     Push O, "*Ds " & A.DsNm
 If Not IsEmptyDtAy(A.DtAy) Then
     Dim J%
     For J = 0 To UBound(A.DtAy)
-        PushAy O, DtLy(A.DtAy(J))
+        PushAy O, DtLy(A.DtAy(J), MaxColWdt)
     Next
 End If
 DsLy = O
@@ -146,14 +131,11 @@ Sub DtDmp(Dt As Dt)
 AyDmp DtLy(Dt)
 End Sub
 
-Function DtLy(Dt As Dt) As String()
-Dim Rs As Drs
-    Rs.Fny = Dt.Fny
-    Rs.Dry = Dt.Dry
-Dim O$()
-    Push O, "*Tbl " & Dt.DtNm
-    PushAy O, DrsLy(Rs)
-DtLy = O
+Function DtDrs(A As Dt) As Drs
+Dim O As Drs
+O.Fny = A.Fny
+O.Dry = A.Dry
+DtDrs = O
 End Function
 
 Function FidxAy(Fny$(), FldNmLvs$) As Long()
