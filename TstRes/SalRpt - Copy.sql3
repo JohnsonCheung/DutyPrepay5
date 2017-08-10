@@ -1,0 +1,143 @@
+-- Rmk: -- is remark
+-- 3Lvl: alway 3 level
+-- 4spc: Lvl1 has no space, Lvl2 has exactly 4 space and Lvl3 always have 8 space
+-- NoSpcInNm: Lvl2 (name), cannot have space
+-- Lvl1: is namespace, use do to separate
+-- Lvl2: is name.  That means is always under a namespace
+-- Root Ns: fst non remark line is root ns
+-- Lvl3: is expression
+-- Lvl2Nm-?: can be have optional ? in front which means its value can be empty string
+-- Lvl2Nm-?-Fst-term-of- expression: It must belong with ?
+-- ?: namepace-? is for 
+-- Output: a hash of all name with namespace
+-- FirstLvl1: first Lvl1 is consider as the output
+Sql
+    Drp  .Drp Tx TxMbr MbrDta Div Sto Crd Cnt Oup MbrWs
+    T    @ Tx TxMbr ?MbrDta Div Sto Crd
+    O    @ Cnt Oup ?MbrWs
+Sql.T
+    Tx
+        @Sel Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
+        .Into
+        .Fm SalesHistory
+        .Wh SHSDate between '@P.Fm' and '@P.To'
+        @And ?Div ?Sto ?Dte
+        @Gp Crd ?Mbr ?Div ?Sto ?Dte
+    Tx .Upd .Set@ TxWD
+    TxMbr
+        .SelDis Mbr
+        .Into
+        .Fm #Tx
+    ?MbrDta 
+	?BrkMbr @Sel Mbr Age Sex Sts Dist Area 
+        .Into
+        .Fm JCMember
+        .Wh JCMCode (Select Mbr From #TxMbr)
+    Div @Sel Div Nm Seq Sts .Fm Division
+    Sto @Sel Sto Nm CNm .Fm LocTbl
+    Crd @Sel Crd Nm .Fm JR_FrqMbrLis_#CrdTy()
+Sql.O
+    Cnt @Sel ?MbrCnt RecCnt TxCnt Qty Amt .Into .Fm #Tx
+    Oup
+        @Sel Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
+        .Into
+        .Fm #Tx x
+        @Jn Crd ?Div ?Sto ?Mbr
+    ?MbrWs 
+        ?SelMbr @Sel Mbr ?Nm ?Adr ?Mail ?Phone 
+        .Into
+        .Fm JCMember 
+        .Wh JCMCode in (Select Mbr From #TxMbr)
+Sql.T.Tx.Set
+    TxWD . ..
+Sql.T.Tx.Sel
+    Crd @ CasewhenThen Else End
+    Amt . Sum(SHAmount)
+    Qty . Sum(SHQty)
+    Cnt . Count(SHInvoice+SHSDate+SHRef)
+    ?Mbr ?BrkMbr . JCMMCode
+    ?Div ?BrkDiv $ {Expr.Div} Div --- Invalid Op[?BrkDiv] --- Invalid Op[?BrkDiv]
+    ?Sto ?BrkSto $ {Expr.Sto} Sto --- Invalid Op[?BrkDiv] --- Invalid Op[?BrkSto] --- Invalid Op[?BrkSto]
+    ?Dte @ Expr --- Invalid Op[?BrkSto]
+@Sql.T.Tx.Sel.Crd
+    CasewhenThen . ..
+    Else . ..
+    NEnd . Repeat :N END~
+    End . | :NEnd
+@Sql.T.Tx.And
+    ?Div ?SelDiv $And {Expr.Div} in ({In.Div}) --- Invalid Op[?SelDiv] --- Invalid Op[?SelDiv]
+    ?Crd ?SelCrd $And {Expr.Crd} in ({In.Crd}) --- Invalid Op[?SelDiv] --- Invalid Op[?SelCrd] --- Invalid Op[?SelCrd]
+    ?Sto ?SelSto $And {Expr.Sto} in ({In.Sto}) --- Invalid Op[?SelCrd] --- Invalid Op[?SelSto] --- Invalid Op[?SelSto]
+Sql.T.Tx.Gp --- Invalid Op[?SelSto]
+    Crd @Expr.Crd --- Invalid Op[@Expr.Crd] --- Invalid Op[@Expr.Crd]
+    ?Mbr ?BrkMbr SHMCode --- Invalid Op[@Expr.Crd] --- Invalid Op[?BrkMbr] --- Invalid Op[?BrkMbr]
+    ?Div ?BrkDiv @Expr.Div --- Invalid Op[?BrkMbr] --- Invalid Op[?BrkDiv] --- Invalid Op[?BrkDiv]
+    ?Sto ?BrkSto @Expr.Sto --- Invalid Op[?BrkDiv] --- Invalid Op[?BrkSto] --- Invalid Op[?BrkSto]
+    ?Dte ?BrkDte @Expr.Dte --- Invalid Op[?BrkSto] --- Invalid Op[?BrkDte] --- Invalid Op[?BrkDte]
+Expr --- Invalid Op[?BrkDte]
+    Div . a
+    Sto . a
+    Dte
+        ?SumY @Comma TxY --- Invalid Op[?SumY] --- Invalid Op[?SumY]
+        ?SumM @Comma TxY TxM --- Invalid Op[?SumY] --- Invalid Op[?SumM] --- Invalid Op[?SumM]
+        ?SumW @Comma TxY TxM TxW --- Invalid Op[?SumM] --- Invalid Op[?SumW] --- Invalid Op[?SumW]
+        ?SumD @Comma TxY TxM TxW TxD TxWD TxDte --- Invalid Op[?SumW] --- Invalid Op[?SumD] --- Invalid Op[?SumD]
+    TxY . SUBSTR(SHSDate,1,4) --- Invalid Op[?SumD]
+    TxM . SUBSTR(SHSDate,5,2)
+    TxW . TxW
+    TxD . SUBSTR(SHSDate,7,2)
+    TxWD . TxWD
+    TxDte . SHSDate
+Sql.T.?MbrDta.Sel
+    Mbr . JCMCode
+    Age . DATEDIFF(YEAR,CONVERT(DATETIME ,JCMDOB,112),GETDATE())
+    Sex . JCMSex
+    Sts . JCMStatus
+    Dist . JCMDist
+    Area . JCMArea
+Sql.T.Div.Sel
+    Div . Dept + Division
+    Nm  - LongDesc --- Invalid Op[-] --- Invalid Op[-]
+    Seq . Seq --- Invalid Op[-]
+    Sts . Status
+Sql.T.Sto.Sel
+    Sto . '0'+Loc_Code
+    Nm  . Loc_Name
+    CNm . Loc_CName
+Sql.T.Crd.Sel
+    Crd . CrdTyId
+    Nm  . CrdTyNm
+?
+    SelDiv .Ne {Prm.DivLis} *Blank --- Invalid Op[.Ne] --- Invalid Op[.Ne]
+    SelCrd .Ne {Prm.CrdLis *Blank --- Invalid Op[.Ne] --- Invalid Op[.Ne] --- Invalid Op[.Ne]
+    SelSto .Ne {Prm.StoLis *Blank --- Invalid Op[.Ne] --- Invalid Op[.Ne] --- Invalid Op[.Ne]
+    BrkDiv .Eq {Prm.BrkSto 1 --- Invalid Op[.Ne] --- Invalid Op[.Eq] --- Invalid Op[.Eq]
+    BrkSto .Eq {Prm.BrkSto 1 --- Invalid Op[.Eq] --- Invalid Op[.Eq] --- Invalid Op[.Eq]
+    BrkSto .Eq {Prm.BrkSto 1 --- Invalid Op[.Eq] --- Invalid Op[.Eq] --- Invalid Op[.Eq]
+    Y .Eq {Prm.SumLvl} Y --- Invalid Op[.Eq] --- Invalid Op[.Eq] --- Invalid Op[.Eq]
+    M .Eq {Prm.SumLvl} M --- Invalid Op[.Eq] --- Invalid Op[.Eq] --- Invalid Op[.Eq]
+    W .Eq {Prm.SumLvl} W --- Invalid Op[.Eq] --- Invalid Op[.Eq] --- Invalid Op[.Eq]
+    D .Eq {Prm.SumLvl} D --- Invalid Op[.Eq] --- Invalid Op[.Eq] --- Invalid Op[.Eq]
+    Dte .Or Y M W D --- Invalid Op[.Eq]
+    AnyMbrInf {Prm !Or .InclAdr .InclPhone .InclMail --- Invalid Op[{Prm] --- Invalid Op[{Prm]
+    Mbr .And BrkMbr AnyMbrInf --- Invalid Op[{Prm]
+Sql.O.Oup.Sel
+    ?Mbr ?BrkMbr Mbr --- Invalid Op[?BrkMbr] --- Invalid Op[?BrkMbr]
+    ?Sto ?BrkSto Sto --- Invalid Op[?BrkMbr] --- Invalid Op[?BrkSto] --- Invalid Op[?BrkSto]
+    ?Div ?BrkDiv Div --- Invalid Op[?BrkSto] --- Invalid Op[?BrkDiv] --- Invalid Op[?BrkDiv]
+Sql.O.Oup.Sel.Dte --- Invalid Op[?BrkDiv]
+    Y TxY --- Invalid Op[TxY] --- Invalid Op[TxY]
+    M TxY TxM --- Invalid Op[TxY] --- Invalid Op[TxY] --- Invalid Op[TxY]
+    W TxY TxM TxW --- Invalid Op[TxY] --- Invalid Op[TxY] --- Invalid Op[TxY]
+    D TxY TxM TxW TxD TxWD TxDte --- Invalid Op[TxY] --- Invalid Op[TxY] --- Invalid Op[TxY]
+Sql.O.Cnt.Sel --- Invalid Op[TxY]
+    MbrCnt . MbrCnt
+    RecCnt . Count(*)
+    TxCnt  . Sum(TxCnt)
+    Qty    . Sum(Qty)
+    Amt    . Sum(Amt)
+Sql.O.Oup.Jn
+    Crd . | Left Join #Crd a #Crd on a.Crd=x.Crd
+    ?Mbr ?BrkMbr . | Left Join #MbrDta b on a.Mbr = x.Mbr
+    ?Div ?BrkDiv . | Left Join #Div on c.Div = x.Div
+    ?Sto ?BrkSto . | Left Join #Sto on d.Sto = x.Sto ---aaa

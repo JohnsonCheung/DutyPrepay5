@@ -9,7 +9,11 @@ Type Map
     Sy1() As String
     Sy2() As String
 End Type
-
+Function BrkRev(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStr(S, Sep)
+If P = 0 Then Err.Raise "BrkRev: Str[" & S & "] does not contains Sep[" & Sep & "]"
+BrkRev = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
 Function Brk(S, Sep, Optional NoTrim As Boolean) As S1S2
 Dim P&: P = InStr(S, Sep)
 If P = 0 Then Err.Raise "Brk: Str[" & S & "] does not contains Sep[" & Sep & "]"
@@ -18,6 +22,9 @@ End Function
 
 Function Brk1(S, Sep, Optional NoTrim As Boolean) As S1S2
 Dim P&: P = InStr(S, Sep)
+Brk1 = Brk1__(S, P, Sep, NoTrim)
+End Function
+Private Function Brk1__(S, P&, Sep, NoTrim As Boolean) As S1S2
 If P = 0 Then
     Dim O As S1S2
     If NoTrim Then
@@ -25,10 +32,26 @@ If P = 0 Then
     Else
         O.S1 = Trim(S)
     End If
-    Brk1 = O
+    Brk1__ = O
     Exit Function
 End If
-Brk1 = BrkAt(S, P, Len(Sep), NoTrim)
+Brk1__ = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
+Private Sub Brk1Rev__Tst()
+Dim S1$, S2$, ExpS1$, ExpS2$, S$
+S = "aa --- bb --- cc"
+ExpS1 = "aa --- bb"
+ExpS2 = "cc"
+With Brk1Rev(S, "---")
+    S1 = .S1
+    S2 = .S2
+End With
+Debug.Assert S1 = ExpS1
+Debug.Assert S2 = ExpS2
+End Sub
+Function Brk1Rev(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStrRev(S, Sep)
+Brk1Rev = Brk1__(S, P, Sep, NoTrim)
 End Function
 
 Function Brk2(S, Sep, Optional NoTrim As Boolean) As S1S2
@@ -110,6 +133,17 @@ Case Else
     End If
 End Select
 BrkQuote = O
+End Function
+
+Function MapDic(A As Map) As Dictionary
+Dim J&, O As New Dictionary
+With A
+    Dim U&: U = UB(.Sy1)
+    For J = 0 To U
+        O.Add .Sy1(J), .Sy2(J)
+    Next
+End With
+Set MapDic = O
 End Function
 
 Private Sub BrkMapStr__Tst()

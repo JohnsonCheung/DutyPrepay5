@@ -96,8 +96,8 @@ PushNonEmpty O, ErMsg_DtaTy__Msg("Duty Paid Amount", dbDouble)
 ErMsg_DtaTy = O
 End Function
 
-Function ErMsg_DtaTy__Msg$(F$, ExpT As Dao.DataTypeEnum)
-Dim T As Dao.DataTypeEnum: T = TblFld("Imp", F, WrkDb).Type
+Function ErMsg_DtaTy__Msg$(F$, ExpT As DAO.DataTypeEnum)
+Dim T As DAO.DataTypeEnum: T = TblFld("Imp", F, WrkDb).Type
 If T <> ExpT Then ErMsg_DtaTy__Msg = FmtQQ("Column[?] should be [?], but now it is[?]", F, DaoTyStr(ExpT), DaoTyStr(T))
 End Function
 
@@ -142,7 +142,7 @@ Dim Miss$()
     Next
 If AyIsEmpty(Miss) Then Exit Function
 Dim O$()
-    Push O, "Missing column: " & JnComma(QuoteAy(Miss, "[]"))
+    Push O, "Missing column: " & JnComma(AyQuote(Miss, "[]"))
 ErMsg_MissingCol = O
 End Function
 
@@ -159,7 +159,7 @@ Dim WsNy$(): WsNy = FxWsNy(AFx)
 Dim NWs%: NWs = Sz(WsNy)
 Dim O$()
     If NWs <> 1 And NWs <> 2 Then
-        Push O, FmtQQ("The workboOk_ should have 1 or 2 worksheets, but now it is [?] worksheets: " & JnSpc(QuoteAy(WsNy, "[]")), NWs)
+        Push O, FmtQQ("The workboOk_ should have 1 or 2 worksheets, but now it is [?] worksheets: " & JnSpc(AyQuote(WsNy, "[]")), NWs)
         ErMsg_Sheet1 = O
         Exit Function
     End If
@@ -331,7 +331,7 @@ PermitNoAy = X
 End Function
 
 Function PermitNoLis$()
-PermitNoLis = JnComma(QuoteAy(PermitNoAy, "'"))
+PermitNoLis = JnComma(AyQuote(PermitNoAy, "'"))
 End Function
 
 Function Sql_DltTbl_Permit$()

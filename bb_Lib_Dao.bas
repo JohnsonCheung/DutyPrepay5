@@ -2,18 +2,19 @@ Attribute VB_Name = "bb_Lib_Dao"
 Option Compare Database
 Option Explicit
 
-Sub AA1()
-DbInfBrw
-End Sub
-
-Sub AddFld(T, F, Ty As Dao.DataTypeEnum, Optional D As Dao.Database)
-Dim mFld As New Dao.Field
+Sub AddFld(T, F, Ty As DAO.DataTypeEnum, Optional D As DAO.Database)
+Dim mFld As New DAO.Field
 mFld.Name = F
 mFld.Type = Ty
 Flds(T, D).Append mFld
 End Sub
-
-Sub AssertT(T, Optional D As Dao.Database)
+Private Sub DbQny__Tst()
+AyDmp DbQny
+End Sub
+Function DbQny(Optional D As DAO.Database) As String()
+DbQny = SqlSy("Select Name from MSysObjects where Type=5 and Left(Name,4)<>'MSYS' and Left(Name,4)<>'~sq_'", D)
+End Function
+Sub AssertT(T, Optional D As DAO.Database)
 On Error GoTo X:
 Dim A$
 A = D.TableDefs(T).Name
@@ -22,11 +23,11 @@ X:
 Err.Raise 1, , "Tbl[" & T & "] not found in Db[" & D.Name & "]"
 End Sub
 
-Sub BrwSql(Sql$, Optional D As Dao.Database)
+Sub SqlBrw(Sql$, Optional D As DAO.Database)
 DrsBrw SqlDrs(Sql, D)
 End Sub
 
-Sub BrwTbl(T, Optional D As Dao.Database)
+Sub BrwTbl(T, Optional D As DAO.Database)
 DtBrw TblDt(T, D)
 End Sub
 
@@ -36,21 +37,21 @@ If IsNothing(X) Then Set X = CurrentDb
 Set CurDb = X
 End Function
 
-Function DaoTyStr$(T As Dao.DataTypeEnum)
+Function DaoTyStr$(T As DAO.DataTypeEnum)
 Dim O$
 Select Case T
-Case Dao.DataTypeEnum.dbBoolean: O = "Boolean"
-Case Dao.DataTypeEnum.dbDouble: O = "Double"
-Case Dao.DataTypeEnum.dbText: O = "Text"
-Case Dao.DataTypeEnum.dbDate: O = "Date"
-Case Dao.DataTypeEnum.dbByte: O = "Byte"
-Case Dao.DataTypeEnum.dbInteger: O = "Int"
-Case Dao.DataTypeEnum.dbLong: O = "Long"
-Case Dao.DataTypeEnum.dbDouble: O = "Doubld"
-Case Dao.DataTypeEnum.dbDate: O = "Date"
-Case Dao.DataTypeEnum.dbDecimal: O = "Decimal"
-Case Dao.DataTypeEnum.dbCurrency: O = "Currency"
-Case Dao.DataTypeEnum.dbSingle: O = "Single"
+Case DAO.DataTypeEnum.dbBoolean: O = "Boolean"
+Case DAO.DataTypeEnum.dbDouble: O = "Double"
+Case DAO.DataTypeEnum.dbText: O = "Text"
+Case DAO.DataTypeEnum.dbDate: O = "Date"
+Case DAO.DataTypeEnum.dbByte: O = "Byte"
+Case DAO.DataTypeEnum.dbInteger: O = "Int"
+Case DAO.DataTypeEnum.dbLong: O = "Long"
+Case DAO.DataTypeEnum.dbDouble: O = "Doubld"
+Case DAO.DataTypeEnum.dbDate: O = "Date"
+Case DAO.DataTypeEnum.dbDecimal: O = "Decimal"
+Case DAO.DataTypeEnum.dbCurrency: O = "Currency"
+Case DAO.DataTypeEnum.dbSingle: O = "Single"
 
 Case Else: Stop
 End Select
@@ -58,7 +59,7 @@ DaoTyStr = O
 End Function
 
 Sub DbInfBrw(Optional A As Database)
-AyBrw DsLy(DbInfDs(A), 2000)
+AyBrw DsLy(DbInfDs(A), 2000, BrkLinMapStr:="TblFld:Tbl")
 Exit Sub
 WbVis DsWb(DbInfDs(A))
 End Sub
@@ -146,16 +147,16 @@ Function DsIsEmpty(A As Ds) As Boolean
 DsIsEmpty = DtAySz(A.DtAy) = 0
 End Function
 
-Function Fld(T, F, Optional D As Database) As Dao.Field
+Function Fld(T, F, Optional D As Database) As DAO.Field
 Set Fld = Tbl(T, D).Fields(F)
 End Function
 
-Function FldDes$(F As Dao.Field)
+Function FldDes$(F As DAO.Field)
 FldDes = PrpVal(F.Properties, "Description")
 End Function
 
-Function FldInfDr(T, F, Optional D As Dao.Field) As Variant()
-Dim FF As Dao.Field: Set FF = Fld(T, F, D)
+Function FldInfDr(T, F, Optional D As DAO.Field) As Variant()
+Dim FF As DAO.Field: Set FF = Fld(T, F, D)
 With FF
     FldInfDr = Array(F, IIf(FldIsPk(T, F, D), "*", ""), DaoTyStr(.Type), .Size, .DefaultValue, .Required, FldDes(FF))
 End With
@@ -169,14 +170,14 @@ Function FldIsPk(T, F, D As Database) As Boolean
 FldIsPk = AyHas(TblPk(T, D), F)
 End Function
 
-Property Get Flds(T, Optional D As Dao.Database) As Dao.Fields
+Property Get Flds(T, Optional D As DAO.Database) As DAO.Fields
 Set Flds = Tbl(T, D).Fields
 End Property
 
-Function FldsDr(Flds As Dao.Fields) As Variant()
+Function FldsDr(Flds As DAO.Fields) As Variant()
 Dim O()
 ReDim O(Flds.Count - 1)
-Dim J%, F As Dao.Field
+Dim J%, F As DAO.Field
 For Each F In Flds
     O(J) = F.Value
     J = J + 1
@@ -184,9 +185,9 @@ Next
 FldsDr = O
 End Function
 
-Function FldsFny(Flds As Dao.Fields) As String()
+Function FldsFny(Flds As DAO.Fields) As String()
 Dim O$()
-Dim F As Dao.Field
+Dim F As DAO.Field
 For Each F In Flds
     Push O, F.Name
 Next
@@ -220,14 +221,14 @@ AssertT T, D
 HasFld = HasFld_Tbl(Tbl(T, D), F)
 End Function
 
-Function HasFld_Flds(Flds As Dao.Fields, F) As Boolean
-Dim I As Dao.Field
+Function HasFld_Flds(Flds As DAO.Fields, F) As Boolean
+Dim I As DAO.Field
 For Each I In Flds
     If I.Name = F Then HasFld_Flds = True: Exit Function
 Next
 End Function
 
-Function HasFld_Tbl(T As Dao.TableDef, F) As Boolean
+Function HasFld_Tbl(T As DAO.TableDef, F) As Boolean
 HasFld_Tbl = HasFld_Flds(T.Fields, F)
 End Function
 
@@ -239,12 +240,12 @@ If HasSubStr(S, ".") Then Exit Function
 IsNeedQuote = False
 End Function
 
-Function PrpVal(A As Dao.Properties, PrpNm)
+Function PrpVal(A As DAO.Properties, PrpNm)
 On Error Resume Next
 PrpVal = A(PrpNm).Value
 End Function
 
-Function Tbl(T, Optional D As Database) As Dao.TableDef
+Function Tbl(T, Optional D As Database) As DAO.TableDef
 Set Tbl = DftDb(D).TableDefs(T)
 End Function
 
@@ -252,7 +253,7 @@ Function TblDes$(T, D As Database)
 TblDes = PrpVal(Tbl(T, D).Properties, "Description")
 End Function
 
-Function TblFld(T, F, Optional D As Database) As Dao.Field
+Function TblFld(T, F, Optional D As Database) As DAO.Field
 Set TblFld = Tbl(T, D).Fields(F)
 End Function
 
@@ -281,7 +282,7 @@ PushAy O, FldInfFny
 TblFldInfFny = O
 End Function
 
-Function TblFlds(T, Optional D As Database) As Dao.Fields
+Function TblFlds(T, Optional D As Database) As DAO.Fields
 Set TblFlds = Tbl(T, D).Fields
 End Function
 
@@ -295,7 +296,7 @@ TblNxtId = SqlLng(S) + 1
 End Function
 
 Function TblPk(T, Optional D As Database) As String()
-Dim I As Dao.Index, O$(), F
+Dim I As DAO.Index, O$(), F
 On Error GoTo X
 If Tbl(T, D).Indexes.Count = 0 Then Exit Function
 On Error GoTo 0
@@ -337,7 +338,7 @@ End If
 End Function
 
 Function TmpDb() As Database
-Set TmpDb = DBEngine.CreateDatabase(TmpFb, Dao.LanguageConstants.dbLangGeneral)
+Set TmpDb = DBEngine.CreateDatabase(TmpFb, DAO.LanguageConstants.dbLangGeneral)
 End Function
 
 Private Sub TblPk__Tst()

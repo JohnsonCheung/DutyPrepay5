@@ -10,7 +10,7 @@ Function CurPth$()
 CurPth = FfnPth(CurFb)
 End Function
 
-Function DtaDb() As Dao.Database
+Function DtaDb() As DAO.Database
 Set DtaDb = DBEngine.OpenDatabase(DtaFb)
 End Function
 

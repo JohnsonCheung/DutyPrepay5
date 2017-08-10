@@ -19,7 +19,22 @@ Else
     End If
 End If
 End Function
-
+Function RplVBar$(S)
+RplVBar = Replace(S, "|", vbCrLf)
+End Function
+Private Sub RmvFstTerm__Tst()
+Debug.Assert RmvFstTerm("  df dfdf  ") = "dfdf"
+End Sub
+Function RmvFstTerm(S)
+RmvFstTerm = Brk1(Trim(S), " ").S2
+End Function
+Sub StrDmp(S)
+Dim J&, C$
+For J = 1 To Len(S)
+    C = Mid(S, J, 1)
+    Debug.Print J, Asc(C), C
+Next
+End Sub
 Function AlignR$(S, W%)
 Dim L%: L = Len(S)
 If W > L Then
@@ -101,240 +116,21 @@ Close #F
 'T.Write S
 'T.Close
 End Function
-
-Function TakBet$(S, S1, S2, Optional NoTrim As Boolean)
+Function SpcEsc$(S)
+If InStr(S, "~") > 0 Then Debug.Print "SpcEsc: Warning: escaping a string-with-space is found with a [~].  The [~] before escape will be changed to space after unescape"
+SpcEsc = Replace(S, " ", "~")
+End Function
+Function SpcUnE$(S)
+SpcUnE = Replace(S, "~", " ")
+End Function
+Function TakBet$(S, S1, S2, Optional NoTrim As Boolean, Optional InclMarker As Boolean)
 With Brk1(S, S1, NoTrim)
     If .S2 = "" Then Exit Function
-    TakBet = Brk1(.S2, S2, NoTrim).S1
+    Dim O$: O = Brk1(.S2, S2, NoTrim).S1
+    If InclMarker Then O = S1 & O & S2
+    TakBet = O
 End With
 End Function
-
-SubStr = "."
-N = 1
-Exp = 1
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 2
-Exp = 6
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 2
-Exp = 6
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 2
-Exp = 6
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 1
-Exp = 1
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 2
-Exp = 6
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 2
-Exp = 6
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 3
-Exp = 11
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-
-'    12345678901234
-S = ".aaaa.aaaa.bbb"
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
-SubStr = "."
-N = 4
-Exp = 0
-Act = InstrN(S, SubStr, N)
-Debug.Assert Exp = Act
-End Sub
-
 Private Sub InstrN__Tst()
 Dim Act&, Exp&, S, SubStr, N%
 

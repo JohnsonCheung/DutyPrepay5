@@ -9,34 +9,34 @@ Enum eSimTy
     eOth
 End Enum
 
-Function SimTy(T As Dao.DataTypeEnum) As eSimTy
+Function SimTy(T As DAO.DataTypeEnum) As eSimTy
 Dim O As eSimTy
 Select Case T
 Case _
-    Dao.DataTypeEnum.dbBigInt, _
-    Dao.DataTypeEnum.dbByte, _
-    Dao.DataTypeEnum.dbCurrency, _
-    Dao.DataTypeEnum.dbDecimal, _
-    Dao.DataTypeEnum.dbDouble, _
-    Dao.DataTypeEnum.dbFloat, _
-    Dao.DataTypeEnum.dbInteger, _
-    Dao.DataTypeEnum.dbLong, _
-    Dao.DataTypeEnum.dbNumeric, _
-    Dao.DataTypeEnum.dbSingle
+    DAO.DataTypeEnum.dbBigInt, _
+    DAO.DataTypeEnum.dbByte, _
+    DAO.DataTypeEnum.dbCurrency, _
+    DAO.DataTypeEnum.dbDecimal, _
+    DAO.DataTypeEnum.dbDouble, _
+    DAO.DataTypeEnum.dbFloat, _
+    DAO.DataTypeEnum.dbInteger, _
+    DAO.DataTypeEnum.dbLong, _
+    DAO.DataTypeEnum.dbNumeric, _
+    DAO.DataTypeEnum.dbSingle
     O = eNbr
 Case _
-    Dao.DataTypeEnum.dbChar, _
-    Dao.DataTypeEnum.dbGUID, _
-    Dao.DataTypeEnum.dbMemo, _
-    Dao.DataTypeEnum.dbText
+    DAO.DataTypeEnum.dbChar, _
+    DAO.DataTypeEnum.dbGUID, _
+    DAO.DataTypeEnum.dbMemo, _
+    DAO.DataTypeEnum.dbText
     O = eTxt
 Case _
-    Dao.DataTypeEnum.dbBoolean
+    DAO.DataTypeEnum.dbBoolean
     O = eLgc
 Case _
-    Dao.DataTypeEnum.dbDate, _
-    Dao.DataTypeEnum.dbTimeStamp, _
-    Dao.DataTypeEnum.dbTime
+    DAO.DataTypeEnum.dbDate, _
+    DAO.DataTypeEnum.dbTimeStamp, _
+    DAO.DataTypeEnum.dbTime
     O = eDte
 Case Else
     O = eOth

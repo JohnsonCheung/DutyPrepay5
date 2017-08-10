@@ -9,14 +9,6 @@ Type PermitDftVal
     BankCode As String
 End Type
 
-Sub A()
-Const cPfx$ = "qryRpt"
-Dim J%
-For J = 0 To CurrentDb.QueryDefs.Count - 1
-    If Left(CurrentDb.QueryDefs(J).Name, Len(cPfx)) = cPfx Then Debug.Print CurrentDb.QueryDefs(J).Sql & vbLf
-Next
-End Sub
-
 Function PermitDftVal() As PermitDftVal
 Dim O As PermitDftVal
 With CurrentDb.OpenRecordset("Select * from Default")

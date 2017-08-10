@@ -80,13 +80,18 @@ Sub DsBrw(A As Ds)
 AyBrw DsLy(A)
 End Sub
 
-Function DsLy(A As Ds, Optional MaxColWdt& = 1000) As String()
+Function DsLy(A As Ds, Optional MaxColWdt& = 1000, Optional BrkLinMapStr$) As String()
 Dim O$()
     Push O, "*Ds " & A.DsNm
+Dim Dic As Dictionary ' DicOf_TblNm_to_BrkColNm
+    Set Dic = MapDic(BrkMapStr(BrkLinMapStr))
 If Not IsEmptyDtAy(A.DtAy) Then
-    Dim J%
+    Dim J%, DtNm$, Dt As Dt, BrkColNm$
     For J = 0 To UBound(A.DtAy)
-        PushAy O, DtLy(A.DtAy(J), MaxColWdt)
+        Dt = A.DtAy(J)
+        DtNm$ = Dt.DtNm
+        If Dic.Exists(DtNm) Then BrkColNm = Dic(DtNm) Else BrkColNm = ""
+        PushAy O, DtLy(Dt, MaxColWdt, BrkColNm)
     Next
 End If
 DsLy = O
@@ -121,7 +126,7 @@ Function DtCsvLy(A As Dt) As String()
 Dim O$()
 Dim QQStr$
 Dim Dr
-Push O, JnComma(DblQuoteAy(A.Fny))
+Push O, JnComma(DblAyQuote(A.Fny))
 For Each Dr In A.Dry
     Push O, FmtQQAv(QQStr, Dr)
 Next

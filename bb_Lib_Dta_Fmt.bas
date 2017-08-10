@@ -2,11 +2,7 @@ Attribute VB_Name = "bb_Lib_Dta_Fmt"
 Option Compare Database
 Option Explicit
 
-Sub AA2()
-TblLyInsBrkLin__Tst
-End Sub
-
-Function DrsLy(A As Drs, Optional MaxColWdt& = 100) As String()
+Function DrsLy(A As Drs, Optional MaxColWdt& = 100, Optional BrkColNm$) As String()
 If AyIsEmpty(A.Fny) Then Exit Function
 Dim Drs As Drs: Drs = DrsAddRowIdxCol(A)
 Dim Dry(): Dry = Drs.Dry
@@ -18,7 +14,27 @@ Dim O$()
     PushAy O, Array(Lin, Hdr)
     PushAy O, Ay
     Push O, Lin
+If BrkColNm <> "" Then O = DrsLyInsBrkLin(O, BrkColNm)
 DrsLy = O
+End Function
+
+Function DrsLyInsBrkLin(TblLy$(), ColNm$) As String()
+Dim Hdr$: Hdr = TblLy(1)
+Dim Fny$():
+    Fny = SplitVBar(Hdr)
+    AyRmvFstEle Fny
+    AyRmvLasEle Fny
+    AyTrim Fny
+Dim Idx%
+    Idx = AyIdx(Fny, ColNm)
+Dim DryLy$()
+    DryLy = TblLy
+    AyRmvEleAtCnt DryLy, 0, 2
+Dim O$()
+    Push O, TblLy(0)
+    Push O, TblLy(1)
+    PushAy O, DryLyInsBrkLin(DryLy, Idx)
+DrsLyInsBrkLin = O
 End Function
 
 Sub DryAddBrkDr(ODry)
@@ -90,34 +106,14 @@ Dim O$()
 DryLyInsBrkLin = O
 End Function
 
-Function DtLy(Dt As Dt, Optional MaxColWdt& = 100) As String()
+Function DtLy(Dt As Dt, Optional MaxColWdt& = 100, Optional BrkColNm$) As String()
 Dim Rs As Drs
     Rs.Fny = Dt.Fny
     Rs.Dry = Dt.Dry
 Dim O$()
     Push O, "*Tbl " & Dt.DtNm
-    PushAy O, DrsLy(Rs, MaxColWdt)
+    PushAy O, DrsLy(Rs, MaxColWdt, BrkColNm)
 DtLy = O
-End Function
-
-Function TblLyInsBrkLin(TblLy$(), ColNm$) As String()
-Dim Hdr$: Hdr = TblLy(2)
-Dim Fny$():
-    Fny = SplitVBar(Hdr)
-    AyRmvFstEle Fny
-    AyRmvLasEle Fny
-    AyTrim Fny
-Dim Idx%
-    Idx = AyIdx(Fny, ColNm)
-Dim DryLy$()
-    DryLy = TblLy
-    AyRmvEleAtCnt DryLy, 0, 3
-Dim O$()
-    Push O, TblLy(0)
-    Push O, TblLy(1)
-    Push O, TblLy(2)
-    PushAy O, DryLyInsBrkLin(DryLy, Idx)
-TblLyInsBrkLin = O
 End Function
 
 Private Function DrLin$(Dr, Wdt%())
@@ -177,16 +173,16 @@ Next
 DryWdtAy = O
 End Function
 
-Private Sub TblLyInsBrkLin__Tst()
+Private Sub DrsLyInsBrkLin__Tst()
 Dim TblLy$()
 Dim Act$()
 Dim Exp$()
-TblLy = FtLy(TstResPth & "TblLyInsBrkLin.txt")
-Act = TblLyInsBrkLin(TblLy, "Tbl")
-Exp = FtLy(TstResPth & "TblLyInsBrkLin_Exp.txt")
+TblLy = FtLy(TstResPth & "DrsLyInsBrkLin.txt")
+Act = DrsLyInsBrkLin(TblLy, "Tbl")
+Exp = FtLy(TstResPth & "DrsLyInsBrkLin_Exp.txt")
 AssertEqAy Exp, Act
 End Sub
 
 Sub Tst()
-TblLyInsBrkLin__Tst
+DrsLyInsBrkLin__Tst
 End Sub

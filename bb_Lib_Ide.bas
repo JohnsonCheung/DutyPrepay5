@@ -1,6 +1,11 @@
 Attribute VB_Name = "bb_Lib_Ide"
 Option Compare Database
 Option Explicit
+Private Enum AA 'For testing
+    AA
+    '
+    
+End Enum
 Type LnoCnt
     Lno As Long
     Cnt As Long
@@ -10,11 +15,82 @@ Type SrcLinBrk
     Ty As String
     Mdy As String
 End Type
-
+Sub PjCpyToSrc(Optional A As VBProject)
+FilCpyToPth DftPj(A).FileName, PjSrcPth(A), OvrWrt:=True
+End Sub
 Sub AAA()
 PjFunDrs__Tst
 End Sub
+Function EnmMbrCnt%(EnmNm$, Optional MdNm$)
+Dim M As CodeModule: Set M = Md(MdNm)
+EnmMbrCnt = Sz(EnmMbrLy(EnmNm, MdNm))
+End Function
+Private Sub EnmMbrCnt__Tst()
+Debug.Assert EnmMbrCnt("AA", "bb_Lib_Ide") = 1
+End Sub
+Private Sub EnmLno__Tst()
+Debug.Assert EnmLinIdx("AA""bb_Lib_Ide") = 2
+End Sub
+Private Sub EnmBdyLy__Tst()
+AyDmp EnmBdyLy("AA", "bb_Lib_Ide")
+End Sub
+Function EnmLinIdx%(EnmNm$, Optional MdNm$)
+Dim Ly$(): Ly = MdDclLy(Md(MdNm))
+Dim U%: U = UB(Ly)
+Dim O%, L$
+For O = 0 To U
+    If SrcLinIsEnm(Ly(O)) Then
+        L = Ly(O)
+        ParseMdy L
+        L = RmvFstTerm(L)
+        If FstTerm(L) = EnmNm Then
+            EnmLinIdx = O: Exit Function
+        End If
+    End If
+Next
+EnmLinIdx = -1
+End Function
 
+Function EnmBdyLy(EnmNm$, Optional MdNm$) As String()
+Dim B%: B = EnmLinIdx(EnmNm, MdNm): If B = -1 Then Exit Function
+Dim O$(), Ly$(), J%
+Ly = MdDclLy(Md(MdNm))
+For J = B To UB(Ly)
+    Push O, Ly(J)
+    If IsPfx(Ly(J), "End Enum") Then EnmBdyLy = O: Exit Function
+Next
+Stop
+End Function
+Function SrcLinIsEnm(SrcLin) As String
+Dim L$: L = SrcLin
+ParseMdy L
+SrcLinIsEnm = IsPfx(L, "Enum")
+End Function
+Function MdDclLy(Optional A As CodeModule) As String()
+MdDclLy = SplitCrLf(MdDclLines(A))
+End Function
+Function MdDclLines$(Optional A As CodeModule)
+With DftMd(A)
+    If .CountOfDeclarationLines = 0 Then Exit Function
+    MdDclLines = .Lines(1, .CountOfDeclarationLines)
+End With
+End Function
+Function EnmIsMbrLin(L) As Boolean
+If SrcLinIsRmk(L) Then Exit Function
+If Trim(L) = "" Then Exit Function
+EnmIsMbrLin = True
+End Function
+Function SrcLinIsRmk(SrcLin) As Boolean
+SrcLinIsRmk = FstChr(LTrim(SrcLin)) = "'"
+End Function
+Function EnmMbrLy(EnmNm$, Optional MdNm$) As String()
+Dim Ly$(), O$(), J%
+Ly = EnmBdyLy(EnmNm, MdNm)
+For J = 1 To UB(Ly) - 1
+    If EnmIsMbrLin(Ly(J)) Then Push O, Ly(J)
+Next
+EnmMbrLy = O
+End Function
 Sub BrwPjSrc()
 PthBrw PjSrcPth
 End Sub
@@ -73,9 +149,15 @@ End Function
 Function LnoCntToStr$(A As LnoCnt)
 LnoCntToStr = FmtQQ("Lno(?) Cnt(?)", A.Lno, A.Cnt)
 End Function
-
-Function Md(MdNm$, Optional A As VBProject) As CodeModule
-Set Md = DftPj(A).VBComponents(MdNm).CodeModule
+Function DftMdNm$(Nm$)
+If Nm = "" Then
+    DftMdNm = MdNm(DftMd)
+Else
+    DftMdNm = Nm
+End If
+End Function
+Function Md(Optional MdNm$, Optional A As VBProject) As CodeModule
+Set Md = DftPj(A).VBComponents(DftMdNm(MdNm)).CodeModule
 End Function
 
 Sub MdAppLines(Lines$, Optional A As CodeModule)
@@ -86,11 +168,6 @@ End Sub
 Sub MdAppLy(Ly$(), Optional A As CodeModule)
 MdAppLines JnCrLf(Ly), A
 End Sub
-
-Function MdBdyLinCnt&(Optional A As CodeModule)
-Dim M As CodeModule: Set M = DftMd(A)
-MdBdyLinCnt = M.CountOfLines - M.CountOfDeclarationLines
-End Function
 
 Function MdBdyLnoCnt(Optional A As CodeModule) As LnoCnt
 Dim Md As CodeModule: Set Md = DftMd(A)
@@ -381,7 +458,7 @@ End Select
 End Sub
 
 Function ParseFunTy$(OLin$)
-ParseFunTy = ParseOneOf(OLin, Sy("Function", "Sub", "Property Get", "Property Let", "Property Set", "Type", "Enum"))
+ParseFunTy = ParseOneOf(OLin, Sy("Function", "Sub", "Property Get", "Property Let", "Property Set", "Type", "Enm"))
 End Function
 
 Function ParseMdy$(OLin$)
@@ -413,6 +490,7 @@ Set Pj = Application.VBE.VBProjects(PjNm)
 End Function
 
 Sub PjExp(Optional A As VBProject)
+PjCpyToSrc A
 PthClrFil PjSrcPth(A)
 Dim Md As CodeModule, I
 For Each I In PjMdAy(A)

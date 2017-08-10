@@ -263,20 +263,20 @@ PushAy O, O2
 PushAy O, O1
 X:
 Push O, FmtQQ("Ay-[?]:", Ay1Nm)
-PushAy O, QuoteAy(Ay1, "[]")
+PushAy O, AyQuote(Ay1, "[]")
 Push O, FmtQQ("Ay-[?]:", Ay2Nm)
-PushAy O, QuoteAy(Ay2, "[]")
+PushAy O, AyQuote(Ay2, "[]")
 ChkEqAy = O
 End Function
 
-Function DblQuoteAy(Ay) As String()
+Function DblAyQuote(Ay) As String()
 Dim O$(), U&, J&
 U = UB(Ay)
 ReDim Preserve O(U)
 For J = 0 To U
     O(J) = """" & Ay(J) & """"
 Next
-DblQuoteAy = O
+DblAyQuote = O
 End Function
 
 Function Pop(Ay)
@@ -289,7 +289,31 @@ Dim N&: N = Sz(O)
 ReDim Preserve O(N)
 O(N) = P
 End Sub
-
+Private Sub AyRmvEmptyEleAtEnd__Tst()
+Dim Ay: Ay = Array(Empty, Empty, Empty, 1, Empty, Empty)
+AyRmvEmptyEleAtEnd Ay: Debug.Assert Sz(Ay) = 4
+End Sub
+Sub AyRmvEmptyEleAtEnd(OAy)
+Dim LasU&, U&
+For LasU = UB(OAy) To 0 Step -1
+    If Not IsEmpty(OAy(LasU)) Then
+        Exit For
+    End If
+Next
+If LasU = -1 Then
+    Erase OAy
+Else
+    ReDim Preserve OAy(LasU)
+End If
+End Sub
+Function AyIsEq(Ay1, Ay2) As Boolean
+Dim U&: U = UB(Ay1): If U <> UB(Ay2) Then Exit Function
+Dim J&
+For J = 0 To U
+    If Ay1(J) <> Ay2(J) Then Exit Function
+Next
+AyIsEq = True
+End Function
 Sub PushAy(OAy, Ay)
 If AyIsEmpty(Ay) Then Exit Sub
 Dim I
@@ -309,7 +333,7 @@ ReDim Preserve O(N)
 Set O(N) = P
 End Sub
 
-Function QuoteAy(Ay, QuoteStr$) As String()
+Function AyQuote(Ay, QuoteStr$) As String()
 If AyIsEmpty(Ay) Then Exit Function
 Dim U&: U = UB(Ay)
 Dim O$()
@@ -323,7 +347,7 @@ Dim O$()
     For J = 0 To U
         O(J) = Q1 & Ay(J) & Q2
     Next
-QuoteAy = O
+AyQuote = O
 End Function
 
 Sub RmvLasNEle(Ay, Optional NEle% = 1)

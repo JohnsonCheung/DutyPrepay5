@@ -2,8 +2,8 @@ Attribute VB_Name = "bb_Lib_Fs_Action"
 Option Compare Database
 Option Explicit
 
-Sub FilCpyToPth(FmFil, ToPth)
-FileCopy FmFil, ToPth & FfnFn(FmFil)
+Sub FilCpyToPth(FmFil, ToPth, Optional OvrWrt As Boolean)
+Fso.CopyFile FmFil, ToPth & FfnFn(FmFil), OvrWrt
 End Sub
 
 Sub FtBrw(Ft)

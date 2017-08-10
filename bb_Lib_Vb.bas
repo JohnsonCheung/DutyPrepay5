@@ -11,7 +11,12 @@ For Each V In ObjColl
 Next
 CollObjAy = O
 End Function
-
+Function FstTerm$(S)
+FstTerm = Brk1(Trim(S), " ").S1
+End Function
+Function RestTerm$(S)
+RestTerm = Brk1(Trim(S), " ").S2
+End Function
 Function Dft(V, DftVal)
 If IsEmpty(V) Then
     Dft = DftVal
@@ -19,11 +24,11 @@ Else
     Dft = V
 End If
 End Function
-
 Function IsEmpty(V) As Boolean
 IsEmpty = True
 If IsMissing(V) Then Exit Function
 If IsNothing(V) Then Exit Function
+If VBA.IsEmpty(V) Then Exit Function
 If IsStr(V) Then
     If V = "" Then Exit Function
 End If
@@ -49,6 +54,7 @@ Function Max(ParamArray Ap())
 Dim Av(), O
 Av = Ap
 O = Av(0)
+Dim J%
 For J = 1 To UB(Av)
     If Av(J) > O Then O = Av(J)
 Next
@@ -59,7 +65,7 @@ Function Min(ParamArray Ap())
 Dim Av(), O
 Av = Ap
 O = Av(0)
-Dim J&
+Dim J%
 For J = 1 To UB(Av)
     If Av(J) < O Then O = Av(J)
 Next
