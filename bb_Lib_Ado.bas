@@ -47,26 +47,23 @@ With AqlRs(Cn, Sql)
 End With
 End Function
 
-Function ARsDrs(Rs As ADODB.Recordset) As Drs
-Dim O As Drs
-O.Fny = ARsFny(Rs)
-O.Dry = ARsDry(Rs)
-ARsDrs = O
+Function ARsDrs(A As ADODB.Recordset) As Drs
+ARsDrs = ccNew.Drs(ARsFny(A), ARsDry(A))
 End Function
 
-Function ARsDry(Rs As ADODB.Recordset) As Variant()
-Dim O()
-With Rs
+Function ARsDry(A As ADODB.Recordset) As Dry
+Dim O As New Dry
+With A
     While Not .EOF
-        Push O, AFldsDr(Rs.Fields)
+        O.Push AFldsDr(A.Fields)
         .MoveNext
     Wend
 End With
-ARsDry = O
+Set ARsDry = O
 End Function
 
-Function ARsFny(Rs As ADODB.Recordset) As String()
-ARsFny = AFldsFny(Rs.Fields)
+Function ARsFny(A As ADODB.Recordset) As String()
+ARsFny = AFldsFny(A.Fields)
 End Function
 
 Function CatCnn(A As Catalog) As ADODB.Connection
@@ -146,14 +143,13 @@ End Sub
 Private Sub AqlDrs__Tst()
 Dim Cn As ADODB.Connection: Set Cn = FxCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Dim Sql$: Sql = "Select * from [Sheet1$]"
-Dim Drs As Drs: Drs = AqlDrs(Cn, Sql)
-DrsBrw Drs
+AqlDrs(Cn, Sql).Brw
 End Sub
 
 Private Sub FbAqlDrs__Tst()
 Const Fb$ = "N:\SapAccessReports\DutyPrepay5\DutyPrepay5.accdb"
 Const Sql$ = "Select * from Permit"
-DrsBrw FbAqlDrs(Fb, Sql)
+FbAqlDrs(Fb, Sql).Brw
 End Sub
 
 Private Sub FbCnn__Tst()
@@ -165,7 +161,7 @@ End Sub
 Private Sub FxAqlDrs__Tst()
 Const Fx$ = "N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls"
 Const Sql$ = "Select * from [Sheet1$]"
-DrsBrw FxAqlDrs(Fx, Sql)
+FxAqlDrs(Fx, Sql).Brw
 End Sub
 
 Private Sub FxCat__Tst()

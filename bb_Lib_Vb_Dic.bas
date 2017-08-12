@@ -2,18 +2,16 @@ Attribute VB_Name = "bb_Lib_Vb_Dic"
 Option Compare Database
 Option Explicit
 Function DicBrw(A As Dictionary)
-DrsBrw DicDrs(A)
+DicDrs(A).Brw
 End Function
 Function DicDrs(A As Dictionary) As Drs
-Dim Dry(), I
+Dim Dry As New Dry, I
 Dim K(): K = A.Keys
 If Not AyIsEmpty(K) Then
     For Each I In K
-        Push Dry, Array(I, A(I))
+        Dry.Push Array(I, A(I))
     Next
 End If
-Dim O As Drs
-O.Fny = SplitSpc("Key Val")
-O.Dry = Dry
-DicDrs = O
+Dim Fny$(): Fny = SplitSpc("Key Val")
+DicDrs = Drs(Fny, Dry)
 End Function

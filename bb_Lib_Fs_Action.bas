@@ -20,7 +20,20 @@ Wend
 Close #F
 FtLy = O
 End Function
-
+Function FtRmv3Dash(Ft) As Boolean
+'Return true if some 3Dash is remove
+Dim Ly$(): Ly = FtLy(Ft)
+If AyIsEmpty(Ly) Then Exit Function
+Dim I, Wrt As Boolean, L$, O$()
+For Each I In Ly
+    L = Brk1(I, "---", NoTrim:=True).S1
+    Push O, L
+    If L <> I Then Wrt = True
+    
+Next
+If Wrt Then AyWrt O, Ft
+FtRmv3Dash = Wrt
+End Function
 Function FtOpnApp%(Ft)
 Dim O%: O = FreeFile(1)
 Open Ft For Append As #O

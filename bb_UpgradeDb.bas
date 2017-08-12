@@ -6,8 +6,10 @@ Sub TblPermit_AddFld_IsImport()
 Const T$ = "Permit"
 Const F$ = "IsImport"
 Dim Db As Database: Set Db = DtaDb
-If HasFld(T, F, Db) Then Db.Close: Exit Sub
-AddFld T, F, dbBoolean, Db
+With DbT(T, Db)
+    If .HasFld(F) Then Db.Close: Exit Sub
+    .AddFld F, dbBoolean
+End With
 Log "Field [Permit.IsImport] is added"
 Db.Close
 End Sub

@@ -11,6 +11,18 @@ For Each V In ObjColl
 Next
 CollObjAy = O
 End Function
+Sub Asg(V, OV)
+If IsObject(V) Then
+    Set OV = V
+Else
+    OV = V
+End If
+End Sub
+Function IsNbr(V) As Boolean
+Select Case VarType(V)
+Case vbInteger, vbByte, vbLong, vbSingle, vbDouble, vbCurrency: IsNbr = True
+End Select
+End Function
 Function FstTerm$(S)
 FstTerm = Brk1(Trim(S), " ").S1
 End Function

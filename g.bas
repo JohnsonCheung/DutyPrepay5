@@ -8,7 +8,14 @@ Type PermitDftVal
     ByUsr As String
     BankCode As String
 End Type
-
+Sub AA()
+Stop
+Dim A As Md
+Set A = CurMd
+Dim B As LnoCnt
+B = A.BdyLnoCnt
+Stop
+End Sub
 Function PermitDftVal() As PermitDftVal
 Dim O As PermitDftVal
 With CurrentDb.OpenRecordset("Select * from Default")

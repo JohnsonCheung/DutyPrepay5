@@ -1,5 +1,5 @@
-Attribute VB_Name = "bb_Lib_Dao_TmpTbl"
+Attribute VB_Name = "Module1"
 Option Compare Database
 Option Explicit
-
+Dim Ly$()
 

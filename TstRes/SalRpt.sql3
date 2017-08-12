@@ -11,114 +11,100 @@
 -- ?: namepace-? is for 
 -- Output: a hash of all name with namespace
 -- FirstLvl1: first Lvl1 is consider as the output
-Prm
-    DivLis .StrLis 1 2 2 
-    CrdLis .NbrLis 
-    StoLis .StrLis  
-    BrkDiv .Flag 1 
-    BrkSto .Flag 1 
-    BrkCrd .Flag 1 
-    BrkMbr .Flag 0
-    InclNm .Flag 1 
-    InclAdr  .Flag 1 
+>
+    DivLis    .StrLis 1 2 2 
+    CrdLis    .NbrLis 
+    StoLis    .StrLis  
+    BrkDiv    .Flag 1 
+    BrkSto    .Flag 1 
+    BrkCrd    .Flag 1 
+    BrkMbr    .Flag 0
+    InclNm    .Flag 1 
+    InclAdr   .Flag 1 
     InclPhone .Flag 1 
     InclEmail .Flag 1 
-    SumLvl   .Str Y 
-    Fm .Str 20170101
-    To .Str 20170131
+    SumLvl    .Str  Y 
+    Fm        .Str  20170101
+    To        .Str  20170131
 Sql  
-    Drp  .Drp Tx TxMbr MbrDta Div Sto Crd Cnt Oup MbrWs
-    T    @ Tx Tx#Upd TxMbr ?MbrDta Div Sto Crd
-    O    @ Cnt Oup ?MbrWs
+    Drp  @Drp Tx TxMbr MbrDta Div Sto Crd Cnt Oup MbrWs
+    T    @    Tx Tx#Upd TxMbr ?MbrDta Div Sto Crd
+    O    @    Cnt Oup ?MbrWs
 Sql.T
     Tx
         @Sel Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
         .Into
-        .Fm SalesHistory
-        .Wh SHSDate between '{Prm.Fm}' and '{Prm.To}'
-        @And ?Div ?Sto ?Dte
-        @Gp Crd ?Mbr ?Div ?Sto ?Dte
+        .Fm   SalesHistory
+        .Wh   SHSDate between '{>Fm}' and '{>To}'
+        @And  ?Div ?Sto ?Dte
+        @Gp   Crd ?Mbr ?Div ?Sto ?Dte
     Tx#Upd
         .Upd 
-        @Set 4TxWD 
+        @Set TxWD 
     TxMbr
         .SelDis Mbr
         .Into  
-        .Fm #Tx
+        .Fm     #Tx
     ?MbrDta 
         ?BrkMbr @Sel Mbr Age Sex Sts Dist Area       
         .Into
-        .Fm JCMember
-        .Wh JCMCode (Select Mbr From #TxMbr)
+        .Fm     JCMember
+        .Wh     JCMCode (Select Mbr From #TxMbr)
     Div 
-        @Sel Div Nm Seq Sts 
-        .Fm Division
+        @Sel    Div Nm Seq Sts 
+        .Fm     Division
     Sto 
-        @Sel Sto Nm CNm
-        .Fm LocTbl
+        @Sel    Sto Nm CNm
+        .Fm     LocTbl
     Crd 
-        @Sel Crd Nm
-        .Fm JR_FrqMbrLis_#CrdTy()
+        @Sel    Crd Nm
+        .Fm     JR_FrqMbrLis_#CrdTy()
 Sql.O
     Cnt 
-        @Sel ?MbrCnt RecCnt TxCnt Qty Amt 
+        @Sel    ?MbrCnt RecCnt TxCnt Qty Amt 
         .Into
-        .Fm #Tx
+        .Fm     #Tx
     Oup
-        @Sel Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
+        @Sel    Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
         .Into
-        .Fm #Tx x
-        @Jn Crd ?Div ?Sto ?Mbr
+        .Fm     #Tx x 
+        @Jn     Crd ?Div ?Sto ?Mbr
     ?MbrWs 
-        ?SelMbr @Sel Mbr ?Nm ?Adr ?Mail ?Phone       
-        .Into
-        .Fm JCMember 
-        .Wh JCMCode in (Select Mbr From #TxMbr)
-Sql.T.Tx.Set
+        ?SelMbr @Sel Mbr ?Nm ?Adr ?Mail ?Phone        
+        .Into 
+        .Fm     JCMember  
+        .Wh     JCMCode in (Select Mbr From #TxMbr) 
+Sql.T.Tx#Upd.Set
     TxWD . ..
 Sql.T.Tx.Sel
-    Crd @ CasewhenThen Else End
-    Amt . Sum(SHAmount)
-    Qty . Sum(SHQty)
-    Cnt . Count(SHInvoice+SHSDate+SHRef)
+    Crd          @ CasewhenThen Else End
+    Amt          . Sum(SHAmount)
+    Qty          . Sum(SHQty)
+    Cnt          . Count(SHInvoice+SHSDate+SHRef)
     ?Mbr ?BrkMbr . JCMMCode       
     ?Div ?BrkDiv $ {Expr.Div} Div  
     ?Sto ?BrkSto $ {Expr.Sto} Sto  
     ?Dte @ Expr 
-@Sql.T.Tx.Sel.Crd
+Sql.T.Tx.Sel.Crd
     CasewhenThen . ..
-    Else . ..
-    NEnd . Repeat :N END~
-    End . | :NEnd
-@Sql.T.Tx.And
-    ?Div ?SelDiv $And {Expr.Div} in ({In.Div})       
-    ?Crd ?SelCrd $And {Expr.Crd} in ({In.Crd})       
-    ?Sto ?SelSto $And {Expr.Sto} in ({In.Sto})       
+    Else         . ..
+    NEnd         . Repeat :N END~
+    End          . | :NEnd
+Sql.T.Tx.And
+    ?Div ?SelDiv .And {#Fld.Div} in ({#In.Div})       
+    ?Crd ?SelCrd .And {#Fld.Crd} in ({#In.Crd})       
+    ?Sto ?SelSto .And {#Fld.Sto} in ({#In.Sto})       
 Sql.T.Tx.Gp 
-    Crd $ {Expr.Crd}   
+    Crd          . {1.Crd}   
     ?Mbr ?BrkMbr . SHMCode          
-    ?Div ?BrkDiv $ {Expr.Div}    
-    ?Sto ?BrkSto $ {Expr.Sto}    
-    ?Dte ?BrkDte $ {Expr.Dte}    
-Expr 
-    Div . a
-    Sto . a
-    Dte
-        ?SumY @Comma TxY     
-        ?SumM @Comma TxY TxM     
-        ?SumW @Comma TxY TxM TxW     
-        ?SumD @Comma TxY TxM TxW TxD TxWD TxDte     
-    TxY . SUBSTR(SHSDate,1,4) 
-    TxM . SUBSTR(SHSDate,5,2)
-    TxW . TxW
-    TxD . SUBSTR(SHSDate,7,2)
-    TxWD . TxWD
-    TxDte . SHSDate
+    ?Div ?BrkDiv . {1.Div}    
+    ?Sto ?BrkSto . {:Sto}    
+    ?Dte ?BrkDte . {:Dte}     
 Sql.T.?MbrDta.Sel
-    Mbr . JCMCode
-    Age . DATEDIFF(YEAR,CONVERT(DATETIME ,JCMDOB,112),GETDATE())
-    Sex . JCMSex
-    Sts . JCMStatus
+    Mbr  . JCMCode
+    Age  . DATEDIFF(YEAR,CONVERT(DATETIME ,JCMDOB,112),GETDATE())
+    Sex  . JCMSex
+    Sts  . JCMStatus
     Dist . JCMDist
     Area . JCMArea
 Sql.T.Div.Sel
@@ -133,21 +119,6 @@ Sql.T.Sto.Sel
 Sql.T.Crd.Sel
     Crd . CrdTyId
     Nm  . CrdTyNm
-?
-    SelMbr .Or {Prm.InclNm} {Prm.InclAdr} {Prm.InclPhone} {Prm.InclEmail}
-    SelDiv .Ne {Prm.DivLis} *Blank 
-    SelCrd .Ne {Prm.CrdLis} *Blank 
-    SelSto .Ne {Prm.StoLis} *Blank 
-    BrkDiv .Eq {Prm.BrkSto} 1 
-    BrkCrd .Eq {Prm.BrkCrd} 1 
-    BrkSto .Eq {Prm.BrkSto} 1 
-    BrkMbr .Eq {Prm.BrkMbr} 1
-    Y .Eq {Prm.SumLvl} Y 
-    M .Eq {Prm.SumLvl} M 
-    W .Eq {Prm.SumLvl} W 
-    D .Eq {Prm.SumLvl} D 
-    Dte .Or ?Y ?M ?W ?D 
-    Mbr .And ?BrkMbr ?SelMbr
 Sql.O.Oup.Sel
     ?Mbr ?BrkMbr @ Mbr    
     ?Sto ?BrkSto @ Sto    
@@ -164,8 +135,43 @@ Sql.O.Cnt.Sel
     Qty    . Sum(Qty)
     Amt    . Sum(Amt)
 Sql.O.Oup.Jn
-    Crd .LeftJn #Crd a #Crd on a.Crd=x.Crd
+    Crd          .LeftJn #Crd a #Crd on a.Crd=x.Crd
     ?Mbr ?BrkMbr .LeftJn #MbrDta b on a.Mbr = x.Mbr     
     ?Div ?BrkDiv .LeftJn #Div on c.Div = x.Div     
     ?Sto ?BrkSto .LeftJn #Sto on d.Sto = x.Sto      
+?
+    SelMbr .Or {>InclNm} {>InclAdr} {>InclPhone} {>InclEmail}
+    SelDiv .Ne {>DivLis} *Blank 
+    SelCrd .Ne {>CrdLis} *Blank 
+    SelSto .Ne {>StoLis} *Blank 
+    BrkDiv .Eq {>BrkSto} 1 
+    BrkCrd .Eq {>BrkCrd} 1 
+    BrkSto .Eq {>BrkSto} 1 
+    BrkMbr .Eq {>BrkMbr} 1
+    Y      .Eq {>SumLvl} Y 
+    M      .Eq {>SumLvl} M 
+    W      .Eq {>SumLvl} W 
+    D      .Eq {>SumLvl} D 
+    Dte    .Or ?Y ?M ?W ?D 
+    Mbr    .And ?BrkMbr ?SelMbr
+    LvlY   .Eq {>SumLvl} Y
+    LvlM   .Eq {>SumLvl} M
+    LvlW   .Eq {>SumLvl} W
+    LvlD   .Eq {>SumLvl} D
+    BrkDte .Or ?LvlY ?LvlM ?LvlW ?LvlD
+#Fld
+    Crd
+    Div . a
+    Sto . a
+    ?Dte
+        ?LvlY @Comma TxY      
+        ?LvlM @Comma TxY TxM      
+        ?LvlW @Comma TxY TxM TxW      
+        ?LvlD @Comma TxY TxM TxW TxD TxWD TxDte      
+    TxY   . SUBSTR(SHSDate,1,4) 
+    TxM   . SUBSTR(SHSDate,5,2)
+    TxW   . TxW
+    TxD   . SUBSTR(SHSDate,7,2)
+    TxWD  . TxWD
+    TxDte . SHSDate
 

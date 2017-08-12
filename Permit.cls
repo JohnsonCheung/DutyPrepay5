@@ -64,7 +64,7 @@ Wb.Close True
 End Sub
 
 Function ErMsg__Bld(Sql$, QQStr$) As String()
-Dim Dry: Dry = SqlDry(Sql, WrkDb)
+Dim Dry: Dry = WrkDb.Sql(Sql).Dry
 If AyIsEmpty(Dry) Then Exit Function
 Dim O$()
 Dim Dr
@@ -95,9 +95,11 @@ PushNonEmpty O, ErMsg_DtaTy__Msg("Batch Number", dbText)
 PushNonEmpty O, ErMsg_DtaTy__Msg("Duty Paid Amount", dbDouble)
 ErMsg_DtaTy = O
 End Function
-
-Function ErMsg_DtaTy__Msg$(F$, ExpT As DAO.DataTypeEnum)
-Dim T As DAO.DataTypeEnum: T = TblFld("Imp", F, WrkDb).Type
+Function DaoFld(T, F) As Dao.Field
+Set DaoFld = WrkDb.DaoFld(T, F)
+End Function
+Function ErMsg_DtaTy__Msg$(F$, ExpT As Dao.DataTypeEnum)
+Dim T As Dao.DataTypeEnum: T = DaoFld("Imp", F).Type
 If T <> ExpT Then ErMsg_DtaTy__Msg = FmtQQ("Column[?] should be [?], but now it is[?]", F, DaoTyStr(ExpT), DaoTyStr(T))
 End Function
 
@@ -112,10 +114,12 @@ Const S$ = "Select PermitNo,Qty from Imp1 where Trim(IIf(IsNull(SKU),'',SKU))=''
 Const Q$ = "PermitNo[?] Qty[?] has Blank SKU"
 ErMsg_EmptySKU = ErMsg__Bld(S, Q)
 End Function
-
+Function Sql(Sql_$) As Sql
+Set Sql = ccNew.Sql(Sql_, WrkDb)
+End Function
 Function ErMsg_ErAmt() As String()
 Const S$ = "Select PermitNo,Sku from Imp1 where Amt<=0"
-Dim Dry: Dry = SqlDry(S, WrkDb)
+Dim Dry: Dry = Sql(S).Dry
 If AyIsEmpty(Dry) Then Exit Function
 Dim O$()
 Dim Dr
@@ -135,7 +139,7 @@ Function ErMsg_MissingCol() As String()
 Dim Fny$(): Fny = FxWsFny(AFx, "Sheet1")
 Dim Miss$()
     Dim F
-    For Each F In Sy("Material Description", "Order Qty#", "Permit Number", "Batch Number", "Duty Paid Amount")
+    For Each F In ApSy("Material Description", "Order Qty#", "Permit Number", "Batch Number", "Duty Paid Amount")
         If Not AyHas(Fny, F) Then
             Push Miss, F
         End If
@@ -214,15 +218,15 @@ If Not Z Then
     Z = True
     Dim Sq: Sq = WsSq(ImpPermWs)
     WsClsNoSav Ws
-    X = SqSel(Sq, MapStr)
+    X = Sq.Sel(MapStr)
 End If
 ImpPermDrs = X
 End Function
 
 Function ImpPermHdrDrs() As Drs
 'Summing following in WrkDb->Imp1
-Const Sql$ = "Select Distinct PermitNo,Count(*) as NSKU,Sum(x.Qty) as Qty,Sum(x.Amt) as Amt from Imp1 x Group By PermitNo"
-ImpPermHdrDrs = SqlDrs(Sql, WrkDb)
+Const S$ = "Select Distinct PermitNo,Count(*) as NSKU,Sum(x.Qty) as Qty,Sum(x.Amt) as Amt from Imp1 x Group By PermitNo"
+ImpPermHdrDrs = Sql(S).Drs
 'PermitNo NSKU Qty Amt
 '|---------|-----------------------------------------|-------|----------------|------------|-----|
 '| SKU     | Des                                     | Qty   | PermitNo       | BchNo      | Amt |
@@ -253,8 +257,8 @@ End Function
 Function ImpPermItmDrs() As Drs
 'Oup: Drs: Permit SKU SeqNo Qty BchNo Amt
 'Inp: Imp1: SKU Qty PermitNo BchNo Amt
-Dim Dry(): Dry = SqlDry("Select SKU,Qty,PermitNo,BchNo,Amt from Imp1 Order By PermitNo", WrkDb)
-Dim ODry()
+Const S$ = "Select SKU,Qty,PermitNo,BchNo,Amt from Imp1 Order By PermitNo"
+Dim Dry As Dry: Set Dry = Sql(S).Dry
     Dim ODr()
     Dim Sku$, Qty@, PermitNo$, BchNo$, Amt#, SeqNo%
     Dim Dr, LasPermitNo
@@ -272,12 +276,10 @@ Dim ODry()
         Push ODr, Qty
         Push ODr, BchNo
         Push ODr, Amt
-        Push ODry, ODr
+        Dry.Push ODr
     Next
-Dim O As Drs
-    O.Fny = SplitSpc("Permit SKU SeqNo Qty BchNo Amt")
-    O.Dry = ODry
-ImpPermItmDrs = O
+Dim Fny$(): Fny = SplitSpc("Permit SKU SeqNo Qty BchNo Amt")
+Set ImpPermItmDrs = Drs(Fny, Dry)
 'Inp:
 '|---------|-----------------------------------------|-------|----------------|------------|-----|
 '| SKU     | Des                                     | Qty   | PermitNo       | BchNo      | Amt |
@@ -292,9 +294,11 @@ End Function
 Function ImpPermWs() As Worksheet
 Set ImpPermWs = ImpPermWb.Sheets(1)
 End Function
-
+Sub RunSqlAy(SqlAy$())
+WrkDb.RunSqlAy SqlAy
+End Sub
 Sub InsTbl_Permit_and_PermitD()
-RunSqlAy SqlAy_UpdTbl_Permit_and_PermitD, WrkDb
+RunSqlAy SqlAy_UpdTbl_Permit_and_PermitD
 End Sub
 
 Function IsEr() As Boolean
@@ -325,7 +329,7 @@ Function PermitNoAy() As String()
 Static Z As Boolean, X
 If Not Z Then
     Z = True
-    X = DrsStrCol(ImpPermHdrDrs, "PermitNo")
+    X = ImpPermHdrDrs.StrCol("PermitNo")
 End If
 PermitNoAy = X
 End Function
@@ -345,11 +349,10 @@ Sql_DltTbl_PermitD = FmtQQ(S, PermitNoLis)
 End Function
 
 Function SqlAy_InsTbl_Permit() As String()
-Dim ODry()
+Dim Dry As New Dry
     Dim M As PermitDftVal: M = PermitDftVal
     Dim Dr
     Dim ODr()
-    Dim Dry()
     Dim Drs As Drs: Drs = ImpPermHdrDrs
     Dim IdxAy&(): IdxAy = FidxAy(Drs.Fny, "PermitNo NSKU Qty Amt")
     Dim PermitNo$, NSku%, Qty&, Amt#
@@ -369,25 +372,25 @@ Dim ODry()
         Push ODr, M.ByUsr
         Push ODr, Now
         Push ODr, True
-        Push ODry, ODr
+        Dry.Push ODr
     Next
+Dim Fny$(): Fny = SplitSpc("Permit PermitNo PermitDate PostDate NSku Qty Tot GLAc GLAcName BankCode ByUsr DteCrt IsImport")
 Dim Dt As Dt
-    Dt.Fny = SplitSpc("Permit PermitNo PermitDate PostDate NSku Qty Tot GLAc GLAcName BankCode ByUsr DteCrt IsImport")
-    Dt.Dry = ODry
-    Dt.DtNm = "Permit"
+    Set Dt = ccNew.Dt(Fny, Dry, "Permit")
 Dim O$()
-    O = InsDtSqlAy(Dt)
+    O = WrkDb.InsDtSqlAy(Dt)
 SqlAy_InsTbl_Permit = O
 End Function
-
+Function TblPermitD() As DbT
+Set TblPermitD = WrkDb.DbT("PermitD")
+End Function
 Function SqlAy_InsTbl_PermitD() As String()
 'PermitD = * Permit Sku SeqNo Qty BchNo Rate Amt DteCrt
-Dim ODry()
+Dim Dry As New Dry
     Dim M As PermitDftVal: M = PermitDftVal
     Dim Dr
     Dim ODr()
-    Dim Dry()
-    Dim Id&: Id = TblNxtId("PermitD")
+    Dim Id&: Id = TblPermitD.NxtId
     Dim Permit&, Sku$, SeqNo%, Qty&, BchNo$, Amt@
     Dim Drs As Drs: Drs = ImpPermItmDrs
     Dim IdxAy&(): IdxAy = FidxAy(Drs.Fny, "Permit SKU SeqNo Qty BchNo Amt")
@@ -403,14 +406,12 @@ Dim ODry()
         Push ODr, BchNo
         Push ODr, Amt
         Push ODr, Now
-        Push ODry, ODr
+        Dry.Push ODr
     Next
-Dim Dt As Dt
-    Dt.Fny = SplitSpc("PermitD Permit Sku SeqNo Qty BchNo Rate Amt DteCrt")
-    Dt.Dry = ODry
-    Dt.DtNm = "PermitD"
+Dim Fny$(): Fny = SplitSpc("PermitD Permit Sku SeqNo Qty BchNo Rate Amt DteCrt")
+Dim Dt As Dt: Set Dt = ccNew.Dt(Fny, Dry, "PermitD")
 Dim O$()
-    O = InsDtSqlAy(Dt)
+    O = WrkDb.InsDtSqlAy(Dt)
 SqlAy_InsTbl_PermitD = O
 End Function
 
@@ -423,31 +424,35 @@ PushAy O, SqlAy_InsTbl_PermitD
 SqlAy_UpdTbl_Permit_and_PermitD = O
 End Function
 
-Function WrkDb() As Database
-Static O As Database
+Function WrkDb() As Db
+Static O As Db
 If IsNothing(O) Then
     Set O = TmpDb
-    LnkFx AFx, "Sheet1", "Imp", O
-    LnkFb DtaFb, "Permit", , O
-    LnkFb DtaFb, "PermitD", , O
-    RunSql "Select " & _
+    With O
+        .LnkFx AFx, "Sheet1", "Imp"
+        .LnkFb DtaFb, "Permit"
+        .LnkFb DtaFb, "PermitD"
+        .RunSql "Select " & _
         "SKU," & _
         "[Material Description] As Des," & _
         "[Order Qty#]           As Qty," & _
         "[Permit Number]        As PermitNo," & _
         "[Batch Number]         As BchNo," & _
         "[Duty Paid Amount]     As Amt" & _
-        " Into Imp1 from Imp", O
+        " Into Imp1 from Imp"
+    End With
 End If
-Set WrkDb = O
+Set WrkDb = Db(O)
 End Function
-
+Function TblPermit() As DbT
+Set TblPermit = WrkDb.DbT("Permit")
+End Function
 Function ZDicOfId_ByPermitNo() As Dictionary
 Static Z As Boolean, X As Dictionary
 If Not Z Then
     Z = True
     Set X = New Dictionary
-    Dim Id&: Id = TblNxtId("Permit")
+    Dim Id&: Id = TblPermit.NxtId
     Dim I
     For Each I In PermitNoAy
         X.Add I, Id: Id = Id + 1
@@ -463,7 +468,7 @@ ZMkPth = O
 End Function
 
 Function ZZResPth$()
-ZZResPth = PjSrcPth & "TstRes\"
+ZZResPth = CurPj.SrcPth & "TstRes\"
 End Function
 
 Sub ZZSet(FxFn)
@@ -477,8 +482,8 @@ End Sub
 
 Private Sub Class_Terminate()
 On Error GoTo X
-Dim Fb$: Fb = WrkDb.Name
-WrkDb.Close
+Dim Fb$: Fb = WrkDb.Nm
+WrkDb.Db.Close
 Kill Fb
 Log FmtQQ("TmpFb[?] killed", Fb)
 X:
@@ -530,7 +535,7 @@ End Sub
 
 Sub ImpPermItmDrs__Tst()
 ZZSet ZZOk_Fn
-DrsBrw ZZ.ImpPermItmDrs
+ZZ.ImpPermItmDrs.Brw
 End Sub
 
 Function SqlAy_InsTbl_Permit__Tst()
@@ -550,9 +555,8 @@ End Sub
 
 Sub WrkDb__Tst()
 ZZSet ZZOk_Fn
-Dim D As Database: Set D = ZZ.WrkDb
-Dim Fb$: Fb = D.Name
-Dim mTny$(): mTny = DbTny(D)
+Dim Fb$: Fb = ZZ.WrkDb.Db.Name
+Dim mTny$(): mTny = ZZ.WrkDb.Tny
 Debug.Assert Sz(mTny) = 4
 AssertEqAy SplitSpc("Permit PermitD Imp Imp1"), mTny
 End Sub

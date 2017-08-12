@@ -1,20 +1,6 @@
 Attribute VB_Name = "bb_Lib_Dta"
 Option Compare Database
 Option Explicit
-Type Drs
-    Fny() As String
-    Dry() As Variant
-End Type
-Type Dt
-    DtNm As String
-    Fny() As String
-    Dry() As Variant
-End Type
-Type Ds
-    DsNm As String
-    DtAy() As Dt
-End Type
-
 Function AySel(Ay, IdxAy&())
 Dim U&
     U = UB(IdxAy)
@@ -28,121 +14,10 @@ Next
 AySel = O
 End Function
 
-Function DrsAddRowIdxCol(A As Drs) As Drs
-Dim O As Drs
-    O.Fny = A.Fny
-    AyIns O.Fny, "RowIdx"
-Dim ODry()
-    If Not AyIsEmpty(A.Dry) Then
-        Dim J&, Dr
-        For Each Dr In A.Dry
-            AyIns Dr, J: J = J + 1
-            Push ODry, Dr
-        Next
-    End If
-O.Dry = ODry
-DrsAddRowIdxCol = O
-End Function
-
-Sub DrsBrw(Drs As Drs, Optional MaxColWdt& = 100)
-AyBrw DrsLy(Drs, MaxColWdt)
-End Sub
-
-Function DrsCol(Drs As Drs, ColNm$) As Variant()
-Dim ColIdx%: ColIdx = AyIdx(Drs.Fny, ColNm)
-DrsCol = DryCol(Drs.Dry, ColIdx)
-End Function
-
-Function DrsSel(A As Drs, Fny) As Drs
-Dim mFny$(): mFny = NyCv(Fny)
-Dim IdxAy&()
-    IdxAy = AyIdxAy(A.Fny, mFny)
-Dim Dry()
-    Dim Dr
-    For Each Dr In A.Dry
-        Push Dry, AySel(Dr, IdxAy)
-    Next
-Dim O As Drs
-    O.Fny = mFny
-    O.Dry = Dry
-DrsSel = O
-End Function
-
-Function DrsStrCol(Drs As Drs, ColNm$) As String()
-DrsStrCol = AySy(DrsCol(Drs, ColNm))
-End Function
-
-Sub DryBrw(Dry)
-AyBrw DryLy(Dry)
-End Sub
-
-Sub DsBrw(A As Ds)
-AyBrw DsLy(A)
-End Sub
-
-Function DsLy(A As Ds, Optional MaxColWdt& = 1000, Optional BrkLinMapStr$) As String()
-Dim O$()
-    Push O, "*Ds " & A.DsNm
-Dim Dic As Dictionary ' DicOf_TblNm_to_BrkColNm
-    Set Dic = MapDic(BrkMapStr(BrkLinMapStr))
-If Not IsEmptyDtAy(A.DtAy) Then
-    Dim J%, DtNm$, Dt As Dt, BrkColNm$
-    For J = 0 To UBound(A.DtAy)
-        Dt = A.DtAy(J)
-        DtNm$ = Dt.DtNm
-        If Dic.Exists(DtNm) Then BrkColNm = Dic(DtNm) Else BrkColNm = ""
-        PushAy O, DtLy(Dt, MaxColWdt, BrkColNm)
-    Next
-End If
-DsLy = O
-End Function
-
-Function DsNew(TblNmLvs$, Optional DsNm$ = "Ds", Optional D As Database) As Ds
-Dim DtAy() As Dt
-    Dim U%, Tny$()
-    Tny = SplitLvs(TblNmLvs)
-    U = UB(Tny)
-    ReDim DtAy(U)
-    Dim J%
-    For J = 0 To U
-        DtAy(J) = TblDt(Tny(J), D)
-    Next
-Dim O As Ds
-    O.DsNm = DsNm
-    O.DtAy = DtAy
-DsNew = O
-End Function
-
 Function DtAySz%(DtAy() As Dt)
 On Error Resume Next
 DtAySz = UBound(DtAy) + 1
 End Function
-
-Sub DtBrw(Dt As Dt)
-AyBrw DtLy(Dt)
-End Sub
-
-Function DtCsvLy(A As Dt) As String()
-Dim O$()
-Dim QQStr$
-Dim Dr
-Push O, JnComma(DblAyQuote(A.Fny))
-For Each Dr In A.Dry
-    Push O, FmtQQAv(QQStr, Dr)
-Next
-End Function
-
-Sub DtDmp(Dt As Dt)
-AyDmp DtLy(Dt)
-End Sub
-
-Function DtDrs(A As Dt) As Drs
-Dim O As Drs
-O.Fny = A.Fny
-O.Dry = A.Dry
-DtDrs = O
-End Function
-
 Function FidxAy(Fny$(), FldNmLvs$) As Long()
 'Return Field Idx Ay
 FidxAy = AyIdxAy(Fny, SplitSpc(FldNmLvs))
@@ -158,6 +33,7 @@ For J = 0 To UB(I)
 Next
 End Sub
 
+
 Function IsEmptyDs(A As Ds) As Boolean
 IsEmptyDs = IsEmptyDtAy(A.DtAy)
 End Function
@@ -170,26 +46,17 @@ Function IsEmptyDtAy(DtAy() As Dt) As Boolean
 IsEmptyDtAy = DtAySz(DtAy) = 0
 End Function
 
-Function NyCv(Ny) As String()
-If IsStrAy(Ny) Then NyCv = Ny: Exit Function
-If Not IsStr(Ny) Then Err.Raise 1, , "NyCv: Given [Ny] must be StrAy or Str, but now [" & TypeName(Ny) & "]"
-NyCv = SplitLvs(Ny)
-End Function
-
 Function ObjCollSel(ObjColl, PrpNy) As Drs
-Dim Ny$()
-    Ny = NyCv(PrpNy)
-Dim Dry()
+Dim Ay$()
+    Ay = Ny(PrpNy).Ny
+Dim Dry As New Dry
     Dim Obj
     If Not IsEmptyColl(ObjColl) Then
         For Each Obj In ObjColl
-            Push Dry, ObjSelPrp(Obj, Ny)
+            Dry.Push ObjSelPrp(Obj, Ay)
         Next
     End If
-Dim O As Drs
-    O.Fny = Ny
-    O.Dry = Dry
-ObjCollSel = O
+Set ObjCollSel = ccNew.Drs(Ay, Dry)
 End Function
 
 Function ObjSelPrp(Obj, PrpNy$()) As Variant()
@@ -204,44 +71,12 @@ Dim O()
 ObjSelPrp = O
 End Function
 
-Function TblDt(T, Optional D As Database) As Dt
-Dim O As Dt
-O.DtNm = T
-O.Dry = RsDry(Tbl(T, D).OpenRecordset)
-O.Fny = TblFny(T, D)
-TblDt = O
-End Function
-
-Function TnyDs(TblNmLvs_or_Tny, Optional DsNm$ = "Ds", Optional D As Database) As Ds
-Dim Tny$(): Tny = NyCv(TblNmLvs_or_Tny)
-Dim O As Ds
-    O.DsNm = DsNm
-    Dim J%
-    Dim U%: U = UB(Tny)
-    ReDim O.DtAy(U)
-    For J = 0 To UB(Tny)
-        O.DtAy(J) = TblDt(Tny(J), D)
-    Next
-TnyDs = O
-End Function
-
-Private Sub DrsSel__Tst()
-DrsBrw DrsSel(MdFunDrs, "MdNm FunNm Mdy Ty")
-End Sub
-
-Private Sub DsNew__Tst()
-Dim Ds As Ds
-Ds = DsNew("Permit PermitD")
-Stop
-End Sub
 
 Private Sub ObjCollSel__Tst()
-DrsBrw ObjCollSel(Flds("Permit"), "Name Type")
-Stop
+ObjCollSel(DbT("Permit").DaoFlds, "Name Type").Brw
 End Sub
 
 Sub Tst()
-DrsSel__Tst
-DsNew__Tst
+
 ObjCollSel__Tst
 End Sub

@@ -3,7 +3,7 @@ Option Compare Database
 Option Explicit
 
 Function TstResPth$()
-TstResPth = PjSrcPth & "TstRes\"
+TstResPth = CurPj.SrcPth & "TstRes\"
 End Function
 
 Sub TstResPthBrw()

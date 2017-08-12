@@ -1,8 +1,24 @@
-Attribute VB_Name = "bb_Lib_Dta_Sq"
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sq"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = True
 Option Compare Database
 Option Explicit
+Private Sq()
+Function Init(Sq_()) As Sq
+Dim I&:
+I = UBound(Sq_, 2)
+I = UBound(Sq_, 1)
+Sq = Sq_
+Set Init = Me
+End Function
 
-Function SqDr(Sq, R&, Optional CnoAy) As Variant()
+Function Dr(R&, Optional CnoAy) As Variant()
 Dim mCnoAy%()
     Dim J%
     If IsMissing(CnoAy) Then
@@ -22,13 +38,29 @@ Dim O()
         C = mCnoAy(J)
         O(J) = Sq(R, C)
     Next
-SqDr = O
+Dr = O
+End Function
+Function Xls() As SqXls
+Set Xls = SqXls(Me)
+End Function
+Function InitByHAy(HAy) As Sq
+If AyIsEmpty(HAy) Then Exit Function
+Dim O(), C%
+ReDim O(1 To 1, 1 To Sz(HAy))
+C = 0
+Dim V
+For Each V In HAy
+    C = C + 1
+    O(1, C) = V
+Next
+Set InitByHAy = Init(O)
 End Function
 
-Function SqSel(Sq, Optional MapStr$) As Drs
+
+Function Sel(Optional MapStr$) As Drs
 Dim Fny$(), Fm$() 'MapStr
     If MapStr = "" Then
-        Fny = AyStrAy(SqDr(Sq, 1))
+        Fny = AyStrAy(Dr(1))
         Fm = Fny
     Else
         With BrkMapStr(MapStr)
@@ -36,32 +68,31 @@ Dim Fny$(), Fm$() 'MapStr
             Fm = .Sy2
         End With
     End If
-Dim SqCnoAy%() 'Fm,Sq
+Dim CnoAy%() 'Fm,Sq
     Dim A&()
     Dim U%
     Dim J%
-    A = AyIdxAy(SqDr(Sq, 1), Fm)
+    A = AyIdxAy(Dr(1), Fm)
     U = UB(A)
     ReDim SqCnoAy(U)
     For J = 0 To U
         SqCnoAy(J) = A(J) + 1
     Next
-Dim Dry() 'Sq,SqIdxAy
+Dim Dry As Dry 'Sq,SqIdxAy
     Dim R&, Cno%, C%
     Dim UFld%
     Dim Idx%
-    Dim Dr()
-    UFld = UB(SqCnoAy)
+    UFld = UB(CnoAy)
     For R = 2 To UBound(Sq, 1)
         ReDim Dr(UFld)
         For C = 0 To UFld
-            Cno = SqCnoAy(C)
+            Cno = CnoAy(C)
             If Cno > 0 Then
                 Dr(C) = Sq(R, Cno)
             End If
         Next
-        Push Dry, Dr
+        Dry.Push Dr
     Next
-SqSel.Dry = Dry
-SqSel.Fny = Fny
+Set Sel = ccNew.Drs(Fny, Dry)
 End Function
+

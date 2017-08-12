@@ -354,9 +354,9 @@ Sub RmvLasNEle(Ay, Optional NEle% = 1)
 ReDim Preserve Ay(UB(Ay) - NEle)
 End Sub
 
-Function Sy(ParamArray Ap()) As String()
+Function ApSy(ParamArray Ap()) As String()
 Dim Av(): Av = Ap
-Sy = AySy(Av)
+ApSy = AySy(Av)
 End Function
 
 Function Sz&(Ay)
@@ -365,7 +365,7 @@ Sz = UBound(Ay) + 1
 End Function
 
 Function Tst_ResPth$()
-Tst_ResPth = PjSrcPth & "TstRes\"
+Tst_ResPth = CurPj.SrcPth & "TstRes\"
 End Function
 
 Function UB&(Ay)
