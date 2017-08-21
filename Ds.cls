@@ -46,26 +46,43 @@ Function IsEmpty() As Boolean
 IsEmpty = NDt = 0
 End Function
 Sub Brw(Optional MaxColWdt% = 100, Optional DsBrkLinMapStr$)
-Ly(MaxColWdt, DsBrkLinMapStr).Ay.Brw
+LyX(MaxColWdt, DsBrkLinMapStr).Brw
 End Sub
-Function Ly(Optional MaxColWdt% = 1000, Optional DsBrkLinMapStr$) As Sy
-Dim O As New Sy
-    O.Push "*Ds " & DsNm
+Function LyX(Optional MaxColWdt% = 1000, Optional DsBrkLinMapStr$) As Ay
+
+End Function
+Function Ly(Optional MaxColWdt% = 1000, Optional DsBrkLinMapStr$) As String()
+Dim O$()
+    Push O, "*Ds " & DsNm
 Dim Dic As Dictionary ' DicOf_TblNm_to_BrkColNm
-    Set Dic = MapDic(BrkMapStr(DsBrkLinMapStr))
+    Set Dic = MapDic(BrkMapStr(DsBrkLinMapStr)).Dic
 If Not IsEmpty Then
     Dim J%, DtNm$, Dt As Dt, BrkColNm$, I
     For Each I In DtAy
         Set Dt = I
         DtNm$ = Dt.DtNm
         If Dic.Exists(DtNm) Then BrkColNm = Dic(DtNm) Else BrkColNm = ""
-        O.PushAy Dt.Ly(MaxColWdt, BrkColNm).Sy
+        PushAy O, Dt.Ly(MaxColWdt, BrkColNm)
     Next
 End If
-Set Ly = O
+Ly = O
 End Function
-Function Xls() As DsXls
-Set Xls = DsXls(Me)
+
+Function WbX() As Wb
+Dim O As Wb
+Set O = NewWbX
+With O.FstWs
+    .Name = "Ds"
+    .Range("A1").Value = DsNm
+End With
+Dim Dt As Dt, I
+If Not IsEmpty Then
+    For Each I In DtAy
+        Set Dt = I
+        Dt.PutWb O
+    Next
+End If
+Set WbX = O
 End Function
 
 Sub AddDt(T As Dt)

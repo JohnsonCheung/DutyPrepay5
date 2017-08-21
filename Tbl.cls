@@ -15,13 +15,13 @@ Set A = Tbl
 Set Init = Me
 End Function
 Function Rs() As Rs
-Set Rs = ccNew.Rs(A.OpenRecordset)
+Set Rs = Nw.Rs(A.OpenRecordset)
 End Function
 Function Fny() As String()
 Fny = Flds.Fny
 End Function
 Function Flds() As Flds
-Set Flds = ccNew.Flds(A.Fields)
+Set Flds = Nw.Flds(A.Fields)
 End Function
 
 Function HasFld(F) As Boolean

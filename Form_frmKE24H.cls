@@ -72,8 +72,8 @@ End Sub
 
 Private Sub Form_Open_1BldKE24H_1Y(pY As Byte)
 Dim J%
-Dim mM As Byte: mM = IIf(pY = VBA.Year(Date) - 2000, Month(Date), 12)
-For J = 1 To mM
+Dim MM As Byte: MM = IIf(pY = VBA.Year(Date) - 2000, Month(Date), 12)
+For J = 1 To MM
     Form_Open_1BldKE24H_1Y_1M pY, CByte(J)
 Next
 End Sub

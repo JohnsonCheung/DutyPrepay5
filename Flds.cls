@@ -45,4 +45,10 @@ Function NFld%()
 NFld = Flds.Count
 End Function
 
-
+Function InsSqlValPhraseTp$()
+Dim F As Dao.Field, O$()
+For Each F In Flds
+    Push O, Nw.Fld(F).InsSqlValPhraseTp
+Next
+InsSqlValPhraseTp = JnComma(O)
+End Function

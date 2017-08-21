@@ -38,7 +38,7 @@ End Sub
 
 Private Sub Form_Load()
 DoCmd.Maximize
-bYrO.AddYrO
+AddYrO
 Me.Requery
 Me.Refresh
 End Sub

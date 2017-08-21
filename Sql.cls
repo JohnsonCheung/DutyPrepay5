@@ -16,16 +16,13 @@ Set D = DftDb(D)
 A = Sql
 Set Init = Me
 End Function
-Sub Brw(Optional MaxColWdt% = 100)
-Drs.Brw MaxColWdt
-End Sub
 Function Drs() As Drs
 With Rs
-Set Drs = ccNew.Drs(.Fny, .Dry)
+Set Drs = Nw.Drs(.Fny, .Dry)
 End With
 End Function
 Function Rs() As Rs
-Set Rs = ccNew.Rs(DaoRs)
+Set Rs = Nw.Rs(DaoRs)
 End Function
 Function DaoRs() As Dao.Recordset
 On Error Resume Next

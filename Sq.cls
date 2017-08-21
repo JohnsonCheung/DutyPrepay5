@@ -9,20 +9,27 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Compare Database
 Option Explicit
-Private Sq()
-Function Init(Sq_()) As Sq
-Dim I&:
-I = UBound(Sq_, 2)
-I = UBound(Sq_, 1)
+Private Sq_()
+Property Get Sq() As Variant()
 Sq = Sq_
+End Property
+Function Init(Sq()) As Sq
+Dim I&:
+I = UBound(Sq, 2)
+I = UBound(Sq, 1)
+Sq_ = Sq
 Set Init = Me
 End Function
+
+Sub PutAt(At As Range)
+Rg(At).ReSz(Sq_).Value = Sq_
+End Sub
 
 Function Dr(R&, Optional CnoAy) As Variant()
 Dim mCnoAy%()
     Dim J%
     If IsMissing(CnoAy) Then
-        ReDim mCnoAy(UBound(Sq, 2) - 1)
+        ReDim mCnoAy(UBound(Sq_, 2) - 1)
         For J = 0 To UB(mCnoAy)
             mCnoAy(J) = J + 1
         Next
@@ -36,12 +43,9 @@ Dim O()
     Dim C%
     For J = 0 To UCol
         C = mCnoAy(J)
-        O(J) = Sq(R, C)
+        O(J) = Sq_(R, C)
     Next
 Dr = O
-End Function
-Function Xls() As SqXls
-Set Xls = SqXls(Me)
 End Function
 Function InitByHAy(HAy) As Sq
 If AyIsEmpty(HAy) Then Exit Function
@@ -55,12 +59,24 @@ For Each V In HAy
 Next
 Set InitByHAy = Init(O)
 End Function
+Function InitByVAy(VAy) As Sq
+If AyIsEmpty(VAy) Then Exit Function
+Dim O(), R&
+ReDim O(1 To 1, 1 To Sz(VAy))
+R = 0
+Dim V
+For Each V In VAy
+    R = R + 1
+    O(R, 1) = V
+Next
+Set InitByVAy = Init(O)
+End Function
 
 
 Function Sel(Optional MapStr$) As Drs
 Dim Fny$(), Fm$() 'MapStr
     If MapStr = "" Then
-        Fny = AyStrAy(Dr(1))
+        Fny = AySy(Dr(1))
         Fm = Fny
     Else
         With BrkMapStr(MapStr)
@@ -72,27 +88,35 @@ Dim CnoAy%() 'Fm,Sq
     Dim A&()
     Dim U%
     Dim J%
-    A = AyIdxAy(Dr(1), Fm)
+    A = Ay(Dr(1)).IdxAy(Fm)
     U = UB(A)
-    ReDim SqCnoAy(U)
+    ReDim CnoAy(U)
     For J = 0 To U
-        SqCnoAy(J) = A(J) + 1
+        CnoAy(J) = A(J) + 1
     Next
 Dim Dry As Dry 'Sq,SqIdxAy
     Dim R&, Cno%, C%
     Dim UFld%
     Dim Idx%
     UFld = UB(CnoAy)
-    For R = 2 To UBound(Sq, 1)
+    For R = 2 To NRow
         ReDim Dr(UFld)
         For C = 0 To UFld
             Cno = CnoAy(C)
             If Cno > 0 Then
-                Dr(C) = Sq(R, Cno)
+                Dr(C) = Sq_(R, Cno)
             End If
         Next
-        Dry.Push Dr
+        Dry.AddDr Dr
     Next
-Set Sel = ccNew.Drs(Fny, Dry)
+Set Sel = Nw.Drs(Fny, Dry)
+End Function
+
+Function NRow&()
+NRow = UBound(Sq_, 1)
+End Function
+
+Function NCol&()
+NCol = UBound(Sq_, 2)
 End Function
 

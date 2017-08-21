@@ -35,9 +35,11 @@ If IsEmpty Then Exit Function
 Dim O$(), J%, F
 O = A
 For Each F In A
-    If IsNeedQuote(F) Then O(J) = Quote(F, "'")
+    If IsNmNeedQuote(F) Then O(J) = Quote(F, "'")
     J = J + 1
 Next
 QuoteIfNeed = O
 End Function
+
+
 

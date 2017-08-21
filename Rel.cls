@@ -55,7 +55,7 @@ Dim M As Rel: Set M = Cpy
 Dim IdxAy&(), J&
 IdxAy = M.ChdIdxAy
 While Not AyIsEmpty(IdxAy)
-    For J = 0 To bb_Lib_Vb_Ay.UB(IdxAy)
+    For J = 0 To Vb.UB(IdxAy)
         O.Push M.Itm(J)
         M.RmvAt IdxAy(J)
     Next
@@ -79,28 +79,28 @@ End Function
 Function ChdAy() As String()
 Dim J&, O$()
 For J = 0 To UB
-    If IdxIsChd(J) Then bb_Lib_Vb_Ay.Push O, Nm(J)
+    If IdxIsChd(J) Then Vb.Push O, Nm(J)
 Next
 ChdAy = O
 End Function
 Function ChdIdxAy() As Long()
 Dim J&, O&()
 For J = 0 To UB
-    If IdxIsChd(J) Then bb_Lib_Vb_Ay.Push O, J
+    If IdxIsChd(J) Then Vb.Push O, J
 Next
 ChdIdxAy = O
 End Function
 Function LeafIdxAy() As String()
 Dim J&, O$()
 For J = 0 To UB
-    If IdxIsLeaf(J) Then bb_Lib_Vb_Ay.Push O, Nm(J)
+    If IdxIsLeaf(J) Then Vb.Push O, Nm(J)
 Next
 LeafIdxAy = O
 End Function
 Function LeafAy() As String()
 Dim J&, O$()
 For J = 0 To UB
-    If IdxIsLeaf(J) Then bb_Lib_Vb_Ay.Push O, Nm(J)
+    If IdxIsLeaf(J) Then Vb.Push O, Nm(J)
 Next
 LeafAy = O
 End Function
@@ -133,7 +133,7 @@ Function IdxIsChd(I&) As Boolean
 Dim Nm$: Nm = Me.Nm(I)
 Dim J&
 For J = 0 To UB
-    If AyHas(Chd(J), Nm) Then Exit Function
+    'If AyHas(Chd(J), Nm) Then Exit Function
 Next
 IdxIsChd = True
 End Function

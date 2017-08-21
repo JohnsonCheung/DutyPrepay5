@@ -25,43 +25,54 @@ Dim O As New Ds
     Next
 Set Ds = O
 End Function
+
+Sub BrwInf(Optional MaxColWdt% = 2000)
+InfDs.Brw MaxColWdt, DsBrkLinMapStr:="TblFld:Tbl"
+End Sub
+
 Function Dt(T) As Dt
 Set Dt = DbT(T).Dt
 End Function
+Sub Brw()
+Dim N$: N = Db.Name
+Db.Close
+FbBrw (N)
+End Sub
+
 Function TblFldInfDt() As Dt
 Dim Dry As New Dry
     Dim T, InfFny$()
     For Each T In Tny
         With DbT(T)
             If AyIsEmpty(InfFny) Then InfFny = .FldInfFny
-            Dry.PushAy .FldInfDry.Dry
+            Dry.AddDr .FldInfDry.Dry
         End With
     Next
-Set TblFldInfDt = ccNew.Dt(InfFny, Dry, "TblFld")
+Set TblFldInfDt = Nw.Dt(InfFny, Dry, "TblFld")
 End Function
 Function DbT(T) As DbT
-Set DbT = ccNew.DbT(T, Db)
+Set DbT = Nw.DbT(T, Db)
 End Function
 Function Tny() As String()
 Const S$ = "Select Name from MSysObjects where Type in (1,6) and Left(Name,4)<>'MSYS'"
 Tny = Sql(S).Sy
 End Function
 Function Sql(Sql_$, Optional Db As Database) As Sql
-Set Sql = ccNew.Sql(Sql_, Db)
+Set Sql = Nw.Sql(Sql_, Db)
 End Function
 Function StruInfDt() As Dt
 Dim Dry As New Dry
     Dim T
     For Each T In Tny
         With DbT(T)
-             Dry.Push Array(T, .RecCnt, .Des, .StruLin(SkipTblNm:=True))
+             Dry.AddDr Array(T, .RecCnt, .Des, .StruLin(SkipTblNm:=True))
         End With
     Next
 Dim Fny$(): Fny = SplitSpc("Tbl RecCnt Des Stru")
-Set StruInfDt = ccNew.Dt(Fny, Dry, "Tbl")
+Set StruInfDt = Nw.Dt(Fny, Dry, "Tbl")
 End Function
 Private Sub Qny__Tst()
-AyDmp Qny
+Ay(Qny).Dmp
 End Sub
 Function Qny() As String()
 Const S$ = "Select Name from MSysObjects where Type=5 and Left(Name,4)<>'MSYS' and Left(Name,4)<>'~sq_'"
@@ -70,10 +81,6 @@ End Function
 
 Sub DrpTbl(T)
 If IsTbl(T) Then Db.Execute FmtQQ("Drop Table [?]", T)
-End Sub
-
-Sub BrwInf()
-InfDs.Brw 2000, DsBrkLinMapStr:="TblFld:Tbl"
 End Sub
 Function Nm$()
 Nm = Db.Name
@@ -119,7 +126,7 @@ RunSqlAy InsDsSqlAy(A)
 End Sub
 
 Function InsDsSqlAy(A As Ds) As String()
-If IsEmptyDs(A) Then Exit Function
+If A.IsEmpty Then Exit Function
 Dim O$()
 Dim J%, DtAy() As Dt
 DtAy = A.DtAy
@@ -151,23 +158,6 @@ Sub CrtTbl(T, FldDclAy)
 Db.Execute FmtQQ("Create Table [?] (?)", T, JnComma(FldDclAy))
 End Sub
 
-Private Function InsValTp$(SimTyAy() As eSimTy)
-Dim U%
-    U = UB(SimTyAy)
-Dim Ay$()
-    ReDim Ay(U)
-Dim J%
-For J = 0 To U
-    Ay(J) = SimTyQuoteTp(SimTyAy(J))
-Next
-InsValTp = JnComma(Ay)
-End Function
-
-Private Sub InsDtSqlAy__Tst()
-Dim Dt As Dt: Dt = Dt("Permit")
-Dim O$(): O = InsDtSqlAy(Dt)
-Stop
-End Sub
 Sub RunSql(Sql)
 Db.Execute Sql
 End Sub
@@ -183,28 +173,9 @@ For Each Sql In SqlAy
 Next
 End Sub
 
-
 Function InsDtSqlAy(Dt As Dt) As String()
-If Dt.IsEmpty Then Exit Function
-Dim SimTyAy() As eSimTy
-SimTyAy = DbT(Dt.DtNm).FnySimTyAy(Dt.Fny)
-Dim ValTp$
-    ValTp = InsValTp(SimTyAy)
-Dim Tp$
-    Dim T$, F$
-    T = Dt.DtNm
-    F = JnComma(Dt.Fny)
-    Tp = FmtQQ("Insert into [?] (?) values(?)", T, F, ValTp)
-Dim O$()
-    Dim Dr
-    ReDim O(UB(Dt.Dry))
-    Dim J%
-    J = 0
-    For Each Dr In Dt.Dry
-        O(J) = FmtQQAv(Tp, Dr)
-        J = J + 1
-    Next
-InsDtSqlAy = O
+Dim M As New Db_InsDt_SqlAy
+InsDtSqlAy = M.SqlAy(Me, Dt)
 End Function
 Function DaoFld(T, F) As Dao.Field
 Set DaoFld = DaoTbl(T).Fields(F)
@@ -217,9 +188,9 @@ Dim Dry As New Dry
     Dim T, C$
     For Each T In Tny
         C = DaoTbl(T).Connect
-        If C <> "" Then Dry.Push Array(T, C)
+        If C <> "" Then Dry.AddDr Array(T, C)
     Next
 Dim Fny$(): Fny = ApSy("Tbl", "Connect")
-Set LnkInfDt = ccNew.Dt(Fny, Dry, "Lnk")
+Set LnkInfDt = Nw.Dt(Fny, Dry, "Lnk")
 End Function
 

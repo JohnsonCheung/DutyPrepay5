@@ -9,35 +9,55 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Compare Database
 Option Explicit
-Dim Dry_()
-Property Get Dry() As Variant()
+Private Dry_
+Property Get Dry()
 Dry = Dry_
 End Property
-Sub Push(Dr)
-If Not IsArray(Dr) Then Stop
-bb_Lib_Vb_Ay.Push Dry_, Dr
-End Sub
+Function Init(Dry) As Dry
+AssertIsAy Dry
+Dry_ = Dry
+Set Init = Me
+End Function
+Function AddDr(Dr) As Dry
+AsrtIsAy Dr
+Vb.Push Dry_, Dr
+Set AddDr = Me
+End Function
+
 Function NRow&()
 On Error Resume Next
 NRow = UBound(Dry_) + 1
 End Function
+Sub PutAt(AtCell As Range)
+Sq.PutAt AtCell
+End Sub
 Function URow&()
 URow = NRow - 1
 End Function
-Sub PushAy(DrAy)
+Sub AddDrAy(DrAy)
 Dim Dr
 If AyIsEmpty(DrAy) Then Exit Sub
 For Each Dr In DrAy
-    Push Dr
+    AddDr Dr
 Next
 End Sub
-Property Get Dr(Idx&) As Variant()
-Dr = Dry_(Idx)
-End Property
-Property Let Dr(Idx&, V())
-Dry_(Idx) = V
-End Property
+Sub Tst()
 
+End Sub
+Function CsvQQStr$()
+If IsEmpty Then Exit Function
+CsvQQStr = DrX(0).CsvQQStr
+End Function
+Property Get Dr(RIdx&)
+Dr = Dry_(RIdx)
+End Property
+Property Let Dr(RIdx&, V)
+AsrtIsAy V
+Dry_(RIdx) = V
+End Property
+Function DrX(RIdx&) As Ay
+Set DrX = Nw.Ay(Dr(RIdx))
+End Function
 Function IsEmpty() As Boolean
 IsEmpty = NRow = 0
 End Function
@@ -45,13 +65,15 @@ Function Col(Optional ColIdx% = 0) As Variant()
 If IsEmpty Then Exit Function
 Dim O(), Dr
 For Each Dr In Dry_
-    bb_Lib_Vb_Ay.Push O, Dr(ColIdx)
+    Vb.Push O, Dr(ColIdx)
 Next
 Col = O
 End Function
-
+Function LyX(Optional MaxColWdt% = 100) As Ay
+Set LyX = Nw.Ay(Ly(MaxColWdt))
+End Function
 Sub Dmp()
-Ly.Ay.Dmp
+LyX.Dmp
 End Sub
 
 Function NCol%()
@@ -78,16 +100,19 @@ Dim C%, R&, Dr
             O(R, C + 1) = Dr(C)
         Next
     Next
-Set Sq = ccNew.Sq(O)
+Set Sq = Nw.Sq(O)
 End Function
 
 Function StrCol(Dry, Optional ColIdx% = 0) As String()
 StrCol = AySy(Col(ColIdx))
 End Function
 Sub Brw()
-Ly.Ay.Brw
+LyX.Brw
 End Sub
-Function Ly(Optional MaxColWdt% = 100, Optional BrkColIdx% = -1) As Sy
+Function Brk(BrkColIdx%, Optional MaxColWdt% = 100) As BrkLin
+Set Brk = Nw.BrkLinByDryLy(Ly(MaxColWdt), BrkColIdx)
+End Function
+Function Ly(Optional MaxColWdt% = 100) As String()
 If IsEmpty Then Exit Function
 Dim W%(): W = WdtAy(MaxColWdt)
 If AyIsEmpty(W) Then Exit Function
@@ -98,26 +123,13 @@ Dim HdrAy$()
         HdrAy(J) = String(W(J), "-")
     Next
 Dim Hdr$: Hdr = Quote(Join(HdrAy, "-|-"), "|-*-|")
-Dim O$()
-    Dim Dr
-    Dim LasV, V
-    bb_Lib_Vb_Ay.Push O, Hdr
-    Dim IsBrk As Boolean
-    If BrkColIdx >= 0 Then LasV = Ay(0)(BrkColIdx)
+Dim O$(), Dr
+    Push O, Hdr
     For Each Dr In Dry
-        IsBrk = False
-            If BrkColIdx >= 0 Then
-                V = Dr(BrkColIdx)
-                If LasV <> V Then
-                    IsBrk = True
-                    LasV = V
-                End If
-            End If
-        If IsBrk Then bb_Lib_Vb_Ay.Push O, Hdr
-        bb_Lib_Vb_Ay.Push O, DrLin(Dr, W)
+        Vb.Push O, DrLin(Dr, W)
     Next
-    bb_Lib_Vb_Ay.Push O, Hdr
-Set Ly = Sy(O)
+    Push O, Hdr
+Ly = O
 End Function
 
 Function WdtAy(Optional MaxColWdt% = 100) As Integer()

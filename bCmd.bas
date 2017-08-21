@@ -182,7 +182,7 @@ xOpn.Opn_Dir mDir
 End Sub
 
 Sub CmdOpnPermitImpPth()
-PthBrw PermitImpPth
+Pth(PermitImpPth).Brw
 End Sub
 
 Sub CmdRpt(pY As Byte)
@@ -458,11 +458,5 @@ End Sub
 Private Sub CmdRpt_1CrtOup__Tst()
 DoCmd.SetWarnings False
 CmdRpt_1CrtOup 10
-End Sub
-
-Sub Tst()
-CmdKE24Import__Tst
-CmdRpt__Tst
-CmdRpt_1CrtOup__Tst
 End Sub
 

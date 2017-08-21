@@ -53,7 +53,7 @@ Me.DteUpd.Value = Now
 End Sub
 
 Private Sub Form_Open(Cancel As Integer)
-bYrO.AddYrO
+AddYrO
 DoCmd.Maximize
 Me.Requery
 Me.Recalc

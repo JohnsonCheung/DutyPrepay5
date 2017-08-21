@@ -18,7 +18,7 @@ Set Init = Me
 End Function
 
 Function Dt() As Dt
-Set Dt = ccNew.Dt(Fny, Dry, T)
+Set Dt = Nw.Dt(Fny, Dry, T)
 End Function
 Function Dry() As Dry
 Set Dry = Rs.Dry
@@ -27,10 +27,10 @@ Function Fny() As String()
 Fny = Flds.Fny
 End Function
 Function Flds() As Flds
-Set Flds = ccNew.Flds(DaoFlds)
+Set Flds = Nw.Flds(DaoFlds)
 End Function
 Function Tbl() As Tbl
-Set Tbl = ccNew.Tbl(DaoTbl)
+Set Tbl = Nw.Tbl(DaoTbl)
 End Function
 Function Rs() As Rs
 Set Rs = Tbl.Rs
@@ -47,7 +47,7 @@ Dim O As New Dry, F, Dr()
 Dim SeqNo%
 SeqNo = 0
 Dim J%
-Dim mPk$(): mPk = Pk.Ny
+Dim mPk$(): mPk = Pk
 Dim FF$(): FF = Fny
 If Not AyIsEmpty(FF) Then
     For Each F In FF
@@ -55,7 +55,7 @@ If Not AyIsEmpty(FF) Then
         Push Dr, T
         Push Dr, SeqNo: SeqNo = SeqNo + 1
         PushAy Dr, Fld(F).InfDr(mPk)
-        O.Push Dr
+        O.AddDr Dr
     Next
 End If
 Set FldInfDry = O
@@ -64,7 +64,7 @@ Function DaoFlds() As Dao.Fields
 Set DaoFlds = DaoTbl.Fields
 End Function
 Function Prps() As Prps
-Set Prps = ccNew.Prps(DaoTbl.Properties)
+Set Prps = Nw.Prps(DaoTbl.Properties)
 End Function
 
 Function FldInfFny() As String()
@@ -82,7 +82,10 @@ End Function
 Function DaoTbl() As Dao.TableDef
 Set DaoTbl = D.TableDefs(T)
 End Function
-Function Pk() As Ny
+Function PkX() As Ay
+Set PkX = Ay(Pk)
+End Function
+Function Pk() As String()
 Dim I As Dao.Index, O$(), F
 On Error GoTo X
 Dim T As Dao.TableDef: Set T = DaoTbl
@@ -93,16 +96,16 @@ For Each I In T.Indexes
         For Each F In I.Fields
             Push O, F.Name
         Next
-        Set Pk = Ny(O)
+        Pk = O
         Exit Function
     End If
 Next
 X:
-Set Pk = New Ny
+Pk = O
 End Function
 
 Function IsPkFld(F) As Boolean
-IsPkFld = AyHas(Pk.Ny, F)
+IsPkFld = PkX.Has(F)
 End Function
 
 Private Sub Pk__Tst()
@@ -113,7 +116,7 @@ Dim Dry As New Dry
         Erase Dr
         Push Dr, DbT.T
         PushAy Dr, DbT.Pk
-        Dry.Push Dr
+        Dry.AddDr Dr
     Next
 Dry.Brw
 End Sub
@@ -163,28 +166,18 @@ Dim O() As eSimTy
     Dim J%, F
     J = 0
     For Each F In Fny
-        O(J) = SimTy(DaoFld(F).Type)
+        O(J) = DaoTySimTy(DaoFld(F).Type)
         J = J + 1
     Next
 SimTyAy = O
 End Function
-
-Function FnySimTyAy(Fny$()) As eSimTy()
-Dim U%
-    U = UB(Fny)
-Dim O() As Dao.DataTypeEnum
-    ReDim O(U)
-    Dim J%, Flds As Dao.Fields
-    Set Flds = DaoFlds
-    For J = 0 To U
-        O(J) = SimTy(Flds(Fny(J)).Type)
-    Next
-FnySimTyAy = O
-End Function
 Function LnkTblFx$()
 LnkTblFx = TakBet(DaoTbl.Connect, "Database=", ";")
 End Function
-
+Function InsSqlValPhraseTp$()
+'Use the data type of each field to create a {Tp$} in 'Insert into ? (?) Values({Tp})
+InsSqlValPhraseTp = Flds.InsSqlValPhraseTp
+End Function
 Private Function DftFny(Fny_) As String()
 If IsMissing(Fny_) Then
     DftFny = Fny
@@ -194,13 +187,13 @@ End If
 End Function
 
 Function Sql(Sql_$) As Sql
-Set Sql = ccNew.Sql(Sql_, D)
+Set Sql = Nw.Sql(Sql_, D)
 End Function
 Function DaoFld(F) As Dao.Field
 Set DaoFld = DaoTbl.Fields(F)
 End Function
 Function Fld(F) As Fld
-Set Fld = ccNew.Fld(DaoFld(F))
+Set Fld = Nw.Fld(DaoFld(F))
 End Function
 
 Function HasFld(F) As Boolean

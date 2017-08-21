@@ -14,71 +14,85 @@ Function Init(Optional A As VBProject) As Pj
 Set Pj = DftPj(A)
 Set Init = Me
 End Function
+Sub Tst()
 
+End Sub
 Sub Exp()
 CpyToSrc
-PthClrFil SrcPth
+SrcPthX.ClrFil
 Dim Md As Md, I
 For Each I In MdAy
     Set Md = I
     Md.Exp
 Next
 End Sub
+Function SrcPthX() As Pth
+Set SrcPthX = Pth(SrcPth)
+End Function
 Function CrtMd(MdNm$, Ty As vbext_ComponentType) As Md
 Dim O As VBComponent
 Set O = Pj.VBComponents.Add(Ty)
 O.Name = MdNm
-Set CrtMd = ccNew.Md(O.CodeModule)
+Set CrtMd = Nw.Md(O.CodeModule)
 End Function
-Function FunDrs(Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean) As Drs
+Function FunDrs(Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean, Optional WithRmkLines As Boolean) As Drs
 Dim Dry As New Dry
     Dim I, Md As Md
     For Each I In MdAy
         Set Md = I
-        Dry.PushAy Md.FunDrs(WithBdyLy, WithBdyLines).Dry
+        Dry.AddDrAy Md.Src.FunDrs(WithBdyLy, WithBdyLines).Dry.Dry
     Next
 Dim Fny$()
-    Fny = Md.FunDrsFny(WithBdyLy, WithBdyLines)
-FunDrs = ccNew.Drs(Fny, Dry)
+'    Fny = Md.Src.FunDrsFny(WithBdyLy, WithBdyLines, WithRmkLines)
+Set FunDrs = Nw.Drs(Fny, Dry)
 End Function
+
 Sub CpyToSrc()
-FilCpyToPth Pj.FileName, SrcPth, OvrWrt:=True
+Ffn(Pj.FileName).CpyToPth SrcPth, OvrWrt:=True
 End Sub
+
 Function MdAy() As Md()
 Dim O() As Md
 Dim Cmp As VBComponent
 For Each Cmp In Pj.VBComponents
-    PushObj O, ccNew.Md(Cmp.CodeModule)
+    Push O, Nw.Md(Cmp.CodeModule)
 Next
 MdAy = O
 End Function
 Function Md(MdNm$) As Md
-Set Md = ccNew.Md(Pj.VBComponents(MdNm).CodeModule)
+Set Md = Nw.Md(Pj.VBComponents(MdNm).CodeModule)
 End Function
 Private Sub FunDrs__Tst()
-Dim Drs As Drs: Set Drs = FunDrs(WithBdyLines:=True)
-DrsXls(Drs).Ws Nm, Vis:=True
+Dim Drs As Drs: Set Drs = ZZ.FunDrs(WithBdyLines:=True)
+Drs.WsX Nm, Vis:=True
 End Sub
-
+Private Function ZZ() As Pj
+Set ZZ = Nw.Pj
+End Function
 Function Nm$()
 Nm = Pj.Name
 End Function
 Private Sub MdAy__Tst()
 Dim O() As Md
-O = CurPj.MdAy
+O = Pj.MdAy
 Dim I, Md As Md
 For Each I In O
     Set Md = I
     Debug.Print Md.Nm
 Next
 End Sub
-
+Function PjFfn() As Ffn
+Set PjFfn = Ffn(PjFilNm)
+End Function
+Function PjFilNm$()
+PjFilNm = Pj.FileName
+End Function
 Function SrcPth$()
-Dim Ffn$: Ffn = Pj.FileName
-Dim Fn$: Fn = FfnFn(Ffn)
 Dim O$:
-O = FfnPth(Pj.FileName) & "Src\": PthEns O
-O = O & Fn & "\":                       PthEns O
+With PjFfn
+O = .Pth & "Src\": Pth(O).Ens
+O = O & .Fn & "\": Pth(O).Ens
+End With
 SrcPth = O
 End Function
 
@@ -92,10 +106,12 @@ End Sub
 
 Function TstFunNy_WithEr() As String()
 Dim O$(), I, Md As Md
+Dim P$
+P = Md.Nm & "."
 For Each I In MdAy
     Set Md = I
-    PushAy O, AyAddPfx(Md.TstFunNy_WithEr, Md.Nm & ".")
-Next
+    PushAy O, Ay(Md.Src.TstFunNy_WithEr).AddPfx(P)
+    Next
 TstFunNy_WithEr = O
 End Function
 

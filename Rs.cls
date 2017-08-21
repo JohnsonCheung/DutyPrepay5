@@ -15,14 +15,14 @@ Set Rs = A
 Set Init = Me
 End Function
 Function Drs() As Drs
-Set Drs = ccNew.Drs(Fny, Dry)
+Set Drs = Nw.Drs(Fny, Dry)
 End Function
 
 Function Dry() As Dry
 Dim O As New Dry
 With Rs
     While Not .EOF
-        O.Push Flds.Dr
+        O.AddDr Flds.Dr
         .MoveNext
     Wend
 End With
@@ -45,6 +45,6 @@ Sy = O
 End Function
 
 Function Flds() As Flds
-Set Flds = ccNew.Flds(Rs.Fields)
+Set Flds = Nw.Flds(Rs.Fields)
 End Function
 

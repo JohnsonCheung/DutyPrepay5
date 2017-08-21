@@ -13,7 +13,7 @@ Function AA()
 
 End Function
 Function Init(A As CodeModule) As MdSetFunMdy
-Set Md = ccNew.Md(A)
+Set Md = Nw.Md(A)
 Set Init = Me
 End Function
 Sub SetAllFunMdy(Optional AsPub As Boolean)
@@ -22,15 +22,15 @@ End Sub
 Sub SetFunMdy(FunNy, Mdy$)
 Dim I, Lno&
 For Each I In Ny(FunNy).Ny
-    Lno = Md.FunLno(I)
+'    Lno = Md.FunLIdx(I)
     If Lno > 0 Then
         SetSrcLinMdy Lno, Mdy
     End If
 Next
 End Sub
 Sub SetSrcLinMdy(Lno&, Mdy$)
-Dim NewLin$: Md.SrcLin(Lno).ChgMdy (Mdy)
-Md.RplLin Lno, NewLin
+'Dim NewLin$: Md.SrcLin(Lno).ChgMdy (Mdy)
+'Md.RplLin Lno, NewLin
 End Sub
 Function ExportDfnNy() As String()
 ExpDfnNy = SplitSpc(ExpDfnLin)
@@ -46,12 +46,12 @@ End Function
 Private Function NonPubLnoAy() As Long()
 Dim O&(), J&
 For J = 1 To Md.Md.CountOfLines
-    With Md.SrcLin(J)
-        If Not .IsDfnLin Then GoTo Nxt
-        If .Mdy = "" Then GoTo Nxt
-        If .Mdy = "Public" Then GoTo Nxt
-        Push O, J
-    End With
+'    With Md.SrcLin(J)
+'        If Not .IsDfnLin Then GoTo Nxt
+'        If .Mdy = "" Then GoTo Nxt
+'        If .Mdy = "Public" Then GoTo Nxt
+'        Push O, J
+'    End With
 Nxt:
 Next
 End Function

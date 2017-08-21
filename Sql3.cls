@@ -6,7 +6,7 @@ Attribute VB_Name = "Sql3"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 Option Compare Database
 Option Explicit
 Private Type NsNm
@@ -260,7 +260,6 @@ ZZSql3_Ft = TstResPth & "SalRpt.Sql3"
 End Function
 
 Sub ZZEdt()
-FtBrw ZZSql3_Ft
 End Sub
 
 Friend Function Er_NotAlwSwitch() As Variant()
@@ -278,7 +277,7 @@ Nxt:
 Er_NotAlwSwitch = O
 End Function
 Friend Function Op_IsAlwSwitch(A As eOp) As Boolean
-Op_IsAlwSwitch = AyHas(Op_AlwSwitchOpAy, A)
+'Op_IsAlwSwitch = AyHas(Op_AlwSwitchOpAy, A)
 End Function
 Friend Function Op_AlwSwitchOpLis$()
 Dim Ay$()
@@ -287,7 +286,7 @@ For Each I In Op_AlwSwitchOpAy
     Op = I
     Push Ay, OpStr(Op)
 Next
-Op_AlwSwitchOpLis = JnSpc(AyQuote(Ay, "[]"))
+'Op_AlwSwitchOpLis = JnSpc(AyQuote(Ay, "[]"))
 End Function
 
 Friend Function Op_AlwSwitchOpAy() As eOp()
@@ -305,19 +304,19 @@ Dim O$
 If AyIsEmpty(Sy) Then Exit Function
 Select Case ExpOp
 Case eOp.eMac: O = Join(Sy, "||")
-Case eOp.eExpAnd: O = Quote(Join(AyAddPfx(Sy, "|    and ")), "()")
-Case eOp.eExpComma: O = JnComma(AyAddPfx(Sy, "|    "))
+'Case eOp.eExpAnd: O = Quote(Join(AyAddPfx(Sy, "|    and ")), "()")
+'Case eOp.eExpComma: O = JnComma(AyAddPfx(Sy, "|    "))
 Case eOp.eExpDrp: O = Join(Sy, "||")
-Case eOp.eExpGp: O = "|  Group by" & Join(AyAddPfx(Sy, "|    "))
-Case eOp.eExpJn: O = Join(AyAddPfx(Sy, "|  Inner Join "))
-Case eOp.eExpLeftJn: O = Join(AyAddPfx(Sy, "|  Left Join "))
-Case eOp.eExpOr: O = Quote(Join(AyAddPfx(Sy, "|    or ")), "()")
-Case eOp.eExpSel: O = "Select" & JnComma(AyAddPfx(Sy, "|    "))
-Case eOp.eExpSelDis:  O = "Select Distinct" & JnComma(AyAddPfx(Sy, "|    "))
-Case eOp.eExpSet: O = "Set" & JnComma(AyAddPfx(Sy, "|    "))
+'Case eOp.eExpGp: O = "|  Group by" & Join(AyAddPfx(Sy, "|    "))
+'Case eOp.eExpJn: O = Join(AyAddPfx(Sy, "|  Inner Join "))
+'Case eOp.eExpLeftJn: O = Join(AyAddPfx(Sy, "|  Left Join "))
+'Case eOp.eExpOr: O = Quote(Join(AyAddPfx(Sy, "|    or ")), "()")
+'Case eOp.eExpSel: O = "Select" & JnComma(AyAddPfx(Sy, "|    "))
+'Case eOp.eExpSelDis:  O = "Select Distinct" & JnComma(AyAddPfx(Sy, "|    "))
+'Case eOp.eExpSet: O = "Set" & JnComma(AyAddPfx(Sy, "|    "))
 Case Else: Stop
 End Select
-NmVal__Mix = SomStr(O)
+NmVal__Mix = StrOpt(O)
 End Function
 Friend Function Exp_ThoseWithExp() As Boolean
 'Return true if all done
@@ -365,7 +364,7 @@ Exp
 Dim Fny$(), Dry As Dry
     Fny = SplitSpc("Ns Nm Str")
     Dry = Sql3_Dry
-Sql3_LyDrs = ccNew.Drs(Fny, Dry)
+Sql3_LyDrs = Nw.Drs(Fny, Dry)
 End Function
 Friend Function Er_NoPrm() As Variant()
 Dim J%
@@ -453,7 +452,7 @@ For J = 0 To UBound(NsNmAy)
         Push O, .Str
     End With
 Next
-NmVal__SyOpt = SomSy(O)
+NmVal__SyOpt = SyOpt(O)
 End Function
 Friend Sub Exp()
 If Not IsOK Then Exit Sub
@@ -702,7 +701,7 @@ For J = 0 To WyUB
         If .Ns <> Ns Then GoTo Nxt
         If .Nm <> Nm Then GoTo Nxt
         If Not .Done Then Exit Function
-        Wrk_LookupVal = SomStr(.Str)
+        Wrk_LookupVal = StrOpt(.Str)
         Exit Function
     End With
 Nxt:
@@ -746,7 +745,7 @@ Dim O$
         End With
         M = Macro_TakOneTerm(O)
     Wend
-Macro_Rpl = SomStr(O)
+Macro_Rpl = StrOpt(O)
 End Function
 Sub Exp_FixWh()
 Dim J%, M As WrkDr
@@ -809,7 +808,7 @@ Dim Bool As Boolean
     Else
         Bool = V1 <> V2
     End If
-Switch_EqNe = SomBool(Bool)
+Switch_EqNe = BoolOpt(Bool)
 End Function
 
 Function Switch_Val(Switch$) As BoolOpt
@@ -819,7 +818,7 @@ For J = 0 To WyUB
         If .Ns <> "?" Then GoTo Nxt
         If .Nm <> Switch Then GoTo Nxt
         If Not .Done Then Exit Function
-        Switch_Val = SomBool(.Str = "1")
+        Switch_Val = BoolOpt(.Str = "1")
         Exit Function
     End With
 Nxt:
@@ -904,7 +903,7 @@ If FstChr(Term) = "?" Then
 End If
 If FstChr(Term) = "{" And LasChr(Term) = "}" Then
     With Macro_LookupVal(Term)
-        If .Som Then Switch_TermVal = SomBool(.Str = "1")
+        If .Som Then Switch_TermVal = BoolOpt(.Str = "1")
     End With
     Exit Function
 End If
@@ -935,7 +934,7 @@ Dim Bool As Boolean
             If V = True Then Exit For
         Next
     End If
-Switch_AndOr = SomBool(Bool)
+Switch_AndOr = BoolOpt(Bool)
 End Function
 Friend Sub Exp_Switch()
 Dim J%
@@ -1159,7 +1158,7 @@ Dim Dry As New Dry
     Dim Dr
     Dim L
     For Each L In A_
-        Dry.Push Array(Lin_Lvl(L), L)
+        Dry.AddDr Array(Lin_Lvl(L), L)
     Next
 Dim Fny$()
     Fny = SplitSpc("Lvl Str")
@@ -1190,9 +1189,8 @@ For Each Dr In ErDry
     I = Dr(0)
     O(I) = O(I) & " --- " & Dr(1)
 Next
-AyRmvEmptyEleAtEnd O
-Push O, FmtQQ("--- [?] error(s)", Sz(ErDry))
-Ly_Validated = O
+Dim Er$: Er = FmtQQ("--- [?] error(s)", Sz(ErDry))
+Ly_Validated = Ay(O).RmvEmptyEleAtEnd.Push(Er).Ay_
 End Function
 
 Friend Function Wrk_Drs() As Drs
@@ -1200,7 +1198,7 @@ Dim Dry As New Dry
     Dim J%
     For J = 0 To WyUB
         With Wy(J)
-            Dry.Push Array(.LinI, .Ns, IIf(.Done, "*", ""), .Nm, .L3.Switch, .L3.SwitchVal, OpStr(.L3.Op), .L3.Prm, .L3.L3, .Str)
+            Dry.AddDr Array(.LinI, .Ns, IIf(.Done, "*", ""), .Nm, .L3.Switch, .L3.SwitchVal, OpStr(.L3.Op), .L3.Prm, .L3.L3, .Str)
         End With
     Next
 Dim Fny$(): Fny = SplitSpc("LinI Ns Done Nm Switch SwitchVal Op Prm L3 Str")
@@ -1250,15 +1248,15 @@ Dim J%
 For J = 0 To UB(O)
     O(J) = Replace(O(J), Chr(160), " ")
 Next
-AyWrt O, ZZSql3_Ft
+'AyWrt O, ZZSql3_Ft
 End Sub
 
 Friend Function ZZSql3_Ly() As String()
-ZZSql3_Ly = FtLy(ZZSql3_Ft)
+'ZZSql3_Ly = FtLy(ZZSql3_Ft)
 End Function
 
 Friend Sub Op_Sy__Tst()
-AyDmp Op_Sy
+'AyDmp Op_Sy
 End Sub
 
 Friend Sub Sql3_Brw__Tst()
@@ -1266,7 +1264,7 @@ ZZ.Sql3_Brw
 End Sub
 
 Friend Sub Ly_Validated__Tst()
-AyBrw ZZ.Ly_Validated
+'AyBrw ZZ.Ly_Validated
 End Sub
 Private Sub Sql3_WrtEr__Tst()
 With ZZ
@@ -1276,12 +1274,12 @@ End Sub
 
 Friend Function Sql3_WrtEr(Ft) As Boolean
 Dim Ly$(): Ly = Ly_Validated: If AyIsEmpty(Ly) Then Exit Function
-If AyIsEq(Ly, A_) Then Exit Function
-AyWrt Ly, Ft
+'If AyIsEq(Ly, A_) Then Exit Function
+'AyWrt Ly, Ft
 Sql3_WrtEr = True
 End Function
 Friend Sub Wrk_Brw()
-Wrk_Drs.Xls.Ws Vis:=True
+'Wrk_Drs.Ws Vis:=True
 End Sub
 Private Sub Wrk_Wy__Tst()
 ZZ.Wrk_Brw

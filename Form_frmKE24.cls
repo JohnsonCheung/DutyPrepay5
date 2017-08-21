@@ -32,12 +32,12 @@ If VarType(Me.OpenArgs) <> vbString Then MsgBox "Me.OpenArgs is not a string.  I
 DoCmd.Maximize
 Dim mA$(): mA = Split(Me.OpenArgs, ",")
 Dim mY As Byte: mY = Val(mA(0))
-Dim mM As Byte: mM = Val(mA(1))
+Dim MM As Byte: MM = Val(mA(1))
 Me.xYear.Value = mY + 2000
-Me.xMth.Value = mM
+Me.xMth.Value = MM
 Me.RecordSource = Fmt_Str("SELECT x.*, a.*, CCur(Tot/Qty) AS Rate" & _
 " FROM KE24 x LEFT JOIN qSKU a ON x.Sku = a.Sku" & _
 " Where Yr={0} and Mth={1}" & _
-" Order by PostDate Desc, CopaNo Desc, CopaLNo Asc", mY, mM)
+" Order by PostDate Desc, CopaNo Desc, CopaLNo Asc", mY, MM)
 End Sub
 
