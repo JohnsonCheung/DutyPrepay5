@@ -1,4 +1,4 @@
--- Rmk: -- is remark
+-- Rmk: -- is remark   
 -- 3Lvl: alway 3 level
 -- 4spc: Lvl1 has no space, Lvl2 has exactly 4 space and Lvl3 always have 8 space
 -- NoSpcInNm: Lvl2 (name), cannot have space
@@ -18,7 +18,7 @@ Prm
     BrkDiv .Flag 1 
     BrkSto .Flag 1 
     BrkCrd .Flag 1 
-    BrkMbr .Flag 0
+    BrkMbr .Flag 0 
     InclNm .Flag 1 
     InclAdr  .Flag 1 
     InclPhone .Flag 1 
@@ -35,7 +35,7 @@ Sql.T
         @Sel Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
         .Into
         .Fm SalesHistory
-        .Wh SHSDate between '{Prm.Fm}' and '{Prm.To}'
+        $Wh SHSDate between '{Prm.Fm}' and '{Prm.To}'      
         @And ?Div ?Sto ?Dte
         @Gp Crd ?Mbr ?Div ?Sto ?Dte
     Tx#Upd
@@ -85,12 +85,12 @@ Sql.T.Tx.Sel
     ?Div ?BrkDiv $ {Expr.Div} Div  
     ?Sto ?BrkSto $ {Expr.Sto} Sto  
     ?Dte @ Expr 
-@Sql.T.Tx.Sel.Crd
+Sql.T.Tx.Sel.Crd
     CasewhenThen . ..
     Else . ..
     NEnd . Repeat :N END~
     End . | :NEnd
-@Sql.T.Tx.And
+Sql.T.Tx.And
     ?Div ?SelDiv $And {Expr.Div} in ({In.Div})       
     ?Crd ?SelCrd $And {Expr.Crd} in ({In.Crd})       
     ?Sto ?SelSto $And {Expr.Sto} in ({In.Sto})       
@@ -104,10 +104,10 @@ Expr
     Div . a
     Sto . a
     Dte
-        ?SumY @Comma TxY     
-        ?SumM @Comma TxY TxM     
-        ?SumW @Comma TxY TxM TxW     
-        ?SumD @Comma TxY TxM TxW TxD TxWD TxDte     
+        ?LvlY @Comma TxY     
+        ?LvlM @Comma TxY TxM     
+        ?LvlW @Comma TxY TxM TxW     
+        ?LvlD @Comma TxY TxM TxW TxD TxWD TxDte     
     TxY . SUBSTR(SHSDate,1,4) 
     TxM . SUBSTR(SHSDate,5,2)
     TxW . TxW
@@ -142,11 +142,11 @@ Sql.T.Crd.Sel
     BrkCrd .Eq {Prm.BrkCrd} 1 
     BrkSto .Eq {Prm.BrkSto} 1 
     BrkMbr .Eq {Prm.BrkMbr} 1
-    Y .Eq {Prm.SumLvl} Y 
-    M .Eq {Prm.SumLvl} M 
-    W .Eq {Prm.SumLvl} W 
-    D .Eq {Prm.SumLvl} D 
-    Dte .Or ?Y ?M ?W ?D 
+    LvlY .Eq {Prm.SumLvl} Y 
+    LvlM .Eq {Prm.SumLvl} M 
+    LvlW .Eq {Prm.SumLvl} W 
+    LvlD .Eq {Prm.SumLvl} D 
+    BrkDte .Or ?LvlY ?LvlM ?LvlW ?LvlD 
     Mbr .And ?BrkMbr ?SelMbr
 Sql.O.Oup.Sel
     ?Mbr ?BrkMbr @ Mbr    
