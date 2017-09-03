@@ -12,6 +12,10 @@ If P = 0 Then Exit Function
 FfnExt = Mid(Ffn, P)
 End Function
 
+Function FfnFdr$(Ffn)
+FfnFdr = PthFdr(FfnPth(Ffn))
+End Function
+
 Function FfnFn$(Ffn)
 Dim P%: P = InStrRev(Ffn, "\")
 If P = 0 Then FfnFn = Ffn: Exit Function
@@ -36,6 +40,16 @@ End Function
 
 Function FfnRplExt$(Ffn, NewExt)
 FfnRplExt = FfnRmvExt(Ffn) & NewExt
+End Function
+
+Sub PthAsrtSfx(Pth)
+If LasChr(Pth) <> "\" Then Stop
+End Sub
+
+Function PthFdr$(Pth)
+PthAssertSfx Pth
+Dim A$: A = RmvLasChr(Pth)
+PthFdr = TakAftRev(A, "\")
 End Function
 
 Function TmpFb$(Optional Fdr$)

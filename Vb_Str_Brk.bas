@@ -108,7 +108,7 @@ BrkQuote = O
 End Function
 
 Function BrkRev(S, Sep, Optional NoTrim As Boolean) As S1S2
-Dim P&: P = InStr(S, Sep)
+Dim P&: P = InStrRev(S, Sep)
 If P = 0 Then Err.Raise "BrkRev: Str[" & S & "] does not contains Sep[" & Sep & "]"
 BrkRev = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
@@ -155,8 +155,8 @@ Private Sub BrkMapStr__Tst()
 Dim MapStr$
 MapStr = "aa:bb|cc|dd:ee"
 Dim Act As Map: Act = BrkMapStr(MapStr)
-Dim Exp1$(): Exp1 = SplitSpc("aa cc dd"): AssertEqAy Exp1, Act.Sy1
-Dim Exp2$(): Exp2 = SplitSpc("aa cc dd"): AssertEqAy Exp2, Act.Sy1
+Dim Exp1$(): Exp1 = SplitSpc("aa cc dd"): AyAssertEq Exp1, Act.Sy1
+Dim Exp2$(): Exp2 = SplitSpc("aa cc dd"): AyAssertEq Exp2, Act.Sy1
 End Sub
 
 Sub Tst()

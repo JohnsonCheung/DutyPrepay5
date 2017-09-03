@@ -192,7 +192,7 @@ Dim Exp$()
 TblLy = FtLy(TstResPth & "DrsLyInsBrkLin.txt")
 Act = DrsLyInsBrkLin(TblLy, "Tbl")
 Exp = FtLy(TstResPth & "DrsLyInsBrkLin_Exp.txt")
-AssertEqAy Exp, Act
+AyAssertEq Exp, Act
 End Sub
 
 Sub Tst()

@@ -3,6 +3,7 @@ Option Compare Database
 Option Explicit
 
 Private Sub Assert(BefSrt$(), AftSrt$())
+If JnCrLf(BefSrt) = JnCrLf(AftSrt) Then Exit Sub
 Dim A$(), I
 A = AyMinus(BefSrt, AftSrt)
 If Sz(A) = 0 Then Exit Sub
@@ -16,11 +17,11 @@ Dim I, Md As CodeModule
 Dim BefSrt$(), AftSrt$()
 For Each I In PjMdAy
     Set Md = I
-    If MdNm(Md) = "Vb_Str" Then
+'    If MdNm(Md) = "DaoDb" Then
         Debug.Print MdNm(Md)
         BefSrt = MdBdyLy(Md)
         AftSrt = SplitCrLf(MdSrtedBdyLines(Md))
         Assert BefSrt, AftSrt
-    End If
+'    End If
 Next
 End Sub

@@ -78,7 +78,7 @@ Dim WsNyBef$(), WsNyAft$()
     WsNyAft = FxWsNy(T)
 Dim Exp$()
     Exp = AyMinus(WsNyBef, Array("Sheet1"))
-AssertEqAy Exp, WsNyAft
+AyAssertEq Exp, WsNyAft
 End Sub
 
 Sub Tst()

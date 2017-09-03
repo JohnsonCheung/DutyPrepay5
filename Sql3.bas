@@ -112,10 +112,6 @@ Private Type ExpExpTerm
     RestWy() As WrkDr
 End Type
 
-Sub AA()
-Sql3_Wy__Pass1__Tst
-End Sub
-
 Sub AA_Sql__Flow()
 '-- Rmk: -- is remark
 '-- 3Lvl: alway 3 level

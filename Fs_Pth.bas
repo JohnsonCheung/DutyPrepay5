@@ -2,38 +2,34 @@ Attribute VB_Name = "Fs_Pth"
 Option Compare Database
 Option Explicit
 
-Sub AssertIsPth(P)
-If Not IsPth(P) Then Err.Raise 1, , FmtQQ("Given Pth[?] does not exist", P)
-End Sub
-
-Sub AssertPth(P)
-If LasChr(P) <> "\" Then Err.Raise 1, , FmtQQ("Given Pth[?] does not end with \", P)
-End Sub
-
-Function IsEmptyPth(P) As Boolean
-AssertIsPth P
-If PthHasSubDir(P) Then Exit Function
-End Function
-
 Function IsPth(P) As Boolean
 IsPth = Dir(P, vbDirectory) <> ""
 End Function
 
+Sub PthAssertIsExist(P)
+If Not IsPth(P) Then Err.Raise 1, , FmtQQ("Given Pth[?] does not exist", P)
+End Sub
+
+Sub PthAssertSfx(P)
+If LasChr(P) <> "\" Then Err.Raise 1, , FmtQQ("Given Pth[?] does not end with \", P)
+End Sub
+
 Function PthHasFil(P) As Boolean
-AssertPth P
+PthAssertSfx P
 If Not IsPth(P) Then Exit Function
 PthHasFil = (Dir(P & "*.*") <> "")
 End Function
 
 Function PthHasSubDir(P) As Boolean
 If Not IsPth(P) Then Exit Function
-AssertPth P
+PthAssertSfx P
 Dim A$: A = Dir(P & "*.*", vbDirectory)
 Dir
 PthHasSubDir = Dir <> ""
 End Function
 
 Function PthIsEmpty(P)
+PthAssertIsExist P
 If PthHasFil(P) Then Exit Function
 If PthHasSubDir(P) Then Exit Function
 PthIsEmpty = True
@@ -56,7 +52,7 @@ If PthIsEmpty(P) Then RmDir P
 End Sub
 
 Function PthSubDirAy(P, Optional Spec$ = "*.*") As String()
-AssertPth P
+PthAssertSfx P
 Dir P & Spec, vbDirectory
 Dir
 Dim A$, O$()

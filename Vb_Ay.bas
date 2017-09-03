@@ -1,15 +1,15 @@
 Attribute VB_Name = "Vb_Ay"
 Option Compare Database
 Option Explicit
+Type FmTo
+    FmIdx As Long
+    ToIdx As Long
+End Type
 
 Sub AssertChk(Chk$())
 If AyIsEmpty(Chk) Then Exit Sub
 AyBrw Chk
 Err.Raise 1, , "Error checked!"
-End Sub
-
-Sub AssertEqAy(Ay1, Ay2, Optional Ay1Nm$ = "Exp", Optional Ay2Nm$ = "Act")
-AssertChk ChkEqAy(Ay1, Ay2, Ay1Nm, Ay2Nm)
 End Sub
 
 Function AyAdd(Ay, ParamArray AyAp())
@@ -56,6 +56,10 @@ For J = 0 To UB(IdxAy)
 Next
 End Sub
 
+Sub AyAssertEq(Ay1, Ay2, Optional Ay1Nm$ = "Exp", Optional Ay2Nm$ = "Act")
+AssertChk ChkEqAy(Ay1, Ay2, Ay1Nm, Ay2Nm)
+End Sub
+
 Function AyBrw(Ay)
 Dim T$
 T = TmpFt
@@ -80,6 +84,15 @@ If 0 <= FmIdx And FmIdx <= UB(Ay) Then
     Next
 End If
 AyFm = O
+End Function
+
+Function AyFmTo(Ay, FmTo As FmTo)
+Dim O: O = Ay: Erase O
+Dim J&
+For J = FmTo.FmIdx To FmTo.ToIdx
+    Push O, Ay(J)
+Next
+AyFmTo = O
 End Function
 
 Function AyHas(Ay, Itm) As Boolean
@@ -136,6 +149,19 @@ End Function
 
 Function AyLasEle(Ay)
 AyLasEle = Ay(UB(Ay))
+End Function
+
+Function AyMap(Ay, FunNm$, ParamArray Ap())
+Dim Av(): Av = Ap
+AyIns Av
+Dim I, J&
+Dim O: O = Ay
+For Each I In Ay
+    Asg I, Av(0)
+    Asg RunAv(FunNm, Av), O(J)
+    J = J + 1
+Next
+AyMap = O
 End Function
 
 Function AyMinus(Ay, ParamArray AyAp())
@@ -226,6 +252,15 @@ Sub AyRmvLasEle(Ay)
 AyRmvEle Ay, At:=UB(Ay)
 End Sub
 
+Function AySelByIdxAy(Ay, IdxAy%())
+Dim O: O = Ay: Erase O
+Dim J&
+For J = 0 To UB(IdxAy)
+    Push O, Ay(IdxAy(J))
+Next
+AySelByIdxAy = O
+End Function
+
 Function AySrt(Ay, Optional Des As Boolean)
 If AyIsEmpty(Ay) Then AySrt = Ay: Exit Function
 Dim Idx&, V, J&
@@ -238,7 +273,7 @@ AySrt = O
 End Function
 
 Function AySrtIntoIdxAy(Ay, Optional Des As Boolean) As Long()
-If AyIsEmpty(Ay) Then AySrtIntoIdxAy = Ay: Exit Function
+If AyIsEmpty(Ay) Then Exit Function
 Dim Idx&, V, J&
 Dim O&():
 Push O, 0
@@ -330,17 +365,9 @@ Next
 DblAyQuote = O
 End Function
 
-Function AyMap(Ay, FunNm$, ParamArray Ap())
-Dim Av(): Av = Ap
-AyIns Av
-Dim I, J&
-Dim O: O = Ay
-For Each I In Ay
-    Asg I, Av(0)
-    Asg RunAv(FunNm, Av), O(J)
-    J = J + 1
-Next
-AyMap = O
+Function EmptyFmTo() As FmTo
+EmptyFmTo.FmIdx = -1
+EmptyFmTo.ToIdx = -1
 End Function
 
 Function Mul2&(A)
@@ -472,9 +499,18 @@ Ay1 = Array(1, 2, 2, 2, 4, 5)
 Ay2 = Array(2, 2)
 Act = AyAddOneAy(Ay1, Ay2)
 Exp = Array(1, 2, 2, 2, 4, 5, 2, 2)
-AssertEqAy Exp, Act
-AssertEqAy Ay1, Array(1, 2, 2, 2, 4, 5)
-AssertEqAy Ay2, Array(2, 2)
+AyAssertEq Exp, Act
+AyAssertEq Ay1, Array(1, 2, 2, 2, 4, 5)
+AyAssertEq Ay2, Array(2, 2)
+End Sub
+
+Private Sub AyMap__Tst()
+Dim Act: Act = AyMap(Array(1, 2, 3, 4), "Mul2")
+Debug.Assert Sz(Act) = 4
+Debug.Assert Act(0) = 2
+Debug.Assert Act(1) = 4
+Debug.Assert Act(2) = 6
+Debug.Assert Act(3) = 8
 End Sub
 
 Sub AyMinusOneAy__Tst()
@@ -484,17 +520,17 @@ Ay1 = Array(1, 2, 2, 2, 4, 5)
 Ay2 = Array(2, 2)
 Act = AyMinusOneAy(Ay1, Ay2)
 Exp = Array(1, 2, 4, 5)
-AssertEqAy Exp, Act
+AyAssertEq Exp, Act
 '
 Act = AyMinus(Array(1, 2, 2, 2, 4, 5), Array(2, 2), Array(5))
 Exp = Array(1, 2, 4)
-AssertEqAy Exp, Act
+AyAssertEq Exp, Act
 End Sub
 
 Private Sub AyRmvEleAtCnt__Tst()
 Dim Ay(): Ay = Array(1, 2, 3, 4, 5)
 AyRmvEleAtCnt Ay, 1, 2
-AssertEqAy Array(1, 4, 5), Ay
+AyAssertEq Array(1, 4, 5), Ay
 End Sub
 
 Private Sub AyRmvEmptyEleAtEnd__Tst()
@@ -505,9 +541,9 @@ End Sub
 Private Sub AySrt__Tst()
 Dim Exp, Act
 Dim Ay
-Ay = Array(1, 2, 3, 4, 5): Exp = Ay:                   Act = AySrt(Ay):       AssertEqAy Exp, Act
-Ay = Array(1, 2, 3, 4, 5): Exp = Array(5, 4, 3, 2, 1): Act = AySrt(Ay, True): AssertEqAy Exp, Act
-Ay = Array(":", "~", "P"): Exp = Array(":", "P", "~"): Act = AySrt(Ay):       AssertEqAy Exp, Act
+Ay = Array(1, 2, 3, 4, 5): Exp = Ay:                   Act = AySrt(Ay):       AyAssertEq Exp, Act
+Ay = Array(1, 2, 3, 4, 5): Exp = Array(5, 4, 3, 2, 1): Act = AySrt(Ay, True): AyAssertEq Exp, Act
+Ay = Array(":", "~", "P"): Exp = Array(":", "P", "~"): Act = AySrt(Ay):       AyAssertEq Exp, Act
 '-----------------
 Erase Ay
 Push Ay, ":PjUpdTstFun:Sub"
@@ -517,41 +553,32 @@ Push Ay, ":PjTstFunNy_WithEr:Function"
 Push Ay, "~Private:JnContinueLin__Tst:Sub"
 Push Ay, "Private:IsPfx:Function"
 Push Ay, "Private:MdFunDrs_FunBdyLy:Function"
-Push Ay, "Private:MdFunEndLno:Function"
+Push Ay, "Private:SrcFunIdxEndIdx:Function"
 Erase Exp
 Push Exp, ":PjTstFunNy_WithEr:Function"
 Push Exp, ":PjUpdTstFun:Sub"
 Push Exp, ":SrcLinBrk:Function"
 Push Exp, "Private:IsPfx:Function"
 Push Exp, "Private:MdFunDrs_FunBdyLy:Function"
-Push Exp, "Private:MdFunEndLno:Function"
+Push Exp, "Private:SrcFunIdxEndIdx:Function"
 Push Exp, "~Private:JnContinueLin__Tst:Sub"
 Push Exp, "~~:Tst:Sub"
-Act = AySrt(Ay):       AssertEqAy Exp, Act
+Act = AySrt(Ay):       AyAssertEq Exp, Act
 '---------------------
 Ay = FtLy(Tst_ResPth & "AySrt_Ft1.txt")
 Exp = FtLy(Tst_ResPth & "AySrt_Ft1_Exp.txt")
-Act = AySrt(Ay):       AssertEqAy Exp, Act
+Act = AySrt(Ay):       AyAssertEq Exp, Act
 
 End Sub
 
 Private Sub AySrtIntoIdxAy__Tst()
 Dim Ay: Ay = Array("A", "B", "C", "D", "E")
-AssertEqAy Array(0, 1, 2, 3, 4), AySrtIntoIdxAy(Ay)
-AssertEqAy Array(4, 3, 2, 1, 0), AySrtIntoIdxAy(Ay, True)
+AyAssertEq Array(0, 1, 2, 3, 4), AySrtIntoIdxAy(Ay)
+AyAssertEq Array(4, 3, 2, 1, 0), AySrtIntoIdxAy(Ay, True)
 End Sub
 
 Private Sub ChkEqAy__Tst()
 AyDmp ChkEqAy(Array(1, 2, 3, 3, 4), Array(1, 2, 3, 4, 4))
-End Sub
-
-Private Sub AyMap__Tst()
-Dim Act: Act = AyMap(Array(1, 2, 3, 4), "Mul2")
-Debug.Assert Sz(Act) = 4
-Debug.Assert Act(0) = 2
-Debug.Assert Act(1) = 4
-Debug.Assert Act(2) = 6
-Debug.Assert Act(3) = 8
 End Sub
 
 Sub Tst()

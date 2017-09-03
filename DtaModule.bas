@@ -156,11 +156,6 @@ O.Dry = A.Dry
 DtDrs = O
 End Function
 
-Function FidxAy(Fny$(), FldNmLvs$) As Long()
-'Return Field Idx Ay
-FidxAy = AyIdxAy(Fny, SplitSpc(FldNmLvs))
-End Function
-
 Sub Fiy(Fny$(), FldNmLvs$, ParamArray OAp())
 'Fiy=Field Index Array
 Dim Ay$(): Ay = SplitSpc(FldNmLvs)
@@ -170,6 +165,12 @@ For J = 0 To UB(I)
     OAp(J) = I(J)
 Next
 End Sub
+
+Function FnyLIdxAy(Fny$(), FldNmLvs$) As Long()
+'FnyL = Fny + FldNmLvs
+'Return Field Idx Ay
+FnyLIdxAy = AyIdxAy(Fny, SplitSpc(FldNmLvs))
+End Function
 
 Function IsEmptyDs(A As Ds) As Boolean
 IsEmptyDs = IsEmptyDtAy(A.DtAy)

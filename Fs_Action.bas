@@ -7,7 +7,7 @@ Fso.CopyFile FmFil, ToPth & FfnFn(FmFil), OvrWrt
 End Sub
 
 Sub FtBrw(Ft)
-Shell "NotePad """ & Ft & """", vbMaximizedFocus
+Shell "code.cmd """ & Ft & """", vbMaximizedFocus
 End Sub
 
 Function FtLy(Ft) As String()
@@ -58,9 +58,9 @@ If IsPth(P) Then Exit Sub
 MkDir P
 End Sub
 
-Sub RmvPthIfEmpty(P)
+Sub PthRmvIfEmpty(P)
 If Not IsPth(P) Then Exit Sub
-If IsEmptyPth(P) Then Exit Sub
+If PthIsEmpty(P) Then Exit Sub
 RmDir P
 End Sub
 

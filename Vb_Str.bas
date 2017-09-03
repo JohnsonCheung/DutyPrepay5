@@ -86,8 +86,8 @@ Function LasLin$(S)
 LasLin = AyLasEle(SplitCrLf(S))
 End Function
 
-Function LinesCnt&(Lines$)
-LinesCnt = Sz(SplitCrLf(Lines))
+Function LinesLinCnt&(Lines$)
+LinesLinCnt = Sz(SplitCrLf(Lines))
 End Function
 
 Function ParseTerm$(OStr)
@@ -137,6 +137,23 @@ While P > 0
 Wend
 SubStrCnt = O
 End Function
+
+Function TakAft$(S, Sep, Optional NoTrim As Boolean)
+TakAft = Brk(S, Sep, NoTrim).S2
+End Function
+
+Function TakAftRev$(S, Sep, Optional NoTrim As Boolean)
+TakAftRev = BrkRev(S, Sep, NoTrim).S2
+End Function
+
+Function TakBef$(S, Sep, Optional NoTrim As Boolean)
+TakBef = Brk(S, Sep, NoTrim).S1
+End Function
+
+Function TakBefRev$(S, Sep, Optional NoTrim As Boolean)
+TakBefRev = BrkRev(S, Sep, NoTrim).S2
+End Function
+
 Function TakBet$(S, S1, S2, Optional NoTrim As Boolean, Optional InclMarker As Boolean)
 With Brk1(S, S1, NoTrim)
     If .S2 = "" Then Exit Function
@@ -145,10 +162,6 @@ With Brk1(S, S1, NoTrim)
     TakBet = O
 End With
 End Function
-
-Private Sub RmvFstTerm__Tst()
-Debug.Assert RmvFstTerm("  df dfdf  ") = "dfdf"
-End Sub
 
 Private Sub InstrN__Tst()
 Dim Act&, Exp&, S, SubStr, N%
@@ -186,6 +199,10 @@ Act = InstrN(S, SubStr, N)
 Debug.Assert Exp = Act
 End Sub
 
+Private Sub RmvFstTerm__Tst()
+Debug.Assert RmvFstTerm("  df dfdf  ") = "dfdf"
+End Sub
+
 Function SubStrCnt__Tst()
 Debug.Assert SubStrCnt("aaaa", "aa") = 2
 Debug.Assert SubStrCnt("aaaa", "a") = 4
@@ -202,4 +219,3 @@ Sub Tst()
 InstrN__Tst
 TakBet__Tst
 End Sub
-
