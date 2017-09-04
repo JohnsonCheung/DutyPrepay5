@@ -1,7 +1,6 @@
 Attribute VB_Name = "Vb"
 Option Explicit
 Option Compare Database
-
 Public Fso As New FileSystemObject
 
 Sub Asg(V, OV)

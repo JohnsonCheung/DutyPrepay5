@@ -28,10 +28,12 @@ End If
 End Function
 
 Function DftMdNm$(Nm)
-If Nm = "" Then
+Dim N$:
+    If Not IsMissing(Nm) Then N = Nm
+If N = "" Then
     DftMdNm = MdNm(DftMd)
 Else
-    DftMdNm = Nm
+    DftMdNm = N
 End If
 End Function
 
@@ -207,7 +209,16 @@ End Function
 
 Sub MdAppLines(Lines$, Optional A As CodeModule)
 If Lines = "" Then Exit Sub
-DftMd(A).InsertLines MdLasLno(A) + 1, Lines
+Dim M As CodeModule
+    Set M = DftMd(A)
+Dim Bef%
+    Bef = M.CountOfLines
+M.InsertLines MdLasLno(A) + 1, Lines
+Dim Aft%
+    Aft = M.CountOfLines
+Dim Exp%
+    Exp = Bef + LinesLinCnt(Lines)
+If Exp <> Aft Then Debug.Print FmtQQ("MdAppLines Er(LinCnt Added is not expected): Bef[?] LinCnt[?]: Exp(Bef+LinCnt)[?] <> Aft[?] AftBdyLinCnt[?]", Bef, LinesLinCnt(Lines), Exp, Aft, LinesLinCnt(MdBdyLines(A)))
 End Sub
 
 Sub MdAppLy(Ly$(), Optional A As CodeModule)
@@ -453,18 +464,15 @@ End Function
 Sub MdSrt(Optional A As CodeModule)
 Dim Md As CodeModule: Set Md = DftMd(A)
 Dim Old$: Old = MdBdyLines(Md)
-Dim Lines$: Lines = MdSrtedBdyLines(Md)
-If Old = Lines Then
+Dim NewLines$: NewLines = MdSrtedBdyLines(Md)
+If Old = NewLines Then
     'Debug.Print MdNm(Md),"<== Same
     Exit Sub
 End If
 Debug.Print MdNm(Md), "<-- Sorted"
 MdRmvBdy Md
-Debug.Print "<<-- Rmv"
-MdAppLines Lines, Md
-Debug.Print "<<-- Ins"
+MdAppLines NewLines, Md
 End Sub
-
 
 Function MdSrtedBdyLines$(Optional A As CodeModule)
 If MdIsEmpty(A) Then Exit Function
@@ -479,8 +487,8 @@ Dim J%
     For J = 0 To UB(I)
         Dr = Drs.Dry()(I(J))
         Push O, vbCrLf & Dr(IBdyLines)
+'        Debug.Print "MdSrtedBdyLines", MdNm(A), LinesLinCnt(Dr(IBdyLines))
     Next
-If AyLasEle(O) = "" Then Stop
 MdSrtedBdyLines = JnCrLf(O)
 End Function
 

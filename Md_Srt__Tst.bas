@@ -18,10 +18,11 @@ Dim I, Md As CodeModule
 Dim BefSrt$(), AftSrt$()
 For Each I In PjMdAy
     Set Md = I
-'    If MdNm(Md) = "DaoDb" Then
+    If MdNm(Md) = "Vb" Then
         Debug.Print MdNm(Md)
         BefSrt = MdBdyLy(Md)
         AftSrt = SplitCrLf(MdSrtedBdyLines(Md))
+        AyBrw AftSrt
         If Not AyIsEmpty(AftSrt) Then
             If AyLasEle(AftSrt) = "" Then
                 AyBrw AftSrt
@@ -29,7 +30,7 @@ For Each I In PjMdAy
             End If
         End If
         Assert BefSrt, AftSrt
-'    End If
+    End If
 Next
 End Sub
 

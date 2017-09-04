@@ -82,8 +82,10 @@ End Function
 Sub AyDmp(Ay)
 If AyIsEmpty(Ay) Then Exit Sub
 Dim I
+Dim J&
 For Each I In Ay
-    Debug.Print I
+    Debug.Print J; ": ["; I; "]"
+    J = J + 1
 Next
 End Sub
 

@@ -86,7 +86,7 @@ Function LasLin$(S)
 LasLin = AyLasEle(SplitCrLf(S))
 End Function
 
-Function LinesLinCnt&(Lines$)
+Function LinesLinCnt&(Lines)
 LinesLinCnt = Sz(SplitCrLf(Lines))
 End Function
 
