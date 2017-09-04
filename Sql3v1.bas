@@ -2,7 +2,6 @@ Attribute VB_Name = "Sql3v1"
 Option Explicit
 Option Compare Database
 
-
 Private Sub AA_Sql__Flow()
 
 '-- Rmk: -- is remark
@@ -502,6 +501,7 @@ End Function
 Private Sub Sql_O_Cnt__Tst()
 Debug.Print Sql_O_Cnt
 End Sub
+
 Sub Tst()
 Sql_O_Cnt__Tst
 End Sub

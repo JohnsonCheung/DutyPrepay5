@@ -48,8 +48,8 @@ End Sub
 
 Function PthFdr$(Pth)
 PthAssertSfx Pth
-Dim a$: a = RmvLasChr(Pth)
-PthFdr = TakAftRev(a, "\")
+Dim A$: A = RmvLasChr(Pth)
+PthFdr = TakAftRev(A, "\")
 End Function
 
 Function TmpFb$(Optional Fdr$)

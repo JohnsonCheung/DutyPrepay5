@@ -69,8 +69,8 @@ Function ARsFny(Rs As ADODB.Recordset) As String()
 ARsFny = AFldsFny(Rs.Fields)
 End Function
 
-Function CatCnn(a As Catalog) As ADODB.Connection
-Set CatCnn = a.ActiveConnection
+Function CatCnn(A As Catalog) As ADODB.Connection
+Set CatCnn = A.ActiveConnection
 End Function
 
 Function FbAqlDrs(Fb, Sql) As Drs
@@ -157,8 +157,8 @@ DrsBrw FbAqlDrs(Fb, Sql)
 End Sub
 
 Private Sub FbCnn__Tst()
-Dim a As ADODB.Connection
-Set a = FbCnn("N:\SapAccessReports\DutyPrepay5\DutyPrepay5_data.mdb")
+Dim A As ADODB.Connection
+Set A = FbCnn("N:\SapAccessReports\DutyPrepay5\DutyPrepay5_data.mdb")
 Stop
 End Sub
 
@@ -169,14 +169,14 @@ DrsBrw FxAqlDrs(Fx, Sql)
 End Sub
 
 Private Sub FxCat__Tst()
-Dim a As ADOX.Catalog
-Set a = FxCat("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
+Dim A As ADOX.Catalog
+Set A = FxCat("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Stop
 End Sub
 
 Private Sub FxCnn__Tst()
-Dim a As ADODB.Connection
-Set a = FxCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
+Dim A As ADODB.Connection
+Set A = FxCnn("N:\SapAccessReports\DutyPrepay5\SAPDownloadExcel\KE24 2010-01c.xls")
 Stop
 End Sub
 

@@ -4,12 +4,13 @@ Option Compare Database
 
 Private Sub Assert(BefSrt$(), AftSrt$())
 If JnCrLf(BefSrt) = JnCrLf(AftSrt) Then Exit Sub
-Dim a$(), I
-a = AyMinus(BefSrt, AftSrt)
-If Sz(a) = 0 Then Exit Sub
-For Each I In a
+Dim A$(), I
+A = AyMinus(BefSrt, AftSrt)
+If Sz(A) = 0 Then Exit Sub
+For Each I In A
     If I <> "" Then Stop
 Next
+Stop
 End Sub
 
 Sub MdSrt__Tst()

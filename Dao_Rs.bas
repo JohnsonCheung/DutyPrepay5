@@ -2,31 +2,31 @@ Attribute VB_Name = "Dao_Rs"
 Option Explicit
 Option Compare Database
 
-Function RsDrs(a As Dao.Recordset) As Drs
-RsDrs.Fny = RsFny(a)
-RsDrs.Dry = RsDry(a)
+Function RsDrs(A As Dao.Recordset) As Drs
+RsDrs.Fny = RsFny(A)
+RsDrs.Dry = RsDry(A)
 End Function
 
-Function RsDry(a As Dao.Recordset) As Variant()
+Function RsDry(A As Dao.Recordset) As Variant()
 Dim O()
-With a
+With A
     While Not .EOF
-        Push O, FldsDr(a.Fields)
+        Push O, FldsDr(A.Fields)
         .MoveNext
     Wend
 End With
 RsDry = O
 End Function
 
-Function RsFny(a As Dao.Recordset) As String()
-RsFny = FldsFny(a.Fields)
+Function RsFny(A As Dao.Recordset) As String()
+RsFny = FldsFny(A.Fields)
 End Function
 
-Function RsSy(a As Dao.Recordset) As String()
+Function RsSy(A As Dao.Recordset) As String()
 Dim O$()
-With a
+With A
     While Not .EOF
-        Push O$, a.Fields(0).Value
+        Push O$, A.Fields(0).Value
         .MoveNext
     Wend
 End With

@@ -35,32 +35,6 @@ AyBrw MsgLy(MacroStr, Av)
 Stop
 End Sub
 
-Sub MsgBrw(MacroStr$, Av())
-AyBrw MsgLy(MacroStr, Av())
-End Sub
-
-Function MsgLy(MacroStr$, Av()) As String()
-Dim Ny$(): Ny = MacroStrNy(MacroStr)
-Dim O$()
-    PushAy O, SplitVBar(MacroStr)
-Dim I, J%
-For Each I In Ny
-    Push O, Chr(9) & I
-    PushAy O, AyAddPfx(VarLy(Av(J)), Chr(9) & Chr(9))
-Next
-MsgLy = O
-End Function
-
-Function MsgAyLy(MsgAy()) As String()
-Dim I, Av(), O$(), MacroStr$
-For Each I In MsgAy
-    Av = I
-    MacroStr = AyShift(Av)
-    PushAy O, MsgLy(MacroStr, Av)
-Next
-MsgAyLy = O
-End Function
-
 Function FstTerm$(S)
 FstTerm = Brk1(Trim(S), " ").S1
 End Function
@@ -134,6 +108,32 @@ Next
 Min = O
 End Function
 
+Function MsgAyLy(MsgAy()) As String()
+Dim I, Av(), O$(), MacroStr$
+For Each I In MsgAy
+    Av = I
+    MacroStr = AyShift(Av)
+    PushAy O, MsgLy(MacroStr, Av)
+Next
+MsgAyLy = O
+End Function
+
+Sub MsgBrw(MacroStr$, Av())
+AyBrw MsgLy(MacroStr, Av())
+End Sub
+
+Function MsgLy(MacroStr$, Av()) As String()
+Dim Ny$(): Ny = MacroStrNy(MacroStr)
+Dim O$()
+    PushAy O, SplitVBar(MacroStr)
+Dim I, J%
+For Each I In Ny
+    Push O, Chr(9) & I
+    PushAy O, AyAddPfx(VarLy(Av(J)), Chr(9) & Chr(9))
+Next
+MsgLy = O
+End Function
+
 Property Get NowStr$()
 NowStr = Format(Now(), "YYYY-MM-DD HH:MM:SS")
 End Property
@@ -155,11 +155,11 @@ End If
 End Function
 
 Private Sub IsStrAy__Tst()
-Dim a$()
-Dim B: B = a
+Dim A$()
+Dim B: B = A
 Dim C()
 Dim D
-Debug.Assert IsStrAy(a) = True
+Debug.Assert IsStrAy(A) = True
 Debug.Assert IsStrAy(B) = True
 Debug.Assert IsStrAy(C) = False
 Debug.Assert IsStrAy(D) = False

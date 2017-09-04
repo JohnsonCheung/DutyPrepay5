@@ -23,7 +23,7 @@ End Function
 Function PthHasSubDir(P) As Boolean
 If Not IsPth(P) Then Exit Function
 PthAssertSfx P
-Dim a$: a = Dir(P & "*.*", vbDirectory)
+Dim A$: A = Dir(P & "*.*", vbDirectory)
 Dir
 PthHasSubDir = Dir <> ""
 End Function
@@ -40,9 +40,9 @@ PthPthAy = AyAddPfx(PthSubDirAy(P, Spec), P)
 End Function
 
 Sub PthRmvEmptySubDir(P)
-Dim a$(): a = PthPthAy(P): If AyIsEmpty(a) Then Exit Sub
+Dim A$(): A = PthPthAy(P): If AyIsEmpty(A) Then Exit Sub
 Dim I
-For Each I In a
+For Each I In A
     PthRmvIfEmpty I
 Next
 End Sub
@@ -55,11 +55,11 @@ Function PthSubDirAy(P, Optional Spec$ = "*.*") As String()
 PthAssertSfx P
 Dir P & Spec, vbDirectory
 Dir
-Dim a$, O$()
-a = Dir
-While a <> ""
-    Push O, a
-    a = Dir
+Dim A$, O$()
+A = Dir
+While A <> ""
+    Push O, A
+    A = Dir
 Wend
 PthSubDirAy = O
 End Function

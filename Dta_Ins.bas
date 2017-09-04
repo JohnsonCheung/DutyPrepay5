@@ -6,22 +6,22 @@ Sub CrtTbl(T, FldDclAy, Optional D As Database)
 DftDb(D).Execute FmtQQ("Create Table [?] (?)", T, JnComma(FldDclAy))
 End Sub
 
-Sub InsDs(a As Ds, Optional D As Database)
-RunSqlAy InsDsSqlAy(a, D), D
+Sub InsDs(A As Ds, Optional D As Database)
+RunSqlAy InsDsSqlAy(A, D), D
 End Sub
 
-Function InsDsSqlAy(a As Ds, Optional D As Database) As String()
-If IsEmptyDs(a) Then Exit Function
+Function InsDsSqlAy(A As Ds, Optional D As Database) As String()
+If IsEmptyDs(A) Then Exit Function
 Dim O$()
 Dim J%
-For J = 0 To UBound(a.DtAy)
-    PushAy O, InsDtSqlAy(a.DtAy(J), D)
+For J = 0 To UBound(A.DtAy)
+    PushAy O, InsDtSqlAy(A.DtAy(J), D)
 Next
 InsDsSqlAy = O
 End Function
 
-Sub InsDt(a As Dt, Optional D As Database)
-RunSqlAy InsDtSqlAy(a, D), D
+Sub InsDt(A As Dt, Optional D As Database)
+RunSqlAy InsDtSqlAy(A, D), D
 End Sub
 
 Function InsDtSqlAy(Dt As Dt, Optional D As Database) As String()

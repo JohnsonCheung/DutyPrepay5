@@ -28,17 +28,7 @@ Else
     AlignR = S
 End If
 End Function
-Function MacroStrNy(MacroStr$, Optional ExclBkt As Boolean) As String()
-Dim Ay$(): Ay = Split(MacroStr, "{")
-Dim O$(), J%
-For J = 1 To UB(Ay)
-    Push O, TakBef(Ay(J), "}")
-Next
-If Not ExclBkt Then
-    O = AyAddPfxSfx(O, "{", "}")
-End If
-MacroStrNy = O
-End Function
+
 Function FstChr$(S)
 FstChr = Left(S, 1)
 End Function
@@ -98,6 +88,18 @@ End Function
 
 Function LinesLinCnt&(Lines$)
 LinesLinCnt = Sz(SplitCrLf(Lines))
+End Function
+
+Function MacroStrNy(MacroStr$, Optional ExclBkt As Boolean) As String()
+Dim Ay$(): Ay = Split(MacroStr, "{")
+Dim O$(), J%
+For J = 1 To UB(Ay)
+    Push O, TakBef(Ay(J), "}")
+Next
+If Not ExclBkt Then
+    O = AyAddPfxSfx(O, "{", "}")
+End If
+MacroStrNy = O
 End Function
 
 Function ParseTerm$(OStr)

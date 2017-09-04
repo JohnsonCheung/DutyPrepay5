@@ -15,10 +15,10 @@ End Sub
 
 Function AyAdd(Ay, ParamArray AyAp())
 Dim Av(): Av = AyAp
-Dim a
+Dim A
 Dim O: O = Ay
-For Each a In Av
-    PushAy O, a
+For Each A In Av
+    PushAy O, A
 Next
 AyAdd = O
 End Function
@@ -28,16 +28,7 @@ Dim O: O = Ay1
 PushAy O, Ay2
 AyAddOneAy = O
 End Function
-Function AyAddPfxSfx(Ay, Pfx, Sfx) As String()
-Dim O$(), U&, J&
-U = UB(Ay)
-If U = -1 Then Exit Function
-ReDim Preserve O(U)
-For J = 0 To U
-    O(J) = Pfx & Ay(J) & Sfx
-Next
-AyAddPfxSfx = O
-End Function
+
 Function AyAddPfx(Ay, Pfx) As String()
 Dim O$(), U&, J&
 U = UB(Ay)
@@ -47,6 +38,17 @@ For J = 0 To U
     O(J) = Pfx & Ay(J)
 Next
 AyAddPfx = O
+End Function
+
+Function AyAddPfxSfx(Ay, Pfx, Sfx) As String()
+Dim O$(), U&, J&
+U = UB(Ay)
+If U = -1 Then Exit Function
+ReDim Preserve O(U)
+For J = 0 To U
+    O(J) = Pfx & Ay(J) & Sfx
+Next
+AyAddPfxSfx = O
 End Function
 
 Sub AyAsg(Ay, ParamArray OAp())
@@ -84,6 +86,21 @@ For Each I In Ay
     Debug.Print I
 Next
 End Sub
+
+Function AyFilter(Ay, FilterFunNm$, ParamArray Ap())
+Dim O: O = Ay: Erase O
+Dim I
+Dim Av()
+    Av = Ap
+    AyIns Av
+For Each I In Ay
+    Asg I, Av(0)
+    If RunAv(FilterFunNm, Av) Then
+        Push O, I
+    End If
+Next
+AyFilter = O
+End Function
 
 Function AyFm(Ay, FmIdx&)
 Dim O: O = Ay: Erase O
@@ -271,6 +288,11 @@ Next
 AySelByIdxAy = O
 End Function
 
+Function AyShift(Ay)
+AyShift = Ay(0)
+AyRmvFstEle Ay
+End Function
+
 Function AySrt(Ay, Optional Des As Boolean)
 If AyIsEmpty(Ay) Then AySrt = Ay: Exit Function
 Dim Idx&, V, J&
@@ -303,10 +325,6 @@ Dim O$()
         O(J) = Ay(J)
     Next
 AyStrAy = O
-End Function
-Function AyShift(Ay)
-AyShift = Ay(0)
-AyRmvFstEle Ay
 End Function
 
 Function AySy(Ay) As String()
@@ -379,21 +397,26 @@ Next
 DblAyQuote = O
 End Function
 
+Function EmptyAy() As Variant()
+End Function
+
 Function EmptyFmTo() As FmTo
 EmptyFmTo.FmIdx = -1
 EmptyFmTo.ToIdx = -1
 End Function
 
-Function Mul2&(a)
-Mul2 = a * 2
+Function EmptySy() As String()
+End Function
+
+Function Mul2&(A)
+Mul2 = A * 2
 End Function
 
 Function Pop(Ay)
 Pop = AyLasEle(Ay)
 RmvLasNEle Ay
 End Function
-Function EmptySy() As String()
-End Function
+
 Sub Push(O, P)
 Dim N&: N = Sz(O)
 ReDim Preserve O(N)
@@ -403,8 +426,6 @@ Else
     O(N) = P
 End If
 End Sub
-Function EmptyAy() As Variant()
-End Function
 
 Sub PushAy(OAy, Ay)
 If AyIsEmpty(Ay) Then Exit Sub
@@ -446,20 +467,7 @@ Case Else: Stop
 End Select
 RunAv = O
 End Function
-Function AyFilter(Ay, FilterFunNm$, ParamArray Ap())
-Dim O: O = Ay: Erase O
-Dim I
-Dim Av()
-    Av = Ap
-    AyIns Av
-For Each I In Ay
-    Asg I, Av(0)
-    If RunAv(FilterFunNm, Av) Then
-        Push O, I
-    End If
-Next
-AyFilter = O
-End Function
+
 Function StrWrt(S, Ft)
 Dim F%: F = FreeFile(1)
 Open Ft For Output As #F

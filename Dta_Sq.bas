@@ -28,7 +28,7 @@ End Function
 Function SqIsEmpty(Sq) As Boolean
 SqIsEmpty = True
 On Error GoTo X
-Dim a
+Dim A
 If UBound(Sq, 1) < 0 Then Exit Function
 If UBound(Sq, 2) < 0 Then Exit Function
 SqIsEmpty = False
@@ -48,14 +48,14 @@ Dim Fny$(), Fm$() 'MapStr
         End With
     End If
 Dim SqCnoAy%() 'Fm,Sq
-    Dim a&()
+    Dim A&()
     Dim U%
     Dim J%
-    a = AyIdxAy(SqDr(Sq, 1), Fm)
-    U = UB(a)
+    A = AyIdxAy(SqDr(Sq, 1), Fm)
+    U = UB(A)
     ReDim SqCnoAy(U)
     For J = 0 To U
-        SqCnoAy(J) = a(J) + 1
+        SqCnoAy(J) = A(J) + 1
     Next
 Dim Dry() 'Sq,SqIdxAy
     Dim R&, Cno%, C%

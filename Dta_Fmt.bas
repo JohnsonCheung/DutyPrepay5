@@ -2,9 +2,9 @@ Attribute VB_Name = "Dta_Fmt"
 Option Explicit
 Option Compare Database
 
-Function DrsLy(a As Drs, Optional MaxColWdt& = 100, Optional BrkColNm$) As String()
-If AyIsEmpty(a.Fny) Then Exit Function
-Dim Drs As Drs: Drs = DrsAddRowIdxCol(a)
+Function DrsLy(A As Drs, Optional MaxColWdt& = 100, Optional BrkColNm$) As String()
+If AyIsEmpty(A.Fny) Then Exit Function
+Dim Drs As Drs: Drs = DrsAddRowIdxCol(A)
 Dim Dry(): Dry = Drs.Dry
 Push Dry, Drs.Fny
 Dim Ay$(): Ay = DryLy(Dry, MaxColWdt)

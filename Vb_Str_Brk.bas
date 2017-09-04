@@ -114,9 +114,9 @@ If P = 0 Then Err.Raise "BrkRev: Str[" & S & "] does not contains Sep[" & Sep & 
 BrkRev = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
 
-Function MapDic(a As Map) As Dictionary
+Function MapDic(A As Map) As Dictionary
 Dim J&, O As New Dictionary
-With a
+With A
     Dim U&: U = UB(.Sy1)
     For J = 0 To U
         O.Add .Sy1(J), .Sy2(J)
@@ -163,4 +163,3 @@ End Sub
 Sub Tst()
 BrkMapStr__Tst
 End Sub
-

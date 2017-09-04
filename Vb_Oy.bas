@@ -2,11 +2,6 @@ Attribute VB_Name = "Vb_Oy"
 Option Explicit
 Option Compare Database
 
-Private Sub OyPrp__Tst()
-Dim CdPanAy() As CodePane
-CdPanAy = OyPrp(PjMdAy, "CodePane", CdPanAy)
-Stop
-End Sub
 Function OyPrp(Oy, PrpNm$, Optional Oup)
 Dim O
     If Not IsMissing(Oup) Then
@@ -23,6 +18,13 @@ Dim O
 X:
     OyPrp = O
 End Function
+
+Private Sub OyPrp__Tst()
+Dim CdPanAy() As CodePane
+CdPanAy = OyPrp(PjMdAy, "CodePane", CdPanAy)
+Stop
+End Sub
+
 Sub Tst()
 OyPrp__Tst
 End Sub

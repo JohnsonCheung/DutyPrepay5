@@ -11,8 +11,8 @@ End Sub
 
 Sub AssertT(T, Optional D As Dao.Database)
 On Error GoTo X:
-Dim a$
-a = D.TableDefs(T).Name
+Dim A$
+A = D.TableDefs(T).Name
 Exit Sub
 X:
 Err.Raise 1, , "Tbl[" & T & "] not found in Db[" & D.Name & "]"
@@ -44,18 +44,18 @@ End Select
 DaoTyStr = O
 End Function
 
-Sub DbInfBrw(Optional a As Database)
-AyBrw DsLy(DbInfDs(a), 2000, BrkLinMapStr:="TblFld:Tbl")
+Sub DbInfBrw(Optional A As Database)
+AyBrw DsLy(DbInfDs(A), 2000, BrkLinMapStr:="TblFld:Tbl")
 Exit Sub
-WbVis DsWb(DbInfDs(a))
+WbVis DsWb(DbInfDs(A))
 End Sub
 
-Function DbInfDs(Optional a As Database) As Ds
+Function DbInfDs(Optional A As Database) As Ds
 Dim O As Ds
-DsAddDt O, DbInfLnkDt(a)
-DsAddDt O, DbInfStruDt(a)
-DsAddDt O, DbInfTblFDt(a)
-O.DsNm = DftDb(a).Name
+DsAddDt O, DbInfLnkDt(A)
+DsAddDt O, DbInfStruDt(A)
+DsAddDt O, DbInfTblFDt(A)
+O.DsNm = DftDb(A).Name
 DbInfDs = O
 End Function
 
@@ -106,8 +106,8 @@ Sub DbTBrw(T, Optional D As Dao.Database)
 DtBrw TblDt(T, D)
 End Sub
 
-Function DbTny(Optional a As Database) As String()
-DbTny = SqlSy("Select Name from MSysObjects where Type in (1,6) and Left(Name,4)<>'MSYS'", a)
+Function DbTny(Optional A As Database) As String()
+DbTny = SqlSy("Select Name from MSysObjects where Type in (1,6) and Left(Name,4)<>'MSYS'", A)
 End Function
 
 Function DftDb(D As Database) As Database
@@ -129,16 +129,16 @@ ReDim Preserve ODs.DtAy(N)
 ODs.DtAy(N) = T
 End Sub
 
-Function DsHasDt(a As Ds, DtNm) As Boolean
-If DsIsEmpty(a) Then Exit Function
+Function DsHasDt(A As Ds, DtNm) As Boolean
+If DsIsEmpty(A) Then Exit Function
 Dim J%
-For J = 0 To UBound(a.DtAy)
-    If a.DtAy(J).DtNm = DtNm Then DsHasDt = True: Exit Function
+For J = 0 To UBound(A.DtAy)
+    If A.DtAy(J).DtNm = DtNm Then DsHasDt = True: Exit Function
 Next
 End Function
 
-Function DsIsEmpty(a As Ds) As Boolean
-DsIsEmpty = DtAySz(a.DtAy) = 0
+Function DsIsEmpty(A As Ds) As Boolean
+DsIsEmpty = DtAySz(A.DtAy) = 0
 End Function
 
 Function Fld(T, F, Optional D As Database) As Dao.Field
@@ -234,13 +234,13 @@ If HasSubStr(S, ".") Then Exit Function
 IsNeedQuote = False
 End Function
 
-Function IsTbl(T, Optional a As Database) As Boolean
-IsTbl = SqlBool("Select Name from MSysObjects where Type in (1,6) and Name='?'", a)
+Function IsTbl(T, Optional A As Database) As Boolean
+IsTbl = SqlBool("Select Name from MSysObjects where Type in (1,6) and Name='?'", A)
 End Function
 
-Function PrpVal(a As Dao.Properties, PrpNm)
+Function PrpVal(A As Dao.Properties, PrpNm)
 On Error Resume Next
-PrpVal = a(PrpNm).Value
+PrpVal = A(PrpNm).Value
 End Function
 
 Sub SqlBrw(Sql$, Optional D As Dao.Database)
