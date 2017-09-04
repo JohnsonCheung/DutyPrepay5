@@ -1,6 +1,7 @@
-Attribute VB_Name = "DtaModule"
-Option Compare Database
+Attribute VB_Name = "Dta_Module"
 Option Explicit
+Option Compare Database
+
 Type Dt
     DtNm As String
     Fny() As String
@@ -41,14 +42,14 @@ Dim O As Ds
 DbDs = O
 End Function
 
-Function DrsAddRowIdxCol(A As Drs) As Drs
+Function DrsAddRowIdxCol(a As Drs) As Drs
 Dim O As Drs
-    O.Fny = A.Fny
+    O.Fny = a.Fny
     AyIns O.Fny, "RowIdx"
 Dim ODry()
-    If Not AyIsEmpty(A.Dry) Then
+    If Not AyIsEmpty(a.Dry) Then
         Dim J&, Dr
-        For Each Dr In A.Dry
+        For Each Dr In a.Dry
             AyIns Dr, J: J = J + 1
             Push ODry, Dr
         Next
@@ -57,8 +58,36 @@ O.Dry = ODry
 DrsAddRowIdxCol = O
 End Function
 
-Sub DrsBrw(Drs As Drs, Optional MaxColWdt& = 100)
-AyBrw DrsLy(Drs, MaxColWdt)
+Function DrExpLinesCol(Dr, LinesColIdx%) As Variant()
+Dim Ay$()
+    Ay = SplitCrLf(Dr(LinesColIdx))
+Dim O()
+    Dim IDr
+        IDr = Dr
+    Dim I
+    For Each I In Ay
+        IDr(LinesColIdx) = I
+        Push O, IDr
+    Next
+DrExpLinesCol = O
+End Function
+
+Function DrsExpLinesCol(Drs As Drs, LinesColNm$) As Drs
+Dim Idx%
+    Idx = AyIdx(Drs.Fny, LinesColNm)
+Dim Dry()
+    Dim Dr
+    For Each Dr In Drs.Dry
+        PushAy Dry, DrExpLinesCol(Dr, Idx)
+    Next
+Dim O As Drs
+    O.Fny = Drs.Fny
+    O.Dry = Dry
+DrsExpLinesCol = O
+End Function
+
+Sub DrsBrw(Drs As Drs, Optional MaxColWdt& = 100, Optional BrkColNm$)
+AyBrw DrsLy(Drs, MaxColWdt, BrkColNm$)
 End Sub
 
 Function DrsCol(Drs As Drs, ColNm$) As Variant()
@@ -66,13 +95,13 @@ Dim ColIdx%: ColIdx = AyIdx(Drs.Fny, ColNm)
 DrsCol = DryCol(Drs.Dry, ColIdx)
 End Function
 
-Function DrsSel(A As Drs, Fny) As Drs
+Function DrsSel(a As Drs, Fny) As Drs
 Dim mFny$(): mFny = NyCv(Fny)
 Dim IdxAy&()
-    IdxAy = AyIdxAy(A.Fny, mFny)
+    IdxAy = AyIdxAy(a.Fny, mFny)
 Dim Dry()
     Dim Dr
-    For Each Dr In A.Dry
+    For Each Dr In a.Dry
         Push Dry, AySel(Dr, IdxAy)
     Next
 Dim O As Drs
@@ -89,19 +118,19 @@ Sub DryBrw(Dry)
 AyBrw DryLy(Dry)
 End Sub
 
-Sub DsBrw(A As Ds)
-AyBrw DsLy(A)
+Sub DsBrw(a As Ds)
+AyBrw DsLy(a)
 End Sub
 
-Function DsLy(A As Ds, Optional MaxColWdt& = 1000, Optional BrkLinMapStr$) As String()
+Function DsLy(a As Ds, Optional MaxColWdt& = 1000, Optional BrkLinMapStr$) As String()
 Dim O$()
-    Push O, "*Ds " & A.DsNm
+    Push O, "*Ds " & a.DsNm
 Dim Dic As Dictionary ' DicOf_TblNm_to_BrkColNm
     Set Dic = MapDic(BrkMapStr(BrkLinMapStr))
-If Not IsEmptyDtAy(A.DtAy) Then
+If Not IsEmptyDtAy(a.DtAy) Then
     Dim J%, DtNm$, Dt As Dt, BrkColNm$
-    For J = 0 To UBound(A.DtAy)
-        Dt = A.DtAy(J)
+    For J = 0 To UBound(a.DtAy)
+        Dt = a.DtAy(J)
         DtNm$ = Dt.DtNm
         If Dic.Exists(DtNm) Then BrkColNm = Dic(DtNm) Else BrkColNm = ""
         PushAy O, DtLy(Dt, MaxColWdt, BrkColNm)
@@ -135,12 +164,12 @@ Sub DtBrw(Dt As Dt)
 AyBrw DtLy(Dt)
 End Sub
 
-Function DtCsvLy(A As Dt) As String()
+Function DtCsvLy(a As Dt) As String()
 Dim O$()
 Dim QQStr$
 Dim Dr
-Push O, JnComma(DblAyQuote(A.Fny))
-For Each Dr In A.Dry
+Push O, JnComma(DblAyQuote(a.Fny))
+For Each Dr In a.Dry
     Push O, FmtQQAv(QQStr, Dr)
 Next
 End Function
@@ -149,10 +178,10 @@ Sub DtDmp(Dt As Dt)
 AyDmp DtLy(Dt)
 End Sub
 
-Function DtDrs(A As Dt) As Drs
+Function DtDrs(a As Dt) As Drs
 Dim O As Drs
-O.Fny = A.Fny
-O.Dry = A.Dry
+O.Fny = a.Fny
+O.Dry = a.Dry
 DtDrs = O
 End Function
 
@@ -172,12 +201,12 @@ Function FnyLIdxAy(Fny$(), FldNmLvs$) As Long()
 FnyLIdxAy = AyIdxAy(Fny, SplitSpc(FldNmLvs))
 End Function
 
-Function IsEmptyDs(A As Ds) As Boolean
-IsEmptyDs = IsEmptyDtAy(A.DtAy)
+Function IsEmptyDs(a As Ds) As Boolean
+IsEmptyDs = IsEmptyDtAy(a.DtAy)
 End Function
 
-Function IsEmptyDt(A As Dt) As Boolean
-IsEmptyDt = AyIsEmpty(A.Dry)
+Function IsEmptyDt(a As Dt) As Boolean
+IsEmptyDt = AyIsEmpty(a.Dry)
 End Function
 
 Function IsEmptyDtAy(DtAy() As Dt) As Boolean

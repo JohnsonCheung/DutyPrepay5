@@ -1,6 +1,7 @@
 Attribute VB_Name = "Vb_Ay"
-Option Compare Database
 Option Explicit
+Option Compare Database
+
 Type FmTo
     FmIdx As Long
     ToIdx As Long
@@ -14,10 +15,10 @@ End Sub
 
 Function AyAdd(Ay, ParamArray AyAp())
 Dim Av(): Av = AyAp
-Dim A
+Dim a
 Dim O: O = Ay
-For Each A In Av
-    PushAy O, A
+For Each a In Av
+    PushAy O, a
 Next
 AyAdd = O
 End Function
@@ -27,7 +28,16 @@ Dim O: O = Ay1
 PushAy O, Ay2
 AyAddOneAy = O
 End Function
-
+Function AyAddPfxSfx(Ay, Pfx, Sfx) As String()
+Dim O$(), U&, J&
+U = UB(Ay)
+If U = -1 Then Exit Function
+ReDim Preserve O(U)
+For J = 0 To U
+    O(J) = Pfx & Ay(J) & Sfx
+Next
+AyAddPfxSfx = O
+End Function
 Function AyAddPfx(Ay, Pfx) As String()
 Dim O$(), U&, J&
 U = UB(Ay)
@@ -294,6 +304,10 @@ Dim O$()
     Next
 AyStrAy = O
 End Function
+Function AyShift(Ay)
+AyShift = Ay(0)
+AyRmvFstEle Ay
+End Function
 
 Function AySy(Ay) As String()
 If AyIsEmpty(Ay) Then Exit Function
@@ -370,20 +384,27 @@ EmptyFmTo.FmIdx = -1
 EmptyFmTo.ToIdx = -1
 End Function
 
-Function Mul2&(A)
-Mul2 = A * 2
+Function Mul2&(a)
+Mul2 = a * 2
 End Function
 
 Function Pop(Ay)
 Pop = AyLasEle(Ay)
 RmvLasNEle Ay
 End Function
-
+Function EmptySy() As String()
+End Function
 Sub Push(O, P)
 Dim N&: N = Sz(O)
 ReDim Preserve O(N)
-O(N) = P
+If IsObject(P) Then
+    Set O(N) = P
+Else
+    O(N) = P
+End If
 End Sub
+Function EmptyAy() As Variant()
+End Function
 
 Sub PushAy(OAy, Ay)
 If AyIsEmpty(Ay) Then Exit Sub
@@ -425,7 +446,20 @@ Case Else: Stop
 End Select
 RunAv = O
 End Function
-
+Function AyFilter(Ay, FilterFunNm$, ParamArray Ap())
+Dim O: O = Ay: Erase O
+Dim I
+Dim Av()
+    Av = Ap
+    AyIns Av
+For Each I In Ay
+    Asg I, Av(0)
+    If RunAv(FilterFunNm, Av) Then
+        Push O, I
+    End If
+Next
+AyFilter = O
+End Function
 Function StrWrt(S, Ft)
 Dim F%: F = FreeFile(1)
 Open Ft For Output As #F

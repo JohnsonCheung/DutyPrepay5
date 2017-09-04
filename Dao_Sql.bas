@@ -1,6 +1,6 @@
 Attribute VB_Name = "Dao_Sql"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function SqlBool(Sql$, Optional D As Database) As Boolean
 SqlBool = DftDb(D).OpenRecordset(Sql).EOF

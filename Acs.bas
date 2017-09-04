@@ -1,12 +1,12 @@
 Attribute VB_Name = "Acs"
-
-Option Compare Database
 Option Explicit
+Option Compare Database
+
 
 Function Acs() As Access.Application
 Static X As Access.Application
 On Error GoTo XX
-Dim A$: A = X.Name
+Dim a$: a = X.Name
 Set Acs = X
 Exit Function
 XX:

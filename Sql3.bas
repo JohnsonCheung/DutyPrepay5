@@ -1,6 +1,6 @@
 Attribute VB_Name = "Sql3"
-Option Compare Database
 Option Explicit
+Option Compare Database
 Private Enum eOp
     'eStr eNbr eFlag eNbrLis eStrLis eFlag are valid only in Ns:Prm
     eBet     ' [.Bet]
@@ -343,11 +343,11 @@ Nxt:
 Next
 End Function
 
-Function Wy_RmvItms(A() As WrkDr, IdxAy%()) As WrkDr()
-If AyIsEmpty(IdxAy) Then Wy_RmvItms = A: Exit Function
+Function Wy_RmvItms(a() As WrkDr, IdxAy%()) As WrkDr()
+If AyIsEmpty(IdxAy) Then Wy_RmvItms = a: Exit Function
 Dim O() As WrkDr, J%
-For J = 0 To Wy_UB(A)
-    If Not AyHas(IdxAy, J) Then Wy_Push O, A(J)
+For J = 0 To Wy_UB(a)
+    If Not AyHas(IdxAy, J) Then Wy_Push O, a(J)
 Next
 Wy_RmvItms = O
 End Function
@@ -423,8 +423,8 @@ Private Function Er_UpdMstHavNamWithPondSign(Wy() As WrkDr) As Variant()
 End Function
 
 Private Sub Exp(Wy() As WrkDr) 'Expanding Wy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim Dic As Dictionary
 Exp_FixFm Wy
@@ -547,9 +547,9 @@ Set Exp_FixSelDis.SelDisDic = ODic
 Exp_FixSelDis.RestWy = Wy_RmvItms(Wy, IdxAy)
 End Function
 
-Private Function Exp_FixStr(A As ExpSwitch) As ExpFixStr
-Dim SwitchDic As Dictionary:    Set SwitchDic = A.SwitchDic
-Dim Wy() As WrkDr:              Wy = A.RestWy
+Private Function Exp_FixStr(a As ExpSwitch) As ExpFixStr
+Dim SwitchDic As Dictionary:    Set SwitchDic = a.SwitchDic
+Dim Wy() As WrkDr:              Wy = a.RestWy
 Dim IdxAy%():                   IdxAy = Wy_IdxAy_Op(Wy, eFixStr)
 Dim ODic As New Dictionary
     Dim J%
@@ -604,8 +604,8 @@ Set Exp_FixWh.WhDic = ODic
 Exp_FixWh.RestWy = Wy_RmvItms(Wy, IdxAy)
 End Function
 
-Private Function Exp_Switch(A As ExpPrm) As ExpSwitch
-Dim Wy() As WrkDr:  Wy = A.RestWy
+Private Function Exp_Switch(a As ExpPrm) As ExpSwitch
+Dim Wy() As WrkDr:  Wy = a.RestWy
 Dim IdxAy%():       IdxAy = Wy_IdxAy_Ns(Wy, "?")
 Dim ODic As New Dictionary
     Dim J%
@@ -615,14 +615,14 @@ Dim ODic As New Dictionary
         With Wy(IdxAy(J))
             Select Case .L3.Op
             Case eEq, eNe
-                B = Switch_EqNe(A.PrmDic, ODic, .L3.Prm, .L3.Op = eEq)
+                B = Switch_EqNe(a.PrmDic, ODic, .L3.Prm, .L3.Op = eEq)
                 If B.Som Then
                     V = IIf(B.Bool, "1", "0")
                     K = .Ns & .Nm
                     ODic.Add K, V
                 End If
             Case eFixAnd, eFixOr
-                B = Switch_AndOr(A.PrmDic, ODic, .L3.Prm, .L3.Op = eEq)
+                B = Switch_AndOr(a.PrmDic, ODic, .L3.Prm, .L3.Op = eEq)
                 If B.Som Then
                     V = IIf(B.Bool, "1", "0")
                     K = .Ns & .Nm
@@ -731,20 +731,20 @@ If Lin_IsL3(L) Then Lin_Lvl = 3: Exit Function
 End Function
 
 Private Function Lin_WrkDr(Sql3Lin, LinI%) As WrkDr
-Dim A$: A = Sql3Lin
+Dim a$: a = Sql3Lin
 Dim O As WrkDr
 With O
     .LinI = LinI%
     Select Case Lin_Lvl(Sql3Lin)
     Case 1
-        .Ns = ParseTerm(A)
-        .Nm = ParseTerm(A)
-        .L3 = L3_Brk(A)
+        .Ns = ParseTerm(a)
+        .Nm = ParseTerm(a)
+        .L3 = L3_Brk(a)
     Case 2
-        .Nm = ParseTerm(A)
-        .L3 = L3_Brk(A)
+        .Nm = ParseTerm(a)
+        .L3 = L3_Brk(a)
     Case 3
-        .L3 = L3_Brk(Trim(A))
+        .L3 = L3_Brk(Trim(a))
     Case Else: Stop
     End Select
 End With
@@ -857,12 +857,12 @@ Private Function Op_Chk$(OpStr$)
 
 End Function
 
-Private Function Op_IsAlwSwitch(A As eOp) As Boolean
-Op_IsAlwSwitch = AyHas(Op_AlwSwitchOpAy, A)
+Private Function Op_IsAlwSwitch(a As eOp) As Boolean
+Op_IsAlwSwitch = AyHas(Op_AlwSwitchOpAy, a)
 End Function
 
-Private Function Op_IsExp(A As eOp) As Boolean
-Select Case A
+Private Function Op_IsExp(a As eOp) As Boolean
+Select Case a
 Case eOp.eMac, _
     eOp.eExpAnd, _
     eOp.eExpComma, _
@@ -890,9 +890,9 @@ Next
 Op_Sy = O
 End Function
 
-Private Function OpStr(A As eOp)
+Private Function OpStr(a As eOp)
 Dim O$
-Select Case A
+Select Case a
 Case eBet:   O = ".Bet"
 Case eEq:   O = ".Eq"
 Case eExpAnd: O = "@And"
@@ -939,9 +939,9 @@ End Select
 OpStr = O
 End Function
 
-Private Function SomWrkDr(A As WrkDr) As WrkDrOpt
+Private Function SomWrkDr(a As WrkDr) As WrkDrOpt
 SomWrkDr.Som = True
-SomWrkDr.WrkDr = A
+SomWrkDr.WrkDr = a
 End Function
 
 Private Sub Sql3_LyBrw(Sql3_Ly$())
@@ -1008,8 +1008,8 @@ Sql3_WrtEr = True
 End Function
 
 Private Function Sql3_Wy(Sql3_Ly$()) As WrkDr()
-Dim A() As WrkDr: A = Sql3_Wy__Pass1(Sql3_Ly)
-Dim B() As WrkDr: B = Sql3_Wy__Pass2(A)
+Dim a() As WrkDr: a = Sql3_Wy__Pass1(Sql3_Ly)
+Dim B() As WrkDr: B = Sql3_Wy__Pass2(a)
 Dim O() As WrkDr
     Dim J%, M As WrkDr
     For J = 0 To Wy_UB(B)
@@ -1021,7 +1021,7 @@ End Function
 
 Private Function Sql3_Wy__Pass1(Sql3_Ly$()) As WrkDr()
 Dim O() As WrkDr
-    Dim L, LinI%, A As WrkDrOpt
+    Dim L, LinI%, a As WrkDrOpt
     For Each L In Sql3_Ly
         With Sql3_WrkDrOpt(L, LinI)
             If .Som Then
@@ -1119,9 +1119,9 @@ If FstChr(Term) = "?" Then
     Exit Function
 End If
 If FstChr(Term) = "{" And LasChr(Term) = "}" Then
-    Dim A$
-    A = RmvLasChr(RmvFstChr(Term))
-    With DicVal(PrmDic, A)
+    Dim a$
+    a = RmvLasChr(RmvFstChr(Term))
+    With DicVal(PrmDic, a)
         If .Som Then Switch_TermVal = SomBool(.V = "1")
     End With
     Exit Function
@@ -1149,10 +1149,10 @@ Dim O As New Dictionary
 Set Wy_Dic = O
 End Function
 
-Private Function Wy_Dr(A As WrkDr, SwitchDic As Dictionary) As Variant()
+Private Function Wy_Dr(a As WrkDr, SwitchDic As Dictionary) As Variant()
 Dim SwitchVal$
-    If A.L3.Switch <> "" Then
-        With DicVal(SwitchDic, "?" & A.L3.Switch)
+    If a.L3.Switch <> "" Then
+        With DicVal(SwitchDic, "?" & a.L3.Switch)
             If .Som Then
                 SwitchVal = .V
             Else
@@ -1160,7 +1160,7 @@ Dim SwitchVal$
             End If
         End With
     End If
-With A
+With a
     Wy_Dr = Array(.LinI, .Ns, .Nm, .L3.Switch, SwitchVal, OpStr(.L3.Op), .L3.Prm, .L3.L3)
 End With
 End Function
@@ -1210,8 +1210,8 @@ Dim O%()
 Wy_IdxAy_Op = O
 End Function
 
-Private Function Wy_IsEmpty(A() As WrkDr) As Boolean
-Wy_IsEmpty = Wy_Sz(A) = 0
+Private Function Wy_IsEmpty(a() As WrkDr) As Boolean
+Wy_IsEmpty = Wy_Sz(a) = 0
 End Function
 
 Private Sub Wy_Push(OAy() As WrkDr, M As WrkDr)
@@ -1272,8 +1272,8 @@ End Sub
 
 Private Sub Exp_ExpTerm__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1295,8 +1295,8 @@ End Sub
 
 Private Sub Exp_FixDrp__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1317,8 +1317,8 @@ End Sub
 
 Private Sub Exp_FixFm__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 DicBrw D.FmDic
@@ -1332,8 +1332,8 @@ End Sub
 
 Private Sub Exp_FixInto__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1349,8 +1349,8 @@ End Sub
 
 Private Sub Exp_FixJn__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1369,8 +1369,8 @@ End Sub
 
 Private Sub Exp_FixLeftJn__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1388,8 +1388,8 @@ End Sub
 
 Private Sub Exp_FixSelDis__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1409,8 +1409,8 @@ End Sub
 
 Private Sub Exp_FixStr__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 DicBrw C.FixStrDic
 Dim Dif%
@@ -1423,8 +1423,8 @@ End Sub
 
 Private Sub Exp_FixUpd__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1441,8 +1441,8 @@ End Sub
 
 Private Sub Exp_FixWh__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Dim D As ExpFixFm: D = Exp_FixFm(C.RestWy)
 Dim E As ExpFixInto: E = Exp_FixInto(D.RestWy)
@@ -1458,17 +1458,17 @@ End Sub
 
 Private Sub Exp_Prm__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy) '<== Run
-DicBrw A.PrmDic     '<=== Result
+Dim a As ExpPrm: a = Exp_Prm(Wy) '<== Run
+DicBrw a.PrmDic     '<=== Result
 Dim Diff%
     Dim Bef%, Aft%
     Bef = Wy_UB(Wy)
-    Aft = Wy_UB(A.RestWy)
+    Aft = Wy_UB(a.RestWy)
     Diff = Bef - Aft
-Debug.Assert A.PrmDic.Count = Diff
+Debug.Assert a.PrmDic.Count = Diff
 Dim J%
-For J = 0 To Wy_UB(A.RestWy)
-    With A.RestWy(J)
+For J = 0 To Wy_UB(a.RestWy)
+    With a.RestWy(J)
         Debug.Assert .Ns <> "Prm"
     End With
 Next
@@ -1476,12 +1476,12 @@ End Sub
 
 Sub Exp_Switch__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 DicBrw B.SwitchDic
 Dim Diff%
     Dim Aft%, Bef%
-    Bef = Wy_UB(A.RestWy)
+    Bef = Wy_UB(a.RestWy)
     Aft = Wy_UB(B.RestWy)
     Diff = Bef - Aft
 Debug.Assert B.SwitchDic.Count = Diff
@@ -1490,8 +1490,8 @@ End Sub
 
 Private Sub Exp_ThoseWithExp__Tst()
 Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As ExpPrm: A = Exp_Prm(Wy)
-Dim B As ExpSwitch: B = Exp_Switch(A)
+Dim a As ExpPrm: a = Exp_Prm(Wy)
+Dim B As ExpSwitch: B = Exp_Switch(a)
 Dim C As ExpFixStr: C = Exp_FixStr(B)
 Stop
 'Exp_ThoseWithExp Dic, Wy
@@ -1519,15 +1519,15 @@ End Sub
 
 Private Sub Sql3_Wy__Pass1__Tst()
 Dim Ly$(): Ly = ZZSql3_Ly
-Dim A() As WrkDr: A = Sql3_Wy__Pass1(Ly)
-Wy_Brw A
+Dim a() As WrkDr: a = Sql3_Wy__Pass1(Ly)
+Wy_Brw a
 End Sub
 
 Private Sub Sql3_Wy__Pass2__Tst()
 Dim Ly$(): Ly = ZZSql3_Ly
-Dim A() As WrkDr: A = Sql3_Wy__Pass1(Ly)
-Dim B() As WrkDr: B = Sql3_Wy__Pass2(A)
-Wy_Brw A
+Dim a() As WrkDr: a = Sql3_Wy__Pass1(Ly)
+Dim B() As WrkDr: B = Sql3_Wy__Pass2(a)
+Wy_Brw a
 Wy_Brw B
 End Sub
 
@@ -1572,4 +1572,3 @@ Sql3_Wy__Tst
 Sql3ExpandedDrs__Tst
 ZZSql3_Ly__Tst
 End Sub
-

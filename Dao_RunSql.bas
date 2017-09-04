@@ -1,6 +1,6 @@
 Attribute VB_Name = "Dao_RunSql"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Sub RunSql(Sql, Optional D As Database)
 DftDb(D).Execute Sql

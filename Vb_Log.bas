@@ -1,6 +1,6 @@
 Attribute VB_Name = "Vb_Log"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Sub BrwLog()
 FtBrw LogFt

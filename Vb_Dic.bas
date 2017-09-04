@@ -1,9 +1,9 @@
 Attribute VB_Name = "Vb_Dic"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
-Function DicAdd(A As Dictionary, B As Dictionary) As Dictionary
-Dim O As Dictionary: Set O = DicClone(A)
+Function DicAdd(a As Dictionary, B As Dictionary) As Dictionary
+Dim O As Dictionary: Set O = DicClone(a)
 Dim K
 If B.Count > 0 Then
     For Each K In B.Keys
@@ -13,39 +13,39 @@ End If
 Set DicAdd = O
 End Function
 
-Function DicBrw(A As Dictionary)
-DrsBrw DicDrs(A)
+Function DicBrw(a As Dictionary)
+DrsBrw DicDrs(a)
 End Function
 
-Function DicClone(A As Dictionary) As Dictionary
+Function DicClone(a As Dictionary) As Dictionary
 Dim O As New Dictionary, K
-If A.Count > 0 Then
-    For Each K In A.Keys
-        O.Add K, A(K)
+If a.Count > 0 Then
+    For Each K In a.Keys
+        O.Add K, a(K)
     Next
 End If
 Set DicClone = O
 End Function
 
-Function DicDrs(A As Dictionary) As Drs
+Function DicDrs(a As Dictionary) As Drs
 Dim O As Drs
 O.Fny = SplitSpc("Key Val")
-O.Dry = DicDry(A)
+O.Dry = DicDry(a)
 DicDrs = O
 End Function
 
-Function DicDry(A As Dictionary) As Variant()
+Function DicDry(a As Dictionary) As Variant()
 Dim O(), I
-Dim K(): K = A.Keys
+Dim K(): K = a.Keys
 If Not AyIsEmpty(K) Then
     For Each I In K
-        Push O, Array(I, A(I))
+        Push O, Array(I, a(I))
     Next
 End If
 DicDry = O
 End Function
 
-Function DicVal(A As Dictionary, K) As VOpt
-If Not A.Exists(K) Then Exit Function
-DicVal = SomV(A(K))
+Function DicVal(a As Dictionary, K) As VOpt
+If Not a.Exists(K) Then Exit Function
+DicVal = SomV(a(K))
 End Function

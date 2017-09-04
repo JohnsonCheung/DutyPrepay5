@@ -1,6 +1,6 @@
 Attribute VB_Name = "Vb_Str_Split"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function SplitCrLf(S) As String()
 SplitCrLf = Split(S, vbCrLf)

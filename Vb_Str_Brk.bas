@@ -1,6 +1,7 @@
 Attribute VB_Name = "Vb_Str_Brk"
-Option Compare Database
 Option Explicit
+Option Compare Database
+
 Type S1S2
     S1 As String
     S2 As String
@@ -113,9 +114,9 @@ If P = 0 Then Err.Raise "BrkRev: Str[" & S & "] does not contains Sep[" & Sep & 
 BrkRev = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
 
-Function MapDic(A As Map) As Dictionary
+Function MapDic(a As Map) As Dictionary
 Dim J&, O As New Dictionary
-With A
+With a
     Dim U&: U = UB(.Sy1)
     For J = 0 To U
         O.Add .Sy1(J), .Sy2(J)
@@ -162,3 +163,4 @@ End Sub
 Sub Tst()
 BrkMapStr__Tst
 End Sub
+

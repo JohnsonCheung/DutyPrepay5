@@ -1,6 +1,6 @@
 Attribute VB_Name = "Dao_Lnk"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function FxDb(Fx, Optional WsNmMapStr$) As Database
 Dim O As Database

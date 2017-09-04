@@ -1,4 +1,5 @@
 Attribute VB_Name = "Vb_Opt"
+Option Explicit
 Option Compare Database
 Type StrOpt
     Som As Boolean

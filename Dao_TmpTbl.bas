@@ -1,6 +1,6 @@
 Attribute VB_Name = "Dao_TmpTbl"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Sub EnsTbl_Tmp1()
 If IsTbl("Tmp1") Then Exit Sub

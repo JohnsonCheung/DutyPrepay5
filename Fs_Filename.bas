@@ -1,6 +1,6 @@
 Attribute VB_Name = "Fs_Filename"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function FfnAddFnSfx(Fn, Sfx)
 FfnAddFnSfx = FfnRmvExt(Fn) & Sfx & FfnExt(Fn)
@@ -48,8 +48,8 @@ End Sub
 
 Function PthFdr$(Pth)
 PthAssertSfx Pth
-Dim A$: A = RmvLasChr(Pth)
-PthFdr = TakAftRev(A, "\")
+Dim a$: a = RmvLasChr(Pth)
+PthFdr = TakAftRev(a, "\")
 End Function
 
 Function TmpFb$(Optional Fdr$)

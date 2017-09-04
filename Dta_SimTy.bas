@@ -1,6 +1,7 @@
-Attribute VB_Name = "DtaSimTy"
-Option Compare Database
+Attribute VB_Name = "Dta_SimTy"
 Option Explicit
+Option Compare Database
+
 Enum eSimTy
     eTxt
     eNbr
@@ -44,14 +45,14 @@ End Select
 SimTy = O
 End Function
 
-Function SimTyQuoteTp$(A As eSimTy)
+Function SimTyQuoteTp$(a As eSimTy)
 Dim O$
-Select Case A
+Select Case a
 Case eTxt: O = "'?'"
 Case eNbr, eLgc: O = "?"
 Case eDte: O = "#?#"
 Case Else
-    Err.Raise 1, , "Given SimTy[" & A & "] should be [eTxt eNbr eDte eLgc]"
+    Er "Given {eSimTy} should be [eTxt eNbr eDte eLgc]", a
 End Select
 SimTyQuoteTp = O
 End Function

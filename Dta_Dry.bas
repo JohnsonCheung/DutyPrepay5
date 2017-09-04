@@ -1,6 +1,6 @@
-Attribute VB_Name = "DtaDry"
-Option Compare Database
+Attribute VB_Name = "Dta_Dry"
 Option Explicit
+Option Compare Database
 
 Function DryCol(Dry, Optional ColIdx% = 0) As Variant()
 If AyIsEmpty(Dry) Then Exit Function

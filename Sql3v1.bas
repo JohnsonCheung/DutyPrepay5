@@ -1,6 +1,7 @@
 Attribute VB_Name = "Sql3v1"
-Option Compare Database
 Option Explicit
+Option Compare Database
+
 
 Private Sub AA_Sql__Flow()
 
@@ -500,4 +501,7 @@ End Function
 
 Private Sub Sql_O_Cnt__Tst()
 Debug.Print Sql_O_Cnt
+End Sub
+Sub Tst()
+Sql_O_Cnt__Tst
 End Sub

@@ -1,6 +1,6 @@
 Attribute VB_Name = "Fs_Pth"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function IsPth(P) As Boolean
 IsPth = Dir(P, vbDirectory) <> ""
@@ -23,7 +23,7 @@ End Function
 Function PthHasSubDir(P) As Boolean
 If Not IsPth(P) Then Exit Function
 PthAssertSfx P
-Dim A$: A = Dir(P & "*.*", vbDirectory)
+Dim a$: a = Dir(P & "*.*", vbDirectory)
 Dir
 PthHasSubDir = Dir <> ""
 End Function
@@ -40,9 +40,9 @@ PthPthAy = AyAddPfx(PthSubDirAy(P, Spec), P)
 End Function
 
 Sub PthRmvEmptySubDir(P)
-Dim A$(): A = PthPthAy(P): If AyIsEmpty(A) Then Exit Sub
+Dim a$(): a = PthPthAy(P): If AyIsEmpty(a) Then Exit Sub
 Dim I
-For Each I In A
+For Each I In a
     PthRmvIfEmpty I
 Next
 End Sub
@@ -55,11 +55,11 @@ Function PthSubDirAy(P, Optional Spec$ = "*.*") As String()
 PthAssertSfx P
 Dir P & Spec, vbDirectory
 Dir
-Dim A$, O$()
-A = Dir
-While A <> ""
-    Push O, A
-    A = Dir
+Dim a$, O$()
+a = Dir
+While a <> ""
+    Push O, a
+    a = Dir
 Wend
 PthSubDirAy = O
 End Function

@@ -1,6 +1,7 @@
 Attribute VB_Name = "Ide"
-Option Compare Database
 Option Explicit
+Option Compare Database
+
 Private Enum AA 'For testing
     AA1
     '
@@ -18,19 +19,15 @@ Type SrcLinBrk
     Mdy As String
 End Type
 
-Sub AA()
-MdSrtedBdyLines__Tst
-End Sub
-
-Function DftMd(Optional A As CodeModule) As CodeModule
-If IsNothing(A) Then
+Function DftMd(Optional a As CodeModule) As CodeModule
+If IsNothing(a) Then
     Set DftMd = Application.VBE.ActiveCodePane.CodeModule
 Else
-    Set DftMd = A
+    Set DftMd = a
 End If
 End Function
 
-Function DftMdNm$(Nm$)
+Function DftMdNm$(Nm)
 If Nm = "" Then
     DftMdNm = MdNm(DftMd)
 Else
@@ -38,18 +35,18 @@ Else
 End If
 End Function
 
-Function DftPj(Optional A As VBProject) As VBProject
-If IsNothing(A) Then
+Function DftPj(Optional a As VBProject) As VBProject
+If IsNothing(a) Then
     Set DftPj = Application.VBE.ActiveVBProject
 Else
-    Set DftPj = A
+    Set DftPj = a
 End If
 End Function
 
-Function EnmBdyLy(EnmNm$, Optional A As CodeModule) As String()
-Dim B%: B = EnmLinIdx(EnmNm, A): If B = -1 Then Exit Function
+Function EnmBdyLy(EnmNm$, Optional a As CodeModule) As String()
+Dim B%: B = EnmLinIdx(EnmNm, a): If B = -1 Then Exit Function
 Dim O$(), Ly$(), J%
-Ly = MdDclLy(A)
+Ly = MdDclLy(a)
 For J = B To UB(Ly)
     Push O, Ly(J)
     If IsPfx(Ly(J), "End Enum") Then EnmBdyLy = O: Exit Function
@@ -63,8 +60,8 @@ If Trim(L) = "" Then Exit Function
 EnmIsMbrLin = True
 End Function
 
-Function EnmLinIdx%(EnmNm$, Optional A As CodeModule)
-Dim Ly$(): Ly = MdDclLy(A)
+Function EnmLinIdx%(EnmNm$, Optional a As CodeModule)
+Dim Ly$(): Ly = MdDclLy(a)
 Dim U%: U = UB(Ly)
 Dim O%, L$
 For O = 0 To U
@@ -80,13 +77,13 @@ Next
 EnmLinIdx = -1
 End Function
 
-Function EnmMbrCnt%(EnmNm$, Optional A As CodeModule)
-EnmMbrCnt = Sz(EnmMbrLy(EnmNm, A))
+Function EnmMbrCnt%(EnmNm$, Optional a As CodeModule)
+EnmMbrCnt = Sz(EnmMbrLy(EnmNm, a))
 End Function
 
-Function EnmMbrLy(EnmNm$, Optional A As CodeModule) As String()
+Function EnmMbrLy(EnmNm$, Optional a As CodeModule) As String()
 Dim Ly$(), O$(), J%
-Ly = EnmBdyLy(EnmNm, A)
+Ly = EnmBdyLy(EnmNm, a)
 For J = 1 To UB(Ly) - 1
     If EnmIsMbrLin(Ly(J)) Then Push O, Ly(J)
 Next
@@ -166,8 +163,8 @@ If FunTy = "SEt" Then Exit Function
 FunTyIsFun = False
 End Function
 
-Function IsEmptyMd(Optional A As CodeModule) As Boolean
-IsEmptyMd = DftMd(A).CountOfLines = 0
+Function IsEmptyMd(Optional a As CodeModule) As Boolean
+IsEmptyMd = DftMd(a).CountOfLines = 0
 End Function
 
 Function JnContinueLin(Ly$()) As String()
@@ -195,49 +192,61 @@ ParseMdy L
 LinIsFunSubPrp = ParseFunSubPrp(L) <> ""
 End Function
 
-Function LnoCntToStr$(A As LnoCnt)
-LnoCntToStr = FmtQQ("Lno(?) Cnt(?)", A.Lno, A.Cnt)
+Function LnoCntStr$(a As LnoCnt)
+LnoCntStr = FmtQQ("Lno(?) Cnt(?)", a.Lno, a.Cnt)
 End Function
 
-Function Md(Optional MdNm$, Optional A As VBProject) As CodeModule
-Set Md = DftPj(A).VBComponents(DftMdNm(MdNm)).CodeModule
+Function Md(Optional MdNm, Optional a As VBProject) As CodeModule
+Set Md = DftPj(a).VBComponents(DftMdNm(MdNm)).CodeModule
 End Function
 
-Sub MdAppLines(Lines$, Optional A As CodeModule)
+Function MdAddOptExplicit(Optional a As CodeModule)
+DftMd(a).InsertLines 1, "Option Explicit"
+Debug.Print MdNm(a), "<-- Option Explicit added"
+End Function
+
+Sub MdAppLines(Lines$, Optional a As CodeModule)
 If Lines = "" Then Exit Sub
-DftMd(A).InsertLines MdLasLno(A) + 1, Lines
+DftMd(a).InsertLines MdLasLno(a) + 1, Lines
 End Sub
 
-Sub MdAppLy(Ly$(), Optional A As CodeModule)
-MdAppLines JnCrLf(Ly), A
+Sub MdAppLy(Ly$(), Optional a As CodeModule)
+MdAppLines JnCrLf(Ly), a
 End Sub
 
-Function MdBdyLines$(Optional A As CodeModule)
-MdBdyLines = JnCrLf(MdBdyLy(A))
+Function MdBdyLines$(Optional a As CodeModule)
+MdBdyLines = SrcBdyLines(MdSrc(a))
 End Function
 
-Function MdBdyLnoCnt(Optional A As CodeModule) As LnoCnt
-Dim Md As CodeModule: Set Md = DftMd(A)
-Dim O As LnoCnt
-O.Lno = Md.CountOfDeclarationLines + 1
-O.Cnt = Md.CountOfLines - O.Lno + 1
-MdBdyLnoCnt = O
+Function MdBdyLnoCnt(Optional a As CodeModule) As LnoCnt
+MdBdyLnoCnt = SrcBdyLnoCnt(MdSrc(a))
 End Function
 
-Function MdBdyLy(Optional A As CodeModule) As String()
-MdBdyLy = SrcBdyLy(MdSrc(A))
+Function MdBdyLy(Optional a As CodeModule) As String()
+MdBdyLy = SrcBdyLy(MdSrc(a))
 End Function
 
-Function MdCmp(Optional A As CodeModule) As VBComponent
-Set MdCmp = DftMd(A).Parent
+Function MdCanHasCd(Optional a As CodeModule) As Boolean
+Select Case MdTy(a)
+Case _
+    vbext_ComponentType.vbext_ct_StdModule, _
+    vbext_ComponentType.vbext_ct_ClassModule, _
+    vbext_ComponentType.vbext_ct_Document, _
+    vbext_ComponentType.vbext_ct_MSForm
+    MdCanHasCd = True
+End Select
 End Function
 
-Function MdCmpTy(Optional A As CodeModule) As vbext_ComponentType
-MdCmpTy = MdCmp(A).Type
+Function MdCmp(Optional a As CodeModule) As VBComponent
+Set MdCmp = DftMd(a).Parent
 End Function
 
-Function MdContLin$(Lno&, Optional A As CodeModule)
-Dim J&, L&, Md As CodeModule: Set Md = A
+Function MdCmpTy(Optional a As CodeModule) As vbext_ComponentType
+MdCmpTy = MdCmp(a).Type
+End Function
+
+Function MdContLin$(Lno&, Optional a As CodeModule)
+Dim J&, L&, Md As CodeModule: Set Md = a
 L = Lno
 Dim O$: O = Md.Lines(L, 1)
 While LasChr(O) = "_"
@@ -247,58 +256,76 @@ Wend
 MdContLin = O
 End Function
 
-Sub MdCpy(Fm$, ToMdNm$, Optional A As VBProject)
-Dim FmMd As CodeModule: Set FmMd = Md(Fm, A)
+Sub MdCpy(Fm$, ToMdNm$, Optional a As VBProject)
+Dim FmMd As CodeModule: Set FmMd = Md(Fm, a)
 Dim Ty As vbext_ComponentType: Ty = MdTy(FmMd)
-MdNew ToMdNm, Ty, A
+MdNew ToMdNm, Ty, a
 Dim O As CodeModule: Set O = Md(ToMdNm)
 MdAppLy MdLy(FmMd), O
 End Sub
 
-Function MdDclLines$(Optional A As CodeModule)
-With DftMd(A)
+Function MdDclLines$(Optional a As CodeModule)
+With DftMd(a)
     If .CountOfDeclarationLines = 0 Then Exit Function
     MdDclLines = .Lines(1, .CountOfDeclarationLines)
 End With
 End Function
 
-Function MdDclLy(Optional A As CodeModule) As String()
-MdDclLy = SplitCrLf(MdDclLines(A))
+Function MdDclLy(Optional a As CodeModule) As String()
+MdDclLy = SplitCrLf(MdDclLines(a))
 End Function
 
-Function MdEnmCnt%(Optional A As CodeModule)
-MdEnmCnt = SrcEnmCnt(MdDclLy(A))
+Function MdEnmCnt%(Optional a As CodeModule)
+MdEnmCnt = SrcEnmCnt(MdDclLy(a))
 End Function
 
-Function MdExp(Optional A As CodeModule)
-Dim Md As CodeModule: Set Md = DftMd(A)
+Sub MdEnsOptExplicit(Optional a As CodeModule)
+If Not MdHasOptExplicit(a) Then MdAddOptExplicit a
+'If MdHasOptExplicit(A) Then
+'    Debug.Print MdNm(A), "(* With Option Explicit *)"
+'Else
+'    Debug.Print MdNm(A), "<-------------------- No Option Explicit"
+'End If
+End Sub
+
+Function MdExp(Optional a As CodeModule)
+Dim Md As CodeModule: Set Md = DftMd(a)
 Md.Parent.Export MdSrcFfn(Md)
-Debug.Print MdNm(A)
+Debug.Print MdNm(a)
 End Function
 
-Function MdFunCnt%(Optional A As CodeModule)
-MdFunCnt = SrcFunCnt(MdSrc(A))
+Function MdFunCnt%(Optional a As CodeModule)
+MdFunCnt = SrcFunCnt(MdSrc(a))
 End Function
 
-Function MdFunDrs(Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean, Optional A As CodeModule) As Drs
-MdFunDrs = SrcFunDrs(MdSrc(A), MdNm(A), WithBdyLy, WithBdyLines)
+Function MdFunDrs(Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean, Optional a As CodeModule) As Drs
+MdFunDrs = SrcFunDrs(MdSrc(a), MdNm(a), WithBdyLy, WithBdyLines)
 End Function
 
-Function MdFunLines$(FunNm$, Optional PrpTy$, Optional A As CodeModule)
-MdFunLines = SrcFunLines(MdSrc(A), FunNm, PrpTy)
+Function MdFunLines$(FunNm$, Optional PrpTy$, Optional a As CodeModule)
+MdFunLines = SrcFunLines(MdSrc(a), FunNm, PrpTy)
 End Function
 
-Function MdFunLnoCnt(FunNm$, PrpTy$, Optional A As CodeModule) As LnoCnt
-
+Function MdFunLnoCnt(FunNm$, Optional PrpTy$, Optional a As CodeModule) As LnoCnt
+Stop
 End Function
 
-Function MdFunNy(Optional A As CodeModule) As String()
-MdFunNy = SrcFunNy(MdSrc(A))
+Function MdFunNy(Optional a As CodeModule) As String()
+MdFunNy = SrcFunNy(MdSrc(a))
 End Function
 
-Function MdInfDr(Optional A As CodeModule) As Variant()
+Function MdHasOptExplicit(Optional a As CodeModule)
+Dim Ay$()
+    Ay = MdDclLy(a)
+Dim I
+For Each I In Ay
+    If I = "Option Explicit" Then MdHasOptExplicit = True: Exit Function
+Next
+End Function
+
+Function MdInfDr(Optional a As CodeModule) As Variant()
 Dim Pj$, Md$, IsCls As Boolean, LinCnt%, FunCnt%, TyCnt%, EnmCnt%
-Dim M As CodeModule: Set M = DftMd(A)
+Dim M As CodeModule: Set M = DftMd(a)
 Pj = PjNm(MdPj(M))
 Md = MdNm(M)
 LinCnt = M.CountOfLines
@@ -309,133 +336,122 @@ IsCls = MdIsCls(M)
 MdInfDr = Array(Pj, Md, IsCls, LinCnt, FunCnt, TyCnt, EnmCnt)
 End Function
 
-Function MdInfDry(Optional A As VBProject) As Variant()
+Function MdInfDry(Optional a As VBProject) As Variant()
 Dim I, M As CodeModule, O()
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(a)
     Set M = I
     Push O, MdInfDr(M)
 Next
 MdInfDry = O
 End Function
 
-Function MdInfDt(Optional A As VBProject) As Dt
+Function MdInfDt(Optional a As VBProject) As Dt
 Dim O As Dt
 O.DtNm = "MdInf"
 O.Fny = SplitSpc("Pj Md IsCls LinCnt FunCnt TyCnt EnmCnt")
-O.Dry = MdInfDry(A)
+O.Dry = MdInfDry(a)
 MdInfDt = O
 End Function
 
-Function MdIsCls(Optional A As CodeModule) As Boolean
-MdIsCls = MdTy(A) = vbext_ct_ClassModule
+Function MdIsCls(Optional a As CodeModule) As Boolean
+MdIsCls = MdTy(a) = vbext_ct_ClassModule
 End Function
 
-Function MdIsEmpty(Optional A As CodeModule)
-MdIsEmpty = (DftMd(A).CountOfLines = 0)
+Function MdIsEmpty(Optional a As CodeModule)
+MdIsEmpty = (DftMd(a).CountOfLines = 0)
 End Function
 
-Function MdIsExist(MdNm$, Optional A As VBProject) As Boolean
+Function MdIsExist(MdNm$, Optional a As VBProject) As Boolean
 On Error GoTo X
-MdIsExist = DftPj(A).VBComponents(MdNm).Name = MdNm
+MdIsExist = DftPj(a).VBComponents(MdNm).Name = MdNm
 Exit Function
 X:
 End Function
 
-Function MdLasLno&(Optional A As CodeModule)
-MdLasLno = DftMd(A).CountOfLines
+Function MdLasLno&(Optional a As CodeModule)
+MdLasLno = DftMd(a).CountOfLines
 End Function
 
-Function MdLines$(LnoCnt As LnoCnt, Optional A As CodeModule)
-With LnoCnt
-    If .Cnt = 0 Then Exit Function
-    MdLines = DftMd(A).Lines(.Lno, .Cnt)
+Function MdLines$(Optional a As CodeModule)
+With DftMd(a)
+    If .CountOfLines = 0 Then Exit Function
+    MdLines = .Lines(1, .CountOfLines)
 End With
 End Function
 
-Function MdLy(Optional A As CodeModule) As String()
-Dim Md As CodeModule: Set Md = DftMd(A)
-Dim N&: N = Md.CountOfLines
-If N = 0 Then Exit Function
-Dim O$()
-ReDim O(N - 1)
-Dim J&
-For J = 0 To N - 1
-    O(J) = Md.Lines(J + 1, 1)
-Next
-MdLy = O
+Function MdLnoCntLines$(LnoCnt As LnoCnt, Optional a As CodeModule)
+With LnoCnt
+    If .Cnt = 0 Then Exit Function
+    MdLnoCntLines = DftMd(a).Lines(.Lno, .Cnt)
+End With
 End Function
 
-Function MdLy_Jn(Optional A As CodeModule) As String()
-MdLy_Jn = JnContinueLin(MdLy(A))
+Function MdLy(Optional a As CodeModule) As String()
+MdLy = SplitCrLf(MdLines(a))
 End Function
 
-Sub MdNew(Optional MdNm$, Optional Ty As vbext_ComponentType = vbext_ct_StdModule, Optional A As VBProject)
-Dim O As VBComponent: Set O = DftPj(A).VBComponents.Add(Ty)
+Function MdLy_Jn(Optional a As CodeModule) As String()
+MdLy_Jn = JnContinueLin(MdLy(a))
+End Function
+
+Sub MdNew(Optional MdNm$, Optional Ty As vbext_ComponentType = vbext_ct_StdModule, Optional a As VBProject)
+Dim O As VBComponent: Set O = DftPj(a).VBComponents.Add(Ty)
 O.CodeModule.DeleteLines 1, 2
 If MdNm <> "" Then O.Name = MdNm
 End Sub
 
-Function MdNm(Optional A As CodeModule)
-MdNm = DftMd(A).Parent.Name
+Function MdNm(Optional a As CodeModule)
+MdNm = DftMd(a).Parent.Name
 End Function
 
-Function MdPj(Optional A As CodeModule) As VBProject
-Set MdPj = DftMd(A).Parent.Collection.Parent
+Function MdPj(Optional a As CodeModule) As VBProject
+Set MdPj = DftMd(a).Parent.Collection.Parent
 End Function
-
-Sub MdRen(NewNm$, Optional A As CodeModule)
-Dim Nm$: Nm = MdNm(A)
-If NewNm = Nm Then Debug.Print FmtQQ("MdRen: New and Old are same [?]", Nm): Exit Sub
-If MdIsExist(NewNm, MdPj(A)) Then
-    Debug.Print FmtQQ("MdRen: NewNm[?] exist, cannot MdRen(?)", NewNm, MdNm(A))
-    Exit Sub
-End If
-MdCmp(A).Name = NewNm
-End Sub
 
 Sub MdRmv(MdNm$)
 Dim C As VBComponent: Set C = Md(MdNm).Parent
 C.Collection.Remove C
 End Sub
 
-Sub MdRmvBdy(A As CodeModule)
-MdRmvLnoCnt MdBdyLnoCnt(A), A
+Sub MdRmvBdy(a As CodeModule)
+MdRmvLnoCnt MdBdyLnoCnt(a), a
 End Sub
 
-Sub MdRmvFun(FunNm$, Optional PrpTy$, Optional A As CodeModule)
-Dim M As LnoCnt: M = MdFunLnoCnt(FunNm, PrpTy$, A)
+Sub MdRmvFun(FunNm$, Optional PrpTy$, Optional a As CodeModule)
+Dim M As LnoCnt: M = MdFunLnoCnt(FunNm, PrpTy$, a)
 If M.Cnt = 0 Then
-    Debug.Print FmtQQ("Fun[?] in Md[?] not found, cannot Rmv", FunNm, MdNm(A))
+    Debug.Print FmtQQ("Fun[?] in Md[?] not found, cannot Rmv", FunNm, MdNm(a))
 Else
-    Debug.Print FmtQQ("Fun[?] in Md[?] is removed", FunNm, MdNm(A))
+    Debug.Print FmtQQ("Fun[?] in Md[?] is removed", FunNm, MdNm(a))
 End If
-MdRmvLnoCnt M, A
+MdRmvLnoCnt M, a
 End Sub
 
-Sub MdRmvLnoCnt(LnoCnt As LnoCnt, A As CodeModule)
-If LnoCnt.Cnt = 0 Then Exit Sub
-DftMd(A).DeleteLines LnoCnt.Lno, LnoCnt.Cnt
+Sub MdRmvLnoCnt(LnoCnt As LnoCnt, a As CodeModule)
+With LnoCnt
+    If .Cnt = 0 Then Exit Sub
+    DftMd(a).DeleteLines .Lno, .Cnt
+End With
 End Sub
 
-Sub MdRmvNmPfx(Pfx, Optional A As CodeModule)
-Dim Nm$: Nm = MdNm(A): If Not IsPfx(Nm, Pfx) Then Exit Sub
-MdRen RmvPfx(MdNm(A), Pfx), A
+Sub MdRmvTstFun(Optional a As CodeModule)
+MdRmvFun "Tst", , a
 End Sub
 
-Function MdSrc(Optional A As CodeModule) As String()
-MdSrc = MdLy(A)
+Function MdSrc(Optional a As CodeModule) As String()
+MdSrc = MdLy(a)
 End Function
 
-Function MdSrcFfn$(Optional A As CodeModule)
-MdSrcFfn = PjSrcPth(MdPj(A)) & MdSrcFn(A)
+Function MdSrcFfn$(Optional a As CodeModule)
+MdSrcFfn = PjSrcPth(MdPj(a)) & MdSrcFn(a)
 End Function
 
-Function MdSrcFn$(Optional A As CodeModule)
-MdSrcFn = MdCmp(A).Name & MdSrcExt(A)
+Function MdSrcFn$(Optional a As CodeModule)
+MdSrcFn = MdCmp(a).Name & MdSrcExt(a)
 End Function
 
-Sub MdSrt(Optional A As CodeModule)
-Dim Md As CodeModule: Set Md = DftMd(A)
+Sub MdSrt(Optional a As CodeModule)
+Dim Md As CodeModule: Set Md = DftMd(a)
 Debug.Print MdNm(Md),
 Dim Old$: Old = MdBdyLines(Md)
 Dim Lines$: Lines = MdSrtedBdyLines(Md)
@@ -443,13 +459,16 @@ If Old = Lines Then
     Debug.Print "<=== Same"
     Exit Sub
 End If
+Debug.Print
 MdRmvBdy Md
+Debug.Print "<<-- Rmv"
 MdAppLines Lines, Md
+Debug.Print "<<-- Ins"
 End Sub
 
-Function MdSrtedBdyLines$(Optional A As CodeModule)
-If MdIsEmpty(A) Then Exit Function
-Dim Drs As Drs: Drs = MdFunDrs(WithBdyLines:=True, A:=A)
+Function MdSrtedBdyLines$(Optional a As CodeModule)
+If MdIsEmpty(a) Then Exit Function
+Dim Drs As Drs: Drs = MdFunDrs(WithBdyLines:=True, a:=a)
 Dim Ky$(): Ky = FunDrsKy(Drs)
 Dim I&()
     I = AySrtIntoIdxAy(Ky)
@@ -464,23 +483,23 @@ Dim J%
 MdSrtedBdyLines = JnCrLf(O)
 End Function
 
-Function MdTstFunLines$(Optional A As CodeModule)
-MdTstFunLines = JnCrLf(MdTstFunLy(A))
+Function MdTstFunLines$(Optional a As CodeModule)
+MdTstFunLines = JnCrLf(MdTstFunLy(a))
 End Function
 
-Function MdTstFunLy(Optional A As CodeModule) As String()
+Function MdTstFunLy(Optional a As CodeModule) As String()
 Dim O$(), Ay$()
-Ay = MdTstFunNy(A)
+Ay = MdTstFunNy(a)
 If AyIsEmpty(Ay) Then Exit Function
 Push O, "Sub Tst()"
-PushAy O, AySrt(MdTstFunNy(A))
+PushAy O, AySrt(MdTstFunNy(a))
 Push O, "End Sub"
 MdTstFunLy = O
 End Function
 
-Function MdTstFunNy(Optional A As CodeModule) As String()
-If MdIsEmpty(A) Then Exit Function
-Dim M As Drs: M = MdFunDrs(A:=A)
+Function MdTstFunNy(Optional a As CodeModule) As String()
+If MdIsEmpty(a) Then Exit Function
+Dim M As Drs: M = MdFunDrs(a:=a)
 Dim Dr
 Dim O$(), Mdy$, Ty$, FunNm$, IFunNm%
 Fiy M.Fny, "FunNm", IFunNm
@@ -494,8 +513,8 @@ Next
 MdTstFunNy = O
 End Function
 
-Function MdTstFunNy_WithEr(Optional A As CodeModule) As String()
-Dim M As Drs: M = MdFunDrs(A:=A)
+Function MdTstFunNy_WithEr(Optional a As CodeModule) As String()
+Dim M As Drs: M = MdFunDrs(a:=a)
 Dim O$(), Mdy$, Ty$, FunNm$, Dr
 Dim IMdy%, ITy%, IFunNm%
 Fiy M.Fny, "Mdy Ty FunNm", IMdy, ITy, IFunNm
@@ -510,35 +529,32 @@ Next
 MdTstFunNy_WithEr = O
 End Function
 
-Function MdTy(Optional A As CodeModule) As vbext_ComponentType
-MdTy = DftMd(A).Parent.Type
+Function MdTy(Optional a As CodeModule) As vbext_ComponentType
+MdTy = DftMd(a).Parent.Type
 End Function
 
-Function MdTyCnt%(Optional A As CodeModule)
-MdTyCnt = SrcTyCnt(MdDclLy(A))
+Function MdTyCnt%(Optional a As CodeModule)
+MdTyCnt = SrcTyCnt(MdDclLy(a))
 End Function
 
-Sub MdUpdTstFun(Optional A As CodeModule)
-Dim Md As CodeModule
-Set Md = DftMd(A)
-Dim MNm$: MNm = MdNm(Md)
-Select Case MdTy(Md)
-Case _
-    vbext_ComponentType.vbext_ct_StdModule, _
-    vbext_ComponentType.vbext_ct_ClassModule, _
-    vbext_ComponentType.vbext_ct_Document, _
-    vbext_ComponentType.vbext_ct_MSForm
-    Dim NewLines$: NewLines = MdTstFunLines(Md)
-    Dim OldLines$: OldLines = MdFunLines("Tst", , Md)
-    If OldLines = NewLines Then
-        Debug.Print FmtQQ("Fun[Tst] in Md[?] is same: [?] lines", MNm, LinesLinCnt(OldLines))
-        Exit Sub
-    End If
-    MdRmvFun "Tst", , Md
-    Dim Ly$(): Ly = MdTstFunLy(Md)
-    If Sz(Ly) > 0 Then Debug.Print FmtQQ("Fun[Tst] in Md[?] is inserted", MNm)
-    MdAppLy Ly, Md
-End Select
+Sub MdUpdTstFun(Optional a As CodeModule)
+If Not MdCanHasCd(a) Then Exit Sub
+    
+Dim NewLines$: NewLines = MdTstFunLines(a)
+Dim OldLines$: OldLines = MdFunLines("Tst", , a)
+If OldLines = NewLines Then
+    Debug.Print FmtQQ("Fun[Tst] in Md[?] is same: [?] lines", MdNm(a), LinesLinCnt(OldLines))
+    Exit Sub
+End If
+
+MdRmvTstFun a
+Dim Ly$()
+    Ly = MdTstFunLy(a)
+
+If Sz(Ly) > 0 Then
+    Debug.Print FmtQQ("Fun[Tst] in Md[?] is inserted", MdNm(a))
+    MdAppLy Ly, a
+End If
 End Sub
 
 Function ParseFunSubPrp$(OLin$)
@@ -577,32 +593,40 @@ Function Pj(PjNm) As VBProject
 Set Pj = Application.VBE.VBProjects(PjNm)
 End Function
 
-Sub PjAssertNotUnderSrc(Optional A As VBProject)
-Dim B$: B = PjPth(A)
+Sub PjAssertNotUnderSrc(Optional a As VBProject)
+Dim B$: B = PjPth(a)
 If PthFdr(B) = "Src" Then Stop
 End Sub
 
-Sub PjCpyToSrc(Optional A As VBProject)
-FilCpyToPth DftPj(A).FileName, PjSrcPth(A), OvrWrt:=True
+Sub PjCpyToSrc(Optional a As VBProject)
+FilCpyToPth DftPj(a).FileName, PjSrcPth(a), OvrWrt:=True
 End Sub
 
-Sub PjExp(Optional A As VBProject)
+Sub PjEnsOptExplicit(Optional a As VBProject)
+Dim I, Md As CodeModule
+For Each I In PjMdAy(a)
+    Set Md = I
+    MdEnsOptExplicit Md
+Next
+End Sub
+
+Sub PjExp(Optional a As VBProject)
 PjAssertNotUnderSrc
-PjCpyToSrc A
-PthClrFil PjSrcPth(A)
+PjCpyToSrc a
+PthClrFil PjSrcPth(a)
 Dim Md As CodeModule, I
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(a)
     Set Md = I
     MdExp Md
 Next
 End Sub
 
-Function PjFunDrs(Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean, Optional A As VBProject) As Drs
+Function PjFunDrs(Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean, Optional a As VBProject) As Drs
 Dim Dry()
     Dim I, Md As CodeModule
-    For Each I In PjMdAy(A)
+    For Each I In PjMdAy(a)
         Set Md = I
-        PushAy Dry, MdFunDrs(WithBdyLy, WithBdyLines, A:=Md).Dry
+        PushAy Dry, MdFunDrs(WithBdyLy, WithBdyLines, a:=Md).Dry
     Next
 Dim O As Drs
     O.Fny = FunDrsFny(WithBdyLy, WithBdyLines)
@@ -610,68 +634,79 @@ Dim O As Drs
 PjFunDrs = O
 End Function
 
-Function PjMdAy(Optional A As VBProject) As CodeModule()
+Function PjMdAy(Optional a As VBProject) As CodeModule()
 Dim O() As CodeModule
 Dim Cmp As VBComponent
-For Each Cmp In DftPj(A).VBComponents
+For Each Cmp In DftPj(a).VBComponents
     PushObj O, Cmp.CodeModule
 Next
 PjMdAy = O
 End Function
 
-Function PjNm$(Optional A As VBProject)
-PjNm = DftPj(A).Name
+Function PjMdNy(Optional a As VBProject) As String()
+PjMdNy = OyPrp(PjMdAy(a), "Name", EmptySy)
 End Function
 
-Function PjPth$(Optional A As VBProject)
-PjPth = FfnPth(DftPj(A).FileName)
+Function PjNm$(Optional a As VBProject)
+PjNm = DftPj(a).Name
 End Function
 
-Sub PjRmvMdNmPfx(Pfx, Optional A As CodeModule)
-Dim I, Md As CodeModule
-For Each I In PjMdAy(A)
-    Set Md = I
-    MdRmvNmPfx Pfx, Md
-Next
-End Sub
+Function PjPth$(Optional a As VBProject)
+PjPth = FfnPth(DftPj(a).FileName)
+End Function
 
 Sub PjSrcBrw()
 PthBrw PjSrcPth
 End Sub
 
-Function PjSrcPth$(Optional A As VBProject)
-Dim Ffn$: Ffn = DftPj(A).FileName
+Function PjSrcPth$(Optional a As VBProject)
+Dim Ffn$: Ffn = DftPj(a).FileName
 Dim Fn$: Fn = FfnFn(Ffn)
 Dim O$:
-O = FfnPth(DftPj(A).FileName) & "Src\": PthEns O
+O = FfnPth(DftPj(a).FileName) & "Src\": PthEns O
 O = O & Fn & "\":                       PthEns O
 PjSrcPth = O
 End Function
 
-Sub PjSrt(Optional A As VBProject)
+Sub PjSrt(Optional a As VBProject)
 Dim Md As CodeModule, I
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(a)
     Set Md = I
     MdSrt Md
 Next
 End Sub
 
-Function PjTstFunNy_WithEr(Optional A As VBProject) As String()
+Function PjTstFunNy_WithEr(Optional a As VBProject) As String()
 Dim O$(), I, Md As CodeModule
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(a)
     Set Md = I
     PushAy O, AyAddPfx(MdTstFunNy_WithEr(Md), MdNm(Md) & ".")
 Next
 PjTstFunNy_WithEr = O
 End Function
 
-Sub PjUpdTstFun(Optional A As VBProject)
+Sub PjUpdTstFun(Optional a As VBProject)
 Dim I, Md As CodeModule
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(a)
     Set Md = I
     MdUpdTstFun Md
 Next
 End Sub
+
+Function SrcBdyLines$(Src$())
+SrcBdyLines = JnCrLf(SrcBdyLy(Src))
+End Function
+
+Function SrcBdyLnoCnt(Src$()) As LnoCnt
+Dim Lno&
+Dim Cnt&
+    Lno = SrcDclCnt(Src) + 1
+    Cnt = Sz(Src) - Lno + 1
+Dim O As LnoCnt
+    O.Lno = Lno
+    O.Cnt = Cnt
+SrcBdyLnoCnt = O
+End Function
 
 Function SrcBdyLy(Src$()) As String()
 SrcBdyLy = AyFm(Src, SrcDclCnt(Src))
@@ -742,16 +777,9 @@ SrcFunDry = O
 End Function
 
 Function SrcFunFmTo(Src$(), FunNm$, Optional PrpTy$) As FmTo
-Dim FmIdx%
-    FmIdx = SrcFunIdx(Src, FunNm, PrpTy)
-
-If FmIdx = -1 Then SrcFunFmTo = EmptyFmTo: Exit Function
-Dim ToIdx%: ToIdx = SrcFunIdxEndIdx(Src, FmIdx)
-If ToIdx = -1 Then SrcFunFmTo = EmptyFmTo: Exit Function
-With SrcFunFmTo
-    .FmIdx = FmIdx
-    .ToIdx = ToIdx
-End With
+Dim Fm%: Fm = SrcFunIdx(Src, FunNm, PrpTy)
+SrcFunFmTo.FmIdx = Fm
+SrcFunFmTo.ToIdx = SrcFunIdxEndIdx(Src, Fm)
 End Function
 
 Function SrcFunIdx%(Src$(), FunNm$, Optional PrpTy$)
@@ -794,16 +822,11 @@ Next
 Stop
 End Function
 
-Function SrcFunLinCnt%(Src$(), FunNm$, Optional PrpTy$)
-Dim I%: I = SrcFunIdx%(Src, FunNm, PrpTy)
-SrcFunLinCnt = SrcFunLinCntByLinIdx(Src, I)
-End Function
-
 Function SrcFunLinCntByLinIdx%(Src, LinIdx%)
 End Function
 
 Function SrcFunLines$(Src$(), FunNm$, Optional PrpTy$)
-
+SrcFunLines = JnCrLf(SrcFunLy(Src, FunNm, PrpTy))
 End Function
 
 Function SrcFunLno%(Src$(), FunNm$, Optional PrpTy$)
@@ -832,23 +855,8 @@ Next
 SrcFunLno = 0
 End Function
 
-Function SrcFunLnoCnt(Src$(), FunNm$, Optional PrpTy$) As LnoCnt
-Dim Lno&
-    Lno = SrcFunLno(Src, FunNm, PrpTy)
-    If Lno = 0 Then Exit Function
-Dim EndLno&
-    EndLno = SrcFunEndLno(Src, Lno)
-Dim Cnt&
-    Cnt = EndLno - Lno + 1
-Dim O As LnoCnt
-    O.Lno = Lno
-    O.Cnt = Cnt
-SrcFunLnoCnt = O
-End Function
-
-Function SrcFunLy$(Src$(), FunNm$, Optional PrpTy$)
-Dim FmTo As FmTo: FmTo = SrcFunFmTo(Src, FunNm, PrpTy)
-SrcFunLy = AyFmTo(Src, FmTo)
+Function SrcFunLy(Src$(), FunNm$, Optional PrpTy$) As String()
+SrcFunLy = AyFmTo(Src, SrcFunFmTo(Src, FunNm, PrpTy))
 End Function
 
 Function SrcFunNy(Src$()) As String()
@@ -883,10 +891,10 @@ End Function
 
 Function SrcLinIsFun(SrcLin) As Boolean
 Dim L$: L = SrcLin
-Dim A$
+Dim a$
 ParseMdy L
-A = ParseFunTy(L): If A = "" Then Exit Function
-If IsOneOf(A, Array("Type", "Enum")) Then Exit Function
+a = ParseFunTy(L): If a = "" Then Exit Function
+If IsOneOf(a, Array("Type", "Enum")) Then Exit Function
 SrcLinIsFun = True
 End Function
 
@@ -936,27 +944,15 @@ End If
 SyOfMdy = Y
 End Function
 
-Private Function MdSrcExt$(Optional A As CodeModule)
+Private Function MdSrcExt$(Optional a As CodeModule)
 Dim O$
-Select Case MdCmpTy(A)
+Select Case MdCmpTy(a)
 Case vbext_ct_ClassModule: O = ".cls"
 Case vbext_ct_Document: O = ".cls"
 Case vbext_ct_StdModule: O = ".bas"
 Case Else: Err.Raise 1, , "MdSrcExt: Unexpected MdCmpTy.  Should be [Class or Module or Document]"
 End Select
 MdSrcExt = O
-End Function
-
-Private Function SrcFunEndLno&(Src$(), BegLno&)
-Dim Pfx$
-    Dim A$
-    A = SrcLinFunTy(Src(BegLno - 1))
-    Pfx = "End" & FstTerm(A)
-Dim O&
-    For O = BegLno + 1 To Sz(Src)
-        If IsPfx(Src(O - 1), Pfx) Then SrcFunEndLno = O: Exit Function
-    Next
-Err.Raise 1, , FmtQQ("SrcFunEndLno: No [?] in {Src} from Lno[?]", Pfx, BegLno)
 End Function
 
 Private Function SrcFunIdxBdyLy(Src$(), FunIdx%) As String()
@@ -966,17 +962,23 @@ With FmTo
     .FmIdx = FunIdx
     .ToIdx = ToIdx
 End With
-SrcFunIdxBdyLy = AyFmTo(Src, FmTo)
+Dim O$()
+    O = AyFmTo(Src, FmTo)
+SrcFunIdxBdyLy = O
+If AyLasEle(O) = "" Then Stop
 End Function
 
-Private Function SrcFunIdxEndIdx&(Src$(), FunIdx%)
-Dim FunLin$: FunLin = Src(FunIdx)
-Dim Pfx$: Pfx = FunLinEndLinPfx(FunLin)
+Private Function SrcFunIdxEndIdx%(Src$(), FunIdx%)
+Dim FunLin$
+    FunLin = Src(FunIdx)
+    
+Dim Pfx$
+    Pfx = FunLinEndLinPfx(FunLin)
 Dim O&
     For O = FunIdx + 1 To UB(Src)
         If IsPfx(Src(O), Pfx) Then SrcFunIdxEndIdx = O: Exit Function
     Next
-Err.Raise 1, , FmtQQ("SrcFunIdxEndIdx: No FunEndLin[?] in FunIdx[?] by given Src", Pfx, FunIdx, Src)
+Er "SrcFunIdxEndIdx: In {Src} {FunIdx} has {FunLin}, cannot find {FunEndLinPfx} in lines after [FunIdx]", Src, FunIdx, FunLin, Pfx
 End Function
 
 Private Sub EnmBdyLy__Tst()
@@ -1006,7 +1008,12 @@ Debug.Assert Act(3) = "D"
 End Sub
 
 Private Sub MdFunDrs__Tst()
-DrsBrw MdFunDrs(WithBdyLy:=True, A:=Md("Vb_Str"))
+DrsBrw MdFunDrs(WithBdyLy:=True, a:=Md("Vb_Str"))
+End Sub
+
+Private Sub MdFunLines__Tst()
+Debug.Print Len(MdFunLines("MdFunLines"))
+Debug.Print MdFunLines("MdFunLines")
 End Sub
 
 Function MdInfDt__Tst()
@@ -1025,6 +1032,31 @@ Private Sub MdSrtedBdyLines__Tst()
 StrBrw MdSrtedBdyLines(Md("Vb_Str"))
 End Sub
 
+Private Sub MdTstFunLines__Tst()
+Dim Ny$()
+    Ny = PjMdNy
+    Ny = AySrt(Ny)
+    
+Dim I, M As CodeModule
+
+Dim Dr(), Dry()
+For Each I In Ny
+    Set M = Md(I)
+    Dr = Array(I, MdTstFunLines(M))
+    Push Dry, Dr
+Next
+Dim Drs As Drs
+    Drs.Dry = Dry
+    Drs.Fny = SplitSpc("Md TstFun")
+    Drs = DrsExpLinesCol(Drs, "TstFun")
+DrsBrw Drs, , "Md"
+End Sub
+Private Sub MdAppLines__Tst()
+Const MdNm$ = "Module1"
+Dim M As CodeModule
+    Set M = Md(MdNm)
+MdAppLines "'aa", M
+End Sub
 Private Sub PjFunDrs__Tst()
 Dim Drs As Drs
 Drs = PjFunDrs(WithBdyLines:=True)
@@ -1039,6 +1071,10 @@ For Each I In O
     Set Md = I
     Debug.Print MdNm(Md)
 Next
+End Sub
+
+Private Sub PjMdNy__Tst()
+AyBrw PjMdNy
 End Sub
 
 Private Sub SrcDclCnt__Tst()
@@ -1077,13 +1113,22 @@ Debug.Assert Act.FunNm = "TakBet__Tst"
 End Sub
 
 Sub Tst()
+EnmBdyLy__Tst
+EnmLno__Tst
+EnmMbrCnt__Tst
 JnContinueLin__Tst
 MdFunDrs__Tst
+MdInfDt__Tst
 MdLy__Tst
 MdSrt__Tst
 MdSrtedBdyLines__Tst
 PjFunDrs__Tst
 PjMdAy__Tst
+PjMdNy__Tst
+SrcDclCnt__Tst
+SrcFstFunIdx__Tst
+SrcFunDry__Tst
+SrcFunIdxAy__Tst
 SrcLinBrk__Tst
 End Sub
 

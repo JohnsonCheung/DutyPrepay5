@@ -1,6 +1,6 @@
 Attribute VB_Name = "Fs_Entries"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function PthFfnAy(P, Optional Spec$ = "*.*") As String()
 PthFfnAy = AyAddPfx(PthFnAy(P, Spec), P)

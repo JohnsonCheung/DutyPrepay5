@@ -1,6 +1,6 @@
-Attribute VB_Name = "DtaSq"
-Option Compare Database
+Attribute VB_Name = "Dta_Sq"
 Option Explicit
+Option Compare Database
 
 Function SqDr(Sq, R&, Optional CnoAy) As Variant()
 Dim mCnoAy%()
@@ -28,7 +28,7 @@ End Function
 Function SqIsEmpty(Sq) As Boolean
 SqIsEmpty = True
 On Error GoTo X
-Dim A
+Dim a
 If UBound(Sq, 1) < 0 Then Exit Function
 If UBound(Sq, 2) < 0 Then Exit Function
 SqIsEmpty = False
@@ -48,14 +48,14 @@ Dim Fny$(), Fm$() 'MapStr
         End With
     End If
 Dim SqCnoAy%() 'Fm,Sq
-    Dim A&()
+    Dim a&()
     Dim U%
     Dim J%
-    A = AyIdxAy(SqDr(Sq, 1), Fm)
-    U = UB(A)
+    a = AyIdxAy(SqDr(Sq, 1), Fm)
+    U = UB(a)
     ReDim SqCnoAy(U)
     For J = 0 To U
-        SqCnoAy(J) = A(J) + 1
+        SqCnoAy(J) = a(J) + 1
     Next
 Dim Dry() 'Sq,SqIdxAy
     Dim R&, Cno%, C%

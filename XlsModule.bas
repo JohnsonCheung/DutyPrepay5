@@ -1,6 +1,6 @@
 Attribute VB_Name = "XlsModule"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function FxHasWs(Fx, WsNm) As Boolean
 FxHasWs = AyHas(FxWsNy(Fx), WsNm)
@@ -23,24 +23,24 @@ C = UBound(Sq, 2)
 Set ReSzRg = RgRCRC(Cell, 1, 1, R, C)
 End Function
 
-Function RgA1(A As Range) As Range
-Set RgA1 = RgRC(A, 1, 1)
+Function RgA1(a As Range) As Range
+Set RgA1 = RgRC(a, 1, 1)
 End Function
 
-Function RgC(A As Range, C) As Range
-Set RgC = RgCRR(A, C, 1, A.Rows.Count)
+Function RgC(a As Range, C) As Range
+Set RgC = RgCRR(a, C, 1, a.Rows.Count)
 End Function
 
-Function RgCRR(A As Range, C, R1, R2) As Range
-Set RgCRR = RgRCRC(A, R1, C, R2, C)
+Function RgCRR(a As Range, C, R1, R2) As Range
+Set RgCRR = RgRCRC(a, R1, C, R2, C)
 End Function
 
-Function RgEntC(A As Range, C) As Range
-Set RgEntC = RgC(A, C).EntireColumn
+Function RgEntC(a As Range, C) As Range
+Set RgEntC = RgC(a, C).EntireColumn
 End Function
 
-Function RgRC(A As Range, R, C) As Range
-Set RgRC = A.Cells(R, C)
+Function RgRC(a As Range, R, C) As Range
+Set RgRC = a.Cells(R, C)
 End Function
 
 Function RgRCRC(Rg As Range, R1, C1, R2, C2) As Range
@@ -51,14 +51,14 @@ Set Cell2 = RgRC(Rg, R2, C2)
 Set RgRCRC = Ws.Range(Cell1, Cell2)
 End Function
 
-Function RgWs(A As Range) As Worksheet
-Set RgWs = A.Parent
+Function RgWs(a As Range) As Worksheet
+Set RgWs = a.Parent
 End Function
 
 Function Xls() As Excel.Application
 Static X As Excel.Application
 On Error GoTo XX
-Dim A$: A = X.Name
+Dim a$: a = X.Name
 Set Xls = X
 Exit Function
 XX:

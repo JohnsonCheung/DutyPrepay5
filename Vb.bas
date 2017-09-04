@@ -1,6 +1,7 @@
 Attribute VB_Name = "Vb"
-Option Compare Database
 Option Explicit
+Option Compare Database
+
 Public Fso As New FileSystemObject
 
 Sub Asg(V, OV)
@@ -28,6 +29,38 @@ Else
 End If
 End Function
 
+Sub Er(MacroStr$, ParamArray Ap())
+Dim Av(): Av = Ap
+AyBrw MsgLy(MacroStr, Av)
+Stop
+End Sub
+
+Sub MsgBrw(MacroStr$, Av())
+AyBrw MsgLy(MacroStr, Av())
+End Sub
+
+Function MsgLy(MacroStr$, Av()) As String()
+Dim Ny$(): Ny = MacroStrNy(MacroStr)
+Dim O$()
+    PushAy O, SplitVBar(MacroStr)
+Dim I, J%
+For Each I In Ny
+    Push O, Chr(9) & I
+    PushAy O, AyAddPfx(VarLy(Av(J)), Chr(9) & Chr(9))
+Next
+MsgLy = O
+End Function
+
+Function MsgAyLy(MsgAy()) As String()
+Dim I, Av(), O$(), MacroStr$
+For Each I In MsgAy
+    Av = I
+    MacroStr = AyShift(Av)
+    PushAy O, MsgLy(MacroStr, Av)
+Next
+MsgAyLy = O
+End Function
+
 Function FstTerm$(S)
 FstTerm = Brk1(Trim(S), " ").S1
 End Function
@@ -52,6 +85,23 @@ End Function
 
 Function IsNothing(V) As Boolean
 IsNothing = TypeName(V) = "Nothing"
+End Function
+
+Function IsPrim(V) As Boolean
+Select Case VarType(V)
+Case _
+    VbVarType.vbBoolean, _
+    VbVarType.vbByte, _
+    VbVarType.vbCurrency, _
+    VbVarType.vbDate, _
+    VbVarType.vbDecimal, _
+    VbVarType.vbDouble, _
+    VbVarType.vbInteger, _
+    VbVarType.vbLong, _
+    VbVarType.vbSingle, _
+    VbVarType.vbString
+    IsPrim = True
+End Select
 End Function
 
 Function IsStr(V) As Boolean
@@ -92,12 +142,24 @@ Function RestTerm$(S)
 RestTerm = Brk1(Trim(S), " ").S2
 End Function
 
+Function VarLy(V) As String()
+If IsPrim(V) Then
+    VarLy = Sy(V)
+ElseIf IsArray(V) Then
+    VarLy = AySy(V)
+ElseIf IsObject(V) Then
+    VarLy = Sy("*Type: " & TypeName(V))
+Else
+    Stop
+End If
+End Function
+
 Private Sub IsStrAy__Tst()
-Dim A$()
-Dim B: B = A
+Dim a$()
+Dim B: B = a
 Dim C()
 Dim D
-Debug.Assert IsStrAy(A) = True
+Debug.Assert IsStrAy(a) = True
 Debug.Assert IsStrAy(B) = True
 Debug.Assert IsStrAy(C) = False
 Debug.Assert IsStrAy(D) = False
@@ -106,3 +168,4 @@ End Sub
 Sub Tst()
 IsStrAy__Tst
 End Sub
+

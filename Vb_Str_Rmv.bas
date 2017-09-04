@@ -1,6 +1,6 @@
 Attribute VB_Name = "Vb_Str_Rmv"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function RmvDblSpc$(S)
 Dim O$: O = S

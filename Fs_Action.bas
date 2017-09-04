@@ -1,13 +1,13 @@
 Attribute VB_Name = "Fs_Action"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Sub FilCpyToPth(FmFil, ToPth, Optional OvrWrt As Boolean)
 Fso.CopyFile FmFil, ToPth & FfnFn(FmFil), OvrWrt
 End Sub
 
 Sub FtBrw(Ft)
-Shell "code.cmd """ & Ft & """", vbMaximizedFocus
+Shell "code.cmd """ & Ft & """", vbHide
 End Sub
 
 Function FtLy(Ft) As String()

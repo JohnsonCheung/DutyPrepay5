@@ -1,6 +1,6 @@
 Attribute VB_Name = "Tst"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function TstResPth$()
 TstResPth = PjSrcPth & "TstRes\"

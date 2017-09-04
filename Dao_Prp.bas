@@ -1,6 +1,6 @@
 Attribute VB_Name = "Dao_Prp"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function CurFb$()
 CurFb = CurrentDb.Name

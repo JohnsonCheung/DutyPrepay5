@@ -1,29 +1,29 @@
 Attribute VB_Name = "Xls_Wb"
-Option Compare Database
 Option Explicit
+Option Compare Database
 
 Function FxOpn(Fx) As Workbook
 Set FxOpn = Xls.Workbooks.Open(Fx)
 End Function
 
-Function WbAddWs(A As Workbook, WsNm$) As Worksheet
+Function WbAddWs(a As Workbook, WsNm$) As Worksheet
 Dim O As Worksheet
-Set O = A.Sheets.Add(, WbLasWs(A))
+Set O = a.Sheets.Add(, WbLasWs(a))
 O.Name = WsNm
 Set WbAddWs = O
 End Function
 
-Sub WbClsNoSav(A As Workbook)
+Sub WbClsNoSav(a As Workbook)
 On Error Resume Next
-A.Close False
+a.Close False
 End Sub
 
-Function WbFstWs(A As Workbook) As Worksheet
-Set WbFstWs = A.Sheets(1)
+Function WbFstWs(a As Workbook) As Worksheet
+Set WbFstWs = a.Sheets(1)
 End Function
 
-Function WbLasWs(A As Workbook) As Worksheet
-Set WbLasWs = A.Sheets(A.Sheets.Count)
+Function WbLasWs(a As Workbook) As Worksheet
+Set WbLasWs = a.Sheets(a.Sheets.Count)
 End Function
 
 Function WbNew(Optional Vis As Boolean) As Workbook
@@ -33,16 +33,16 @@ If Vis Then O.Visible = True
 Set WbNew = O
 End Function
 
-Sub WbSav(A As Workbook)
+Sub WbSav(a As Workbook)
 Dim X As Excel.Application
-Set X = A.Application
+Set X = a.Application
 Dim Y As Boolean
 Y = X.DisplayAlerts
 X.DisplayAlerts = False
-A.Save
+a.Save
 X.DisplayAlerts = Y
 End Sub
 
-Sub WbVis(A As Workbook)
-A.Application.Visible = True
+Sub WbVis(a As Workbook)
+a.Application.Visible = True
 End Sub
