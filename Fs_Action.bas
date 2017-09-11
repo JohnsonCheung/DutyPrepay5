@@ -27,7 +27,7 @@ Open Ft For Append As #O
 FtOpnApp = O
 End Function
 
-Function FtOpnInp(Ft)
+Function FtOpnInp%(Ft)
 Dim O%: O = FreeFile(1)
 Open Ft For Input As #O
 FtOpnInp = O

@@ -38,6 +38,10 @@ Function FstTerm$(S)
 FstTerm = Brk1(Trim(S), " ").S1
 End Function
 
+Function IsBool(V) As Boolean
+IsBool = VarType(V) = vbBoolean
+End Function
+
 Function IsEmpty(V) As Boolean
 IsEmpty = True
 If IsMissing(V) Then Exit Function
@@ -54,6 +58,14 @@ End Function
 
 Function IsEmptyColl(ObjColl) As Boolean
 IsEmptyColl = (ObjColl.Count = 0)
+End Function
+
+Function IsIn(V, ParamArray Ap()) As Boolean
+Dim Av(): Av = Ap
+Dim I
+For Each I In Av
+    If I = V Then IsIn = True: Exit Function
+Next
 End Function
 
 Function IsNothing(V) As Boolean
@@ -136,6 +148,15 @@ End Function
 Property Get NowStr$()
 NowStr = Format(Now(), "YYYY-MM-DD HH:MM:SS")
 End Property
+
+Function PipeAy(Prm, FunNy$())
+Dim O: Asg Prm, O
+Dim I
+For Each I In FunNy
+    Asg Run(I, O), O
+Next
+Asg O, PipeAy
+End Function
 
 Function RestTerm$(S)
 RestTerm = Brk1(Trim(S), " ").S2

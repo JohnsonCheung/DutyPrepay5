@@ -81,6 +81,18 @@ Dim ColIdx%: ColIdx = AyIdx(Drs.Fny, ColNm)
 DrsCol = DryCol(Drs.Dry, ColIdx)
 End Function
 
+Function DrsExlRow(A As Drs, IdxAy&()) As Drs
+Dim O As Drs
+    O.Fny = A.Fny
+    Dim J&, I&
+    For J = 0 To UB(A.Dry)
+        If Not AyHas(IdxAy, J) Then
+            Push O.Dry, A.Dry(J)
+        End If
+    Next
+DrsExlRow = O
+End Function
+
 Function DrsExpLinesCol(Drs As Drs, LinesColNm$) As Drs
 Dim Idx%
     Idx = AyIdx(Drs.Fny, LinesColNm)
@@ -110,6 +122,17 @@ Dim O As Drs
 DrsSel = O
 End Function
 
+Function DrsSelRow(A As Drs, IdxAy&()) As Drs
+Dim O As Drs
+    O.Fny = A.Fny
+    Dim J&, I&
+    For J = 0 To UB(IdxAy)
+        I = IdxAy(J)
+        Push O.Dry, A.Dry(I)
+    Next
+DrsSelRow = O
+End Function
+
 Function DrsStrCol(Drs As Drs, ColNm$) As String()
 DrsStrCol = AySy(DrsCol(Drs, ColNm))
 End Function
@@ -117,6 +140,43 @@ End Function
 Sub DryBrw(Dry)
 AyBrw DryLy(Dry)
 End Sub
+
+Function DryCol(Dry(), ColIdx%) As Variant()
+Dim U&
+    U = UB(Dry)
+Dim O()
+    ReDim O(U)
+Dim J&
+For J = 0 To UB(Dry)
+    O(J) = Dry(J)(ColIdx)
+Next
+DryCol = O
+End Function
+
+Function DryColInt(Dry(), ColIdx%) As Integer()
+Dim U&
+    U = UB(Dry)
+Dim O%()
+    ReDim O(U)
+Dim J&
+For J = 0 To U
+    O(J) = Dry(J)(ColIdx)
+Next
+DryColInt = O
+End Function
+
+Function DryColStr(Dry(), ColIdx%) As String()
+DryColStr = AyAsgInto(DryCol(Dry, ColIdx), EmptySy)
+End Function
+
+Function DrySel(Dry(), ColIdx%, EqVal) As Variant()
+Dim O()
+Dim J&
+For J = 0 To UB(Dry)
+    If Dry(J)(ColIdx) = EqVal Then Push O, Dry(J)
+Next
+DrySel = O
+End Function
 
 Sub DsBrw(A As Ds)
 AyBrw DsLy(A)
@@ -153,6 +213,12 @@ Dim O As Ds
     O.DsNm = DsNm
     O.DtAy = DtAy
 DsNew = O
+End Function
+
+Function Dt(DtNm$, Drs As Drs) As Dt
+Dt.Dry = Drs.Dry
+Dt.Fny = Drs.Fny
+Dt.DtNm = DtNm
 End Function
 
 Function DtAySz%(DtAy() As Dt)

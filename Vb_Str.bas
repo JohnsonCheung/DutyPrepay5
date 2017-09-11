@@ -2,6 +2,15 @@ Attribute VB_Name = "Vb_Str"
 Option Explicit
 Option Compare Database
 
+Type S1S2
+    S1 As String
+    S2 As String
+End Type
+Type Map
+    Sy1() As String
+    Sy2() As String
+End Type
+
 Function AlignL$(S, W)
 Dim L%:
 If IsNull(S) Then
@@ -27,6 +36,146 @@ If W > L Then
 Else
     AlignR = S
 End If
+End Function
+
+Function Brk(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStr(S, Sep)
+If P = 0 Then Err.Raise "Brk: Str[" & S & "] does not contains Sep[" & Sep & "]"
+Brk = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
+
+Function Brk1(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStr(S, Sep)
+Brk1 = Brk1__(S, P, Sep, NoTrim)
+End Function
+
+Function Brk1Rev(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStrRev(S, Sep)
+Brk1Rev = Brk1__(S, P, Sep, NoTrim)
+End Function
+
+Function Brk2(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStr(S, Sep)
+If P = 0 Then
+    Dim O As S1S2
+    If NoTrim Then
+        O.S2 = S
+    Else
+        O.S2 = Trim(S)
+    End If
+    Brk2 = O
+    Exit Function
+End If
+Brk2 = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
+
+Function BrkAt(S, P&, SepLen%, Optional NoTrim As Boolean) As S1S2
+Dim O As S1S2
+With O
+    If NoTrim Then
+        .S1 = Left(S, P - 1)
+        .S2 = Mid(S, P + SepLen)
+    Else
+        .S1 = Trim(Left(S, P - 1))
+        .S2 = Trim(Mid(S, P + SepLen))
+    End If
+End With
+BrkAt = O
+End Function
+
+Function BrkBoth(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStr(S, Sep)
+If P = 0 Then
+    Dim O As S1S2
+    If NoTrim Then
+        O.S1 = S
+    Else
+        O.S1 = Trim(S)
+    End If
+    O.S2 = O.S1
+    BrkBoth = O
+    Exit Function
+End If
+BrkBoth = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
+
+Function BrkMapStr(MapStr$) As Map
+Dim Ay$(): Ay = Split(MapStr, "|")
+Dim Ay1$(), Ay2$()
+    Dim I
+    For Each I In Ay
+        With BrkBoth(I, ":")
+            Push Ay1, .S1
+            Push Ay2, .S2
+        End With
+    Next
+Dim O As Map
+    O.Sy1 = Ay1
+    O.Sy2 = Ay2
+BrkMapStr = O
+End Function
+
+Function BrkQuote(QuoteStr$) As S1S2
+Dim L%: L = Len(QuoteStr)
+Dim O As S1S2
+Select Case L
+Case 0:
+Case 1
+    O.S1 = QuoteStr
+    O.S2 = O.S1
+Case 2
+    O.S1 = Left(QuoteStr, 1)
+    O.S2 = Right(QuoteStr, 1)
+Case Else
+    Dim P%
+    If InStr(QuoteStr, "*") > 0 Then
+        O = Brk(QuoteStr, "*", NoTrim:=True)
+    End If
+End Select
+BrkQuote = O
+End Function
+
+Function BrkRev(S, Sep, Optional NoTrim As Boolean) As S1S2
+Dim P&: P = InStrRev(S, Sep)
+If P = 0 Then Err.Raise "BrkRev: Str[" & S & "] does not contains Sep[" & Sep & "]"
+BrkRev = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
+
+Function FmtMacro$(MacroStr$, ParamArray Ap())
+Dim Av(): Av = Ap
+FmtMacro = FmtMacroAv(MacroStr, Av)
+End Function
+
+Function FmtMacroAv$(MacroStr$, Av())
+Dim Ay$(): Ay = MacroStrNy(MacroStr)
+Dim O$: O = MacroStr
+Dim J%, I
+For Each I In Ay
+    O = Replace(O, I, Av(J))
+    J = J + 1
+Next
+FmtMacroAv = O
+End Function
+
+Function FmtQQ$(QQStr$, ParamArray Ap())
+Dim Av(): Av = Ap
+FmtQQ = FmtQQAv(QQStr, Av)
+End Function
+
+Function FmtQQAv$(QQStr$, Av)
+If AyIsEmpty(Av) Then FmtQQAv = QQStr: Exit Function
+Dim O$
+    Dim I, NeedUnEsc As Boolean
+    O = QQStr
+    For Each I In Av
+        If InStr(I, "?") > 0 Then
+            NeedUnEsc = True
+            I = Replace(I, "?", Chr(255))
+        End If
+        O = Replace(O, "?", I, Count:=1)
+    Next
+    If NeedUnEsc Then O = Replace(O, Chr(255), "?")
+FmtQQAv = O
 End Function
 
 Function FstChr$(S)
@@ -78,6 +227,18 @@ Function IsSfx(S, Sfx) As Boolean
 IsSfx = (Right(S, Len(Sfx)) = Sfx)
 End Function
 
+Function JnComma$(Ay)
+JnComma = Join(Ay, ",")
+End Function
+
+Function JnCrLf(Ay)
+JnCrLf = Join(Ay, vbCrLf)
+End Function
+
+Function JnSpc(Ay)
+JnSpc = Join(Ay, " ")
+End Function
+
 Function LasChr$(S)
 LasChr = Right(S, 1)
 End Function
@@ -102,6 +263,17 @@ End If
 MacroStrNy = O
 End Function
 
+Function MapDic(A As Map) As Dictionary
+Dim J&, O As New Dictionary
+With A
+    Dim U&: U = UB(.Sy1)
+    For J = 0 To U
+        O.Add .Sy1(J), .Sy2(J)
+    Next
+End With
+Set MapDic = O
+End Function
+
 Function ParseTerm$(OStr)
 OStr = Trim(OStr)
 ParseTerm = FstTerm(OStr)
@@ -114,12 +286,54 @@ With BrkQuote(QuoteStr)
 End With
 End Function
 
+Function RmvAft$(S, Sep)
+RmvAft = Brk1(S, Sep, NoTrim:=True).S1
+End Function
+
+Function RmvDblSpc$(S)
+Dim O$: O = S
+While HasSubStr(O, "  ")
+    O = Replace(O, "  ", " ")
+Wend
+RmvDblSpc = O
+End Function
+
+Function RmvFstChr$(S)
+RmvFstChr = RmvFstNChr(S)
+End Function
+
+Function RmvFstNChr$(S, Optional N% = 1)
+RmvFstNChr = Mid(S, N + 1)
+End Function
+
 Function RmvFstTerm$(S)
 RmvFstTerm = Brk1(Trim(S), " ").S2
 End Function
 
+Function RmvLasChr$(S)
+RmvLasChr = RmvLasNChr(S)
+End Function
+
+Function RmvLasNChr$(S, Optional N% = 1)
+RmvLasNChr = Left(S, Len(S) - 1)
+End Function
+
+Function RmvPfx$(S, Pfx)
+Dim L%: L = Len(Pfx)
+If Left(S, L) = Pfx Then
+    RmvPfx = Mid(S, L + 1)
+Else
+    RmvPfx = S
+End If
+End Function
+
 Function RplVBar$(S)
 RplVBar = Replace(S, "|", vbCrLf)
+End Function
+
+Function S1S2(S1, S2) As S1S2
+S1S2.S1 = S1
+S1S2.S2 = S2
 End Function
 
 Function SpcEsc$(S)
@@ -131,11 +345,43 @@ Function SpcUnE$(S)
 SpcUnE = Replace(S, "~", " ")
 End Function
 
+Function SplitCrLf(S) As String()
+SplitCrLf = Split(S, vbCrLf)
+End Function
+
+Function SplitLvs(Lvs) As String()
+SplitLvs = Split(RmvDblSpc(Trim(Lvs)), " ")
+End Function
+
+Function SplitSpc(S) As String()
+SplitSpc = Split(S, " ")
+End Function
+
+Function SplitVBar(S) As String()
+SplitVBar = Split(S, "|")
+End Function
+
+Function StrAppCrLf$(S, App)
+If S = "" Then
+    StrAppCrLf = App
+Else
+    StrAppCrLf = S & vbCrLf & App
+End If
+End Function
+
 Sub StrBrw(S)
 Dim T$: T = TmpFt
 StrWrt S, T
 FtBrw T
 End Sub
+
+Function StrDup$(N%, S)
+Dim O$, J%
+For J = 0 To N - 1
+    O = O & S
+Next
+StrDup = O
+End Function
 
 Function SubStrCnt&(S, SubStr)
 Dim P&: P = 1
@@ -151,15 +397,15 @@ SubStrCnt = O
 End Function
 
 Function TakAft$(S, Sep, Optional NoTrim As Boolean)
-TakAft = Brk(S, Sep, NoTrim).S2
+TakAft = Brk1(S, Sep, NoTrim).S2
 End Function
 
 Function TakAftRev$(S, Sep, Optional NoTrim As Boolean)
-TakAftRev = BrkRev(S, Sep, NoTrim).S2
+TakAftRev = Brk1Rev(S, Sep, NoTrim).S2
 End Function
 
 Function TakBef$(S, Sep, Optional NoTrim As Boolean)
-TakBef = Brk(S, Sep, NoTrim).S1
+TakBef = Brk2(S, Sep, NoTrim).S1
 End Function
 
 Function TakBefRev$(S, Sep, Optional NoTrim As Boolean)
@@ -174,6 +420,41 @@ With Brk1(S, S1, NoTrim)
     TakBet = O
 End With
 End Function
+
+Private Function Brk1__(S, P&, Sep, NoTrim As Boolean) As S1S2
+If P = 0 Then
+    Dim O As S1S2
+    If NoTrim Then
+        O.S1 = S
+    Else
+        O.S1 = Trim(S)
+    End If
+    Brk1__ = O
+    Exit Function
+End If
+Brk1__ = BrkAt(S, P, Len(Sep), NoTrim)
+End Function
+
+Private Sub Brk1Rev__Tst()
+Dim S1$, S2$, ExpS1$, ExpS2$, S$
+S = "aa --- bb --- cc"
+ExpS1 = "aa --- bb"
+ExpS2 = "cc"
+With Brk1Rev(S, "---")
+    S1 = .S1
+    S2 = .S2
+End With
+Debug.Assert S1 = ExpS1
+Debug.Assert S2 = ExpS2
+End Sub
+
+Private Sub BrkMapStr__Tst()
+Dim MapStr$
+MapStr = "aa:bb|cc|dd:ee"
+Dim Act As Map: Act = BrkMapStr(MapStr)
+Dim Exp1$(): Exp1 = SplitSpc("aa cc dd"): AyAssertEq Exp1, Act.Sy1
+Dim Exp2$(): Exp2 = SplitSpc("aa cc dd"): AyAssertEq Exp2, Act.Sy1
+End Sub
 
 Private Sub InstrN__Tst()
 Dim Act&, Exp&, S, SubStr, N%
@@ -228,6 +509,5 @@ Debug.Assert TakBet(S2, "DATABASE=", ";") = "??"
 End Sub
 
 Sub Tst()
-InstrN__Tst
-TakBet__Tst
+BrkMapStr__Tst
 End Sub

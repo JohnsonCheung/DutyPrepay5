@@ -51,6 +51,27 @@ Next
 AyAddPfxSfx = O
 End Function
 
+Function AyAddSfx(Ay, Sfx) As String()
+Dim O$(), U&, J&
+U = UB(Ay)
+If U = -1 Then Exit Function
+ReDim Preserve O(U)
+For J = 0 To U
+    O(J) = Ay(J) & Sfx
+Next
+AyAddSfx = O
+End Function
+
+Function AyAlignL(Ay) As String()
+If AyIsEmpty(Ay) Then Exit Function
+Dim W%: W = AyWdt(Ay)
+Dim O$(), I
+For Each I In Ay
+    Push O, AlignL(I, W)
+Next
+AyAlignL = O
+End Function
+
 Sub AyAsg(Ay, ParamArray OAp())
 Dim Av(): Av = OAp
 Dim J%
@@ -68,6 +89,23 @@ For J = 0 To UB(IdxAy)
 Next
 End Sub
 
+Function AyAsgInto(Ay, OIntoAy)
+If AyIsEmpty(Ay) Then
+    Erase OIntoAy
+    AyAsgInto = OIntoAy
+    Exit Function
+End If
+Dim U&
+    U = UB(Ay)
+ReDim OIntoAy(U)
+Dim I, J&
+For Each I In Ay
+    Asg I, OIntoAy(J)
+    J = J + 1
+Next
+AyAsgInto = OIntoAy
+End Function
+
 Sub AyAssertEq(Ay1, Ay2, Optional Ay1Nm$ = "Exp", Optional Ay2Nm$ = "Act")
 AssertChk ChkEqAy(Ay1, Ay2, Ay1Nm, Ay2Nm)
 End Sub
@@ -79,6 +117,15 @@ AyWrt Ay, T
 FtBrw T
 End Function
 
+Function AyDist(Ay)
+Dim O: O = Ay: Erase O
+Dim I
+For Each I In Ay
+    PushNoDup O, I
+Next
+AyDist = O
+End Function
+
 Sub AyDmp(Ay)
 If AyIsEmpty(Ay) Then Exit Sub
 Dim I
@@ -88,6 +135,17 @@ For Each I In Ay
     J = J + 1
 Next
 End Sub
+
+Function AyDupAy(Ay)
+Dim O: O = Ay: Erase O
+Dim GpDry(): GpDry = AyGpDry(Ay)
+If AyIsEmpty(GpDry) Then AyDupAy = O: Exit Function
+Dim Dr
+For Each Dr In GpDry
+    If Dr(1) > 1 Then Push O, Dr(0)
+Next
+AyDupAy = O
+End Function
 
 Function AyFilter(Ay, FilterFunNm$, ParamArray Ap())
 Dim O: O = Ay: Erase O
@@ -122,6 +180,15 @@ For J = FmTo.FmIdx To FmTo.ToIdx
     Push O, Ay(J)
 Next
 AyFmTo = O
+End Function
+
+Function AyGpDry(Ay) As Variant()
+If AyIsEmpty(Ay) Then Exit Function
+Dim O(), I
+For Each I In Ay
+    GpDryUpd O, I
+Next
+AyGpDry = O
 End Function
 
 Function AyHas(Ay, Itm) As Boolean
@@ -180,17 +247,51 @@ Function AyLasEle(Ay)
 AyLasEle = Ay(UB(Ay))
 End Function
 
-Function AyMap(Ay, FunNm$, ParamArray Ap())
+Function AyMap(Ay, FunNm$, ParamArray Ap()) As Variant()
+If AyIsEmpty(Ay) Then Exit Function
 Dim Av(): Av = Ap
 AyIns Av
 Dim I, J&
-Dim O: O = Ay
+Dim O()
+Dim U&: U = UB(Ay)
+    ReDim O(U)
 For Each I In Ay
     Asg I, Av(0)
     Asg RunAv(FunNm, Av), O(J)
     J = J + 1
 Next
 AyMap = O
+End Function
+
+Function AyMapIntoSy(Ay, FunNm$, ParamArray Ap()) As String()
+If AyIsEmpty(Ay) Then Exit Function
+Dim Av(): Av = Ap
+If AyIsEmpty(Av) Then
+    AyMapIntoSy = AyMapIntoSy_NoPrm(Ay, FunNm)
+    Exit Function
+End If
+Dim I, J&
+Dim O$()
+    ReDim O(UB(Ay))
+    AyIns Av
+    For Each I In Ay
+        Asg I, Av(0)
+        Asg RunAv(FunNm, Av), O(J)
+        J = J + 1
+    Next
+AyMapIntoSy = O
+End Function
+
+Function AyMapIntoSy_NoPrm(Ay, FunNm$) As String()
+If AyIsEmpty(Ay) Then Exit Function
+Dim I, J&
+Dim O$()
+    ReDim O(UB(Ay))
+    For Each I In Ay
+        Asg Run(FunNm, I), O(J)
+        J = J + 1
+    Next
+AyMapIntoSy_NoPrm = O
 End Function
 
 Function AyMinus(Ay, ParamArray AyAp())
@@ -350,6 +451,14 @@ For J = 0 To UB(Ay)
 Next
 End Sub
 
+Function AyWdt%(Ay)
+Dim O%, I
+For Each I In Ay
+    O = Max(O, Len(I))
+Next
+AyWdt = O
+End Function
+
 Sub AyWrt(Ay, Ft)
 StrWrt JnCrLf(Ay), Ft
 End Sub
@@ -407,6 +516,9 @@ EmptyFmTo.FmIdx = -1
 EmptyFmTo.ToIdx = -1
 End Function
 
+Function EmptyIntAy() As Integer()
+End Function
+
 Function EmptySy() As String()
 End Function
 
@@ -435,6 +547,10 @@ Dim I
 For Each I In Ay
     Push OAy, I
 Next
+End Sub
+
+Sub PushNoDup(Ay, I)
+If Not AyHas(Ay, I) Then Push Ay, I
 End Sub
 
 Sub PushNonEmpty(Ay, I)
@@ -491,10 +607,6 @@ On Error Resume Next
 Sz = UBound(Ay) + 1
 End Function
 
-Function Tst_ResPth$()
-Tst_ResPth = PjSrcPth & "TstRes\"
-End Function
-
 Function UB&(Ay)
 UB = Sz(Ay) - 1
 End Function
@@ -533,8 +645,19 @@ Next
 AySrtIntoIdxAy_Idx& = O
 End Function
 
-Private Sub Tst_ResPthBrw()
-PthBrw Tst_ResPth
+Private Sub GpDryUpd(OGpDry(), Itm)
+Dim J&
+For J = 0 To UB(OGpDry)
+    If OGpDry(J)(0) = Itm Then
+        OGpDry(J)(1) = OGpDry(J)(1) + 1
+        Exit Sub
+    End If
+Next
+Push OGpDry, Array(Itm, 1)
+End Sub
+
+Private Sub TstResPthBrw()
+PthBrw TstResPth
 End Sub
 
 Sub AyAddOneAy__Tst()
@@ -546,6 +669,13 @@ Exp = Array(1, 2, 2, 2, 4, 5, 2, 2)
 AyAssertEq Exp, Act
 AyAssertEq Ay1, Array(1, 2, 2, 2, 4, 5)
 AyAssertEq Ay2, Array(2, 2)
+End Sub
+
+Private Sub AyGpDry__Tst()
+Dim Ay$(): Ay = SplitSpc("a a a b c b")
+Dim Act(): Act = AyGpDry(Ay)
+Dim Exp(): Exp = Array(Array("a", 3), Array("b", 2), Array("c", 1))
+DryAssertEq Act, Exp
 End Sub
 
 Private Sub AyMap__Tst()
@@ -609,8 +739,8 @@ Push Exp, "~Private:JnContinueLin__Tst:Sub"
 Push Exp, "~~:Tst:Sub"
 Act = AySrt(Ay):       AyAssertEq Exp, Act
 '---------------------
-Ay = FtLy(Tst_ResPth & "AySrt_Ft1.txt")
-Exp = FtLy(Tst_ResPth & "AySrt_Ft1_Exp.txt")
+Ay = FtLy(TstResPth & "AySrt_Ft1.txt")
+Exp = FtLy(TstResPth & "AySrt_Ft1_Exp.txt")
 Act = AySrt(Ay):       AyAssertEq Exp, Act
 
 End Sub

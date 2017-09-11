@@ -1,7 +1,6 @@
 Attribute VB_Name = "Tst"
 Option Explicit
 Option Compare Database
-Dim A
 
 Function TstResPth$()
 TstResPth = PjSrcPth & "TstRes\"

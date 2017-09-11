@@ -55,11 +55,18 @@ End If
 Set DsWb = O
 End Function
 
-Function DtWs(A As Dt) As Worksheet
+Function DsWbVis(A As Ds) As Workbook
+Dim W As Workbook: Set W = DsWb(A)
+WbVis W
+Set DsWbVis = W
+End Function
+
+Function DtWs(A As Dt, Optional Vis As Boolean) As Worksheet
 Dim O As Worksheet
 Set O = WsNew(A.DtNm)
 DrsPut DtDrs(A), WsA1(O)
 Set DtWs = O
+If Vis Then WsVis O
 End Function
 
 Sub SqPut(Cell As Range, Sq)

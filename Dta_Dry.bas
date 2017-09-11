@@ -2,6 +2,10 @@ Attribute VB_Name = "Dta_Dry"
 Option Explicit
 Option Compare Database
 
+Sub DryAssertEq(A(), B())
+If Not DryIsEq(A, B) Then Stop
+End Sub
+
 Function DryCol(Dry, Optional ColIdx% = 0) As Variant()
 If AyIsEmpty(Dry) Then Exit Function
 Dim O(), Dr
@@ -14,6 +18,18 @@ End Function
 Sub DryDmp(Dry)
 AyDmp DryLy(Dry)
 End Sub
+
+Function DryIsEq(A(), B()) As Boolean
+Dim N&: N = Sz(A)
+If N <> Sz(B) Then Exit Function
+If N = 0 Then DryIsEq = True: Exit Function
+Dim J&, Dr
+For Each Dr In A
+    If Not AyIsEq(Dr, B(J)) Then Exit Function
+    J = J + 1
+Next
+DryIsEq = True
+End Function
 
 Function DryNCol%(Dry)
 Dim Dr, O%, M%

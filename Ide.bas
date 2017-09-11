@@ -92,13 +92,6 @@ Next
 EnmMbrLy = O
 End Function
 
-Function FunDrsFny(WithBdyLy As Boolean, WithBdyLines As Boolean) As String()
-Dim O$(): O = SplitSpc("Lno Mdy Ty FunNm MdNm")
-If WithBdyLy Then Push O, "BdyLy"
-If WithBdyLines Then Push O, "BdyLines"
-FunDrsFny = O
-End Function
-
 Function FunDrsKy(FunDrs As Drs) As String()
 Dim Dry() As Variant: Dry = FunDrs.Dry
 Dim Fny$(): Fny = FunDrs.Fny
@@ -638,9 +631,16 @@ Dim Dry()
         PushAy Dry, MdFunDrs(WithBdyLy, WithBdyLines, A:=Md).Dry
     Next
 Dim O As Drs
-    O.Fny = FunDrsFny(WithBdyLy, WithBdyLines)
+    O.Fny = PjFunDrsFny(WithBdyLy, WithBdyLines)
     O.Dry = Dry
 PjFunDrs = O
+End Function
+
+Function PjFunDrsFny(WithBdyLy As Boolean, WithBdyLines As Boolean) As String()
+Dim O$(): O = SplitSpc("Lno Mdy Ty FunNm MdNm")
+If WithBdyLy Then Push O, "BdyLy"
+If WithBdyLines Then Push O, "BdyLines"
+PjFunDrsFny = O
 End Function
 
 Function PjMdAy(Optional A As VBProject) As CodeModule()
@@ -758,7 +758,7 @@ End Function
 
 Function SrcFunDrs(Src$(), MdNm$, Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean) As Drs
 SrcFunDrs.Dry = SrcFunDry(Src, MdNm$, WithBdyLy, WithBdyLines)
-SrcFunDrs.Fny = FunDrsFny(WithBdyLy, WithBdyLines)
+SrcFunDrs.Fny = PjFunDrsFny(WithBdyLy, WithBdyLines)
 End Function
 
 Function SrcFunDry(Src$(), MdNm$, Optional WithBdyLy As Boolean, Optional WithBdyLines As Boolean) As Variant()
