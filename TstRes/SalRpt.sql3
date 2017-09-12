@@ -51,13 +51,26 @@ Sql.O
     ?MbrWs ?Mbr  $ Sel Into Fm Wh
 --============================================= *Sql
 Sql.T.Tx
-    Sel    # Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
-    Fm     . SalesHistory
-    Wh     . SHSDate between '{Prm.Fm}' and '{Prm.To}'
-    And    # ?Div ?Sto ?Dte
-    Gp     # Crd ?Mbr ?Div ?Sto ?Dte
+    Sel    #  Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
+    Into   #
+    Fm     # SalesHistory
+    Wh     # SHSDate between '{Prm.Fm}' and '{Prm.To}'
+    And    #  ?Div ?Sto ?Dte
+    Gp     #  Crd ?Mbr ?Div ?Sto ?Dte
 Sql.T.Tx#Upd
-    TxWD   # TxWD
+    Upd    #
+    Set    # TxWD
+Sql.T.Tx#Upd.Set
+    TxWD
+        . | CASE WHEN TxWD1 = 1 then 'Sun'
+        . | ELSE WHEN TxWD1 = 2 THEN 'Mon'
+        . | ELSE WHEN TxWD1 = 3 THEN 'Tue'
+        . | ELSE WHEN TxWD1 = 4 THEN 'Mon'
+        . | ELSE WHEN TxWD1 = 5 THEN 'Thu'
+        . | ELSE WHEN TxWD1 = 6 THEN 'Fri'
+        . | ELSE WHEN TxWD1 = 7 THEN 'Sat'
+        . | ELSE NULL
+        . | END END END END END END END
 Sql.T.TxMbr
     SelDis # Mbr
     Fm     # #Tx
@@ -67,28 +80,27 @@ Sql.T.?MbrDta
     Wh  # JCMCode (Select Mbr From #TxMbr)
 Sql.T.Div
     Sel #  Div Nm Seq Sts
-    Fm  #. Division
+    Fm  # Division
 Sql.T.Sto
     Sel # Sto Nm CNm
     Fm  # LocTbl
-Sql.T.Crd.Sql
-    Sql # Sel Into Fm
+Sql.T.Crd
     Sel # Crd Nm
-    Fm  #. JR_FrqMbrLis_#CrdTy()
+    Fm  # JR_FrqMbrLis_#CrdTy()
 Sql.O.Cnt
     Sel # ?MbrCnt RecCnt TxCnt Qty Amt
-    Fm  #. #Tx
+    Fm  # #Tx
 Sql.O.Oup
     Sel # Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
-    Fm  #. #Tx x
-    Jn  #. Crd ?Div ?Sto ?Mbr
+    Fm  # #Tx x
+    Jn  # Crd ?Div ?Sto ?Mbr
 Sql.O.?MbrWs
     Sel # Mbr ?Nm ?Adr ?Mail ?Phone
     Fm  # JCMember
     Wh  # JCMCode
 
 Sql.T.Tx.Sel
-    Crd          ! Sql3CrdExpr Prm.CrdLis
+    Crd          ! CrdExpr Prm.CrdLis
     Amt          . Sum(SHAmount)
     Qty          . Sum(SHQty)
     Cnt          . Count(SHInvoice+SHSDate+SHRef)
@@ -125,21 +137,10 @@ Expr.Dte
     TxWD . TxWD
     TxDte . SHSDate
 In
-    Div
-    Crd !
-    Sto ! Lvs_QuoteLvc {Prm.StoLis}
+    Div ! Lvs_JnQuoteComma Prm.DivLis
+    Crd ! Lvs_JnComma      Prm.CrdLis
+    Sto ! Lvs_JnQuoteComma Prm.StoLis
 
-Sql.T.Tx#Upd.Sql.Set
-    TxWD
-        . | CASE WHEN TxWD1 = 1 then 'Sun'
-        . | ELSE WHEN TxWD1 = 2 THEN 'Mon'
-        . | ELSE WHEN TxWD1 = 3 THEN 'Tue'
-        . | ELSE WHEN TxWD1 = 4 THEN 'Mon'
-        . | ELSE WHEN TxWD1 = 5 THEN 'Thu'
-        . | ELSE WHEN TxWD1 = 6 THEN 'Fri'
-        . | ELSE WHEN TxWD1 = 7 THEN 'Sat'
-        . | ELSE NULL
-        . | END END END END END END END
 Sql.O.?MbrWs.Sql.Wh
     JCMCode . JCMCode in (Select Mbr From #TxMbr)
 

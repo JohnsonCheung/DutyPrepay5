@@ -97,6 +97,10 @@ Function IsStrAy(V) As Boolean
 IsStrAy = VarType(V) = vbArray + vbString
 End Function
 
+Function JnVBar$(Ay)
+JnVBar = Join(Ay, "|")
+End Function
+
 Function Max(ParamArray Ap())
 Dim Av(), O
 Av = Ap

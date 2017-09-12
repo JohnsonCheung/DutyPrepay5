@@ -129,10 +129,8 @@ End Function
 Sub AyDmp(Ay)
 If AyIsEmpty(Ay) Then Exit Sub
 Dim I
-Dim J&
 For Each I In Ay
-    Debug.Print J; ": ["; I; "]"
-    J = J + 1
+    Debug.Print I
 Next
 End Sub
 
@@ -396,6 +394,16 @@ AyShift = Ay(0)
 AyRmvFstEle Ay
 End Function
 
+Sub AyShw(Ay)
+If AyIsEmpty(Ay) Then Exit Sub
+Dim I
+Dim J&
+For Each I In Ay
+    Debug.Print J; ": ["; I; "]"
+    J = J + 1
+Next
+End Sub
+
 Function AySrt(Ay, Optional Des As Boolean)
 If AyIsEmpty(Ay) Then AySrt = Ay: Exit Function
 Dim Idx&, V, J&
@@ -568,7 +576,7 @@ Sub RmvLasNEle(Ay, Optional NEle% = 1)
 ReDim Preserve Ay(UB(Ay) - NEle)
 End Sub
 
-Function RunAv(FunNm$, Av())
+Function RunAv(FunNm$, Av)
 Dim O
 Select Case Sz(Av)
 Case 0: O = Run(FunNm)

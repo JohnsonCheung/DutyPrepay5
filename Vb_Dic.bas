@@ -89,6 +89,10 @@ End If
 Set DicClone = O
 End Function
 
+Sub DicDmp(A As Dictionary)
+AyDmp DicLy(A)
+End Sub
+
 Function DicDrs(A As Dictionary) As Drs
 Dim O As Drs
 O.Fny = SplitSpc("Key Val")
@@ -122,6 +126,10 @@ End Function
 
 Function DicIsEmpty(A As Dictionary) As Boolean
 DicIsEmpty = A.Count = 0
+End Function
+
+Function DicLy(A As Dictionary) As String()
+DicLy = DrsLy(DicDrs(A))
 End Function
 
 Function DicMge(PfxLvs$, ParamArray DicAp()) As Dictionary

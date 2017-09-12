@@ -3,11 +3,17 @@ Option Compare Database
 Option Explicit
 Const Pfx$ = "|    "
 
-Sub AAAA()
-Sql3CrdExpr__Tst
-End Sub
+Function CrdExpr$(CrdTyLvs$)
+CrdExpr = CrdExpr1(ZZCrdPfxTyDry, CrdTyLvs)
+End Function
 
-Function Sql3CrdExpr$(CrdPfxTyDry() As Variant, CrdTyLvs$)
+Function GpItm$(CrdTyId%, CrdPfxTyDry())
+Dim Ay$(): Ay = SHMCodeLikAy(CrdTyId, CrdPfxTyDry)
+Const Sep$ = " OR"
+GpItm = Join(Ay, Sep) & " THEN " & CrdTyId
+End Function
+
+Private Function CrdExpr1$(CrdPfxTyDry() As Variant, CrdTyLvs$)
         Const CaseWhen$ = "    Case When"
     Const ElseCaseWhen$ = "|    Else Case When"
 Dim CrdTyAy%(): CrdTyAy = AyAsgInto(SplitLvs(CrdTyLvs), EmptyIntAy)
@@ -16,18 +22,12 @@ Dim ElseN$:       ElseN = Pfx & "Else " & NGp + 1
 Dim EndN$:         EndN = Pfx & StrDup(NGp, "End ")
 Dim GpAy():        GpAy = AyMap(CrdTyAy, "GpItm", CrdPfxTyDry)
 Dim Gp$:             Gp = Join(GpAy, ElseCaseWhen)
-Sql3CrdExpr = CaseWhen & Gp & ElseN & EndN
+CrdExpr1 = RplVBar(CaseWhen & Gp & ElseN & EndN)
 End Function
 
 Private Function CrdPfxAy(CrdTyId%, CrdPfxTyDry()) As String()
 Dim Dry(): Dry = DrySel(CrdPfxTyDry, 1, CrdTyId)
 CrdPfxAy = DryColStr(Dry, 0)
-End Function
-
-Private Function GpItm$(CrdTyId%, CrdPfxTyDry())
-Dim Ay$(): Ay = SHMCodeLikAy(CrdTyId, CrdPfxTyDry)
-Const Sep$ = " OR"
-GpItm = Join(Ay, Sep) & " THEN " & CrdTyId
 End Function
 
 Private Function SHMCodeLik(Pfx)
@@ -62,11 +62,11 @@ Private Function ZZCrdTyLvs$()
 ZZCrdTyLvs = "1 2 3"
 End Function
 
-Private Sub GpItm__Tst()
-Debug.Print GpItm(5, ZZCrdPfxTyDry)
+Private Sub CrdExpr__Tst()
+Dim S$: S = CrdExpr(ZZCrdTyLvs)
+Debug.Print RplVBar(S)
 End Sub
 
-Private Sub Sql3CrdExpr__Tst()
-Dim S$: S = Sql3CrdExpr(ZZCrdPfxTyDry, ZZCrdTyLvs)
-Debug.Print RplVBar(S)
+Private Sub GpItm__Tst()
+Debug.Print GpItm(5, ZZCrdPfxTyDry)
 End Sub

@@ -251,6 +251,14 @@ Function LinesLinCnt&(Lines)
 LinesLinCnt = Sz(SplitCrLf(Lines))
 End Function
 
+Function Lvs_JnComma$(Lvs$)
+Lvs_JnComma = JnComma(SplitLvs(Lvs))
+End Function
+
+Function Lvs_JnQuoteComma$(Lvs$)
+Lvs_JnQuoteComma = JnComma(AyQuote(SplitLvs(Lvs), "'"))
+End Function
+
 Function MacroStrNy(MacroStr$, Optional ExclBkt As Boolean) As String()
 Dim Ay$(): Ay = Split(MacroStr, "{")
 Dim O$(), J%
@@ -409,7 +417,7 @@ TakBef = Brk2(S, Sep, NoTrim).S1
 End Function
 
 Function TakBefRev$(S, Sep, Optional NoTrim As Boolean)
-TakBefRev = BrkRev(S, Sep, NoTrim).S2
+TakBefRev = BrkRev(S, Sep, NoTrim).S1
 End Function
 
 Function TakBet$(S, S1, S2, Optional NoTrim As Boolean, Optional InclMarker As Boolean)
