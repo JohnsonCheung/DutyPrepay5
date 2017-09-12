@@ -358,6 +358,16 @@ Next
 ReDim Preserve Ay(U - Cnt)
 End Sub
 
+Function AyRmvEmpty(Ay)
+If AyIsEmpty(Ay) Then AyRmvEmpty = Ay: Exit Function
+Dim O: O = Ay: Erase O
+Dim I
+For Each I In Ay
+    If Not IsEmpty(I) Then Push O, I
+Next
+AyRmvEmpty = O
+End Function
+
 Sub AyRmvEmptyEleAtEnd(OAy)
 Dim LasU&, U&
 For LasU = UB(OAy) To 0 Step -1

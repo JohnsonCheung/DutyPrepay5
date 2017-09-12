@@ -25,14 +25,14 @@ Prm
     DivLis . 01 02 03
     CrdLis . 1 2 3 4
     StoLis . 001 002 003 004
-    BrkDiv .Flag 1
-    BrkSto .Flag 1
-    BrkCrd .Flag 1
-    BrkMbr .Flag 0
-    InclNm .Flag 1
-    InclAdr  .Flag 1
-    InclPhone .Flag 1
-    InclEmail .Flag 1
+    BrkDiv . 1
+    BrkSto . 1
+    BrkCrd . 1
+    BrkMbr . 0
+    InclNm . 1
+    InclAdr  . 1
+    InclPhone . 1
+    InclEmail . 1
     SumLvl   . Y
     Fm . 20170101
     To . 20170131
@@ -47,7 +47,7 @@ Sql.T
     Crd          $ Sel Into Fm
 Sql.O
     Cnt          $ Sel Into Fm
-    Oup          $ Sel Into Fm
+    Oup          $ Sel Into Fm Jn
     ?MbrWs ?Mbr  $ Sel Into Fm Wh
 --============================================= *Sql
 Sql.T.Tx
@@ -90,7 +90,7 @@ Sql.O.Cnt
     Sel  # ?MbrCnt RecCnt TxCnt Qty Amt
     Fm   # #Tx
 Sql.O.Oup
-    Sel  # Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
+    Sel  # .Crd ?Mbr ?Sto ?Div ?Dte .Amt .Qty .TxCnt
     Fm   # #Tx x
     Jn   # Crd ?Div ?Sto ?Mbr
 Sql.O.?MbrWs
@@ -167,28 +167,27 @@ Sql.T.Crd.Sel
     Nm  . CrdTyNm
 
 Sql.O.Oup.Sel
-    ?Mbr ?BrkMbr @ Mbr
-    ?Sto ?BrkSto @ Sto
-    ?Div ?BrkDiv @ Div
+    ?Mbr ?BrkMbr . Mbr
+    ?Sto ?BrkSto . Sto
+    ?Div ?BrkDiv . Div
 
 Sql.O.Cnt.Sel
-    MbrCnt . MbrCnt
-    RecCnt . Count(*)
-    TxCnt  . Sum(TxCnt)
-    Qty    . Sum(Qty)
-    Amt    . Sum(Amt)
+    ?MbrCnt ?BrkMbr . MbrCnt
+    RecCnt          . Count(*)
+    TxCnt           . Sum(TxCnt)
+    Qty             . Sum(Qty)
+    Amt             . Sum(Amt)
 
 Sql.O.Oup.Sel.Dte
-    Y @Comma TxY
-    M @Comma TxY TxM
-    W @Comma TxY TxM TxW
-    D @Comma TxY TxM TxW TxD TxWD TxDte
+    Y . TxY
+    M . TxY,TxM
+    W . TxY,TxM,TxW
+    D . TxY,TxM,TxW,TxD,TxWD,TxDte
 Sql.O.Oup.Jn
-    Crd          .LeftJn #Crd a #Crd on a.Crd=x.Crd
-    ?Mbr ?BrkMbr .LeftJn #MbrDta b on a.Mbr = x.Mbr
-    ?Div ?BrkDiv .LeftJn #Div on c.Div = x.Div
-    ?Sto ?BrkSto .LeftJn #Sto on d.Sto = x.Sto
-
+    Crd  .         .   Left Join #Crd a #Crd on a.Crd=x.Crd
+    ?Div ?BrkMbr . .   Left Join #MbrDta b on a.Mbr = x.Mbr
+    ?Sto ?BrkDiv . .   Left Join #Div on c.Div = x.Div
+    ?Mbr ?BrkSto . .   Left Join #Sto on d.Sto = x.Sto
 ?
     SelMbr .Or Prm.InclNm Prm.InclAdr Prm.InclPhone Prm.InclEmail
     SelDiv .Ne Prm.DivLis *Blank
