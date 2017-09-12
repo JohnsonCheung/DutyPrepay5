@@ -52,7 +52,6 @@ Sql.O
 --============================================= *Sql
 Sql.T.Tx
     Sel    #  Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
-    Into   #
     Fm     # SalesHistory
     Wh     # SHSDate between '{Prm.Fm}' and '{Prm.To}'
     And    #  ?Div ?Sto ?Dte
@@ -62,15 +61,15 @@ Sql.T.Tx#Upd
     Set    # TxWD
 Sql.T.Tx#Upd.Set
     TxWD
-        . | CASE WHEN TxWD1 = 1 then 'Sun'
-        . | ELSE WHEN TxWD1 = 2 THEN 'Mon'
-        . | ELSE WHEN TxWD1 = 3 THEN 'Tue'
-        . | ELSE WHEN TxWD1 = 4 THEN 'Mon'
-        . | ELSE WHEN TxWD1 = 5 THEN 'Thu'
-        . | ELSE WHEN TxWD1 = 6 THEN 'Fri'
-        . | ELSE WHEN TxWD1 = 7 THEN 'Sat'
-        . | ELSE NULL
-        . | END END END END END END END
+        . |    CASE WHEN TxWD1 = 1 then 'Sun'
+        . .    ELSE WHEN TxWD1 = 2 THEN 'Mon'
+        . .    ELSE WHEN TxWD1 = 3 THEN 'Tue'
+        . .    ELSE WHEN TxWD1 = 4 THEN 'Mon'
+        . .    ELSE WHEN TxWD1 = 5 THEN 'Thu'
+        . .    ELSE WHEN TxWD1 = 6 THEN 'Fri'
+        . .    ELSE WHEN TxWD1 = 7 THEN 'Sat'
+        . .    ELSE NULL
+        . .    END END END END END END END
 Sql.T.TxMbr
     SelDis # Mbr
     Fm     # #Tx
@@ -82,25 +81,24 @@ Sql.T.Div
     Sel #  Div Nm Seq Sts
     Fm  # Division
 Sql.T.Sto
-    Sel # Sto Nm CNm
-    Fm  # LocTbl
+    Sel  # Sto Nm CNm
+    Fm   # LocTbl
 Sql.T.Crd
-    Sel # Crd Nm
-    Fm  # JR_FrqMbrLis_#CrdTy()
+    Sel  # Crd Nm
+    Fm   # JR_FrqMbrLis_#CrdTy()
 Sql.O.Cnt
-    Sel # ?MbrCnt RecCnt TxCnt Qty Amt
-    Fm  # #Tx
+    Sel  # ?MbrCnt RecCnt TxCnt Qty Amt
+    Fm   # #Tx
 Sql.O.Oup
-    Sel # Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
-    Fm  # #Tx x
-    Jn  # Crd ?Div ?Sto ?Mbr
+    Sel  # Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
+    Fm   # #Tx x
+    Jn   # Crd ?Div ?Sto ?Mbr
 Sql.O.?MbrWs
     Sel # Mbr ?Nm ?Adr ?Mail ?Phone
     Fm  # JCMember
     Wh  # JCMCode
-
 Sql.T.Tx.Sel
-    Crd          ! CrdExpr Prm.CrdLis
+    Crd          $ Expr.Crd
     Amt          . Sum(SHAmount)
     Qty          . Sum(SHQty)
     Cnt          . Count(SHInvoice+SHSDate+SHRef)
@@ -122,6 +120,7 @@ Sql.T.Tx.Gp
     ?Sto ?BrkSto $ Expr.Sto
     ?Dte ?BrkDte $ Expr.Dte
 Expr
+    Crd ! CrdExpr Prm.CrdLis
     Div . Div
     Sto . Sto
     Dte
@@ -141,10 +140,10 @@ In
     Crd ! Lvs_JnComma      Prm.CrdLis
     Sto ! Lvs_JnQuoteComma Prm.StoLis
 
-Sql.O.?MbrWs.Sql.Wh
+Sql.O.?MbrWs.Wh
     JCMCode . JCMCode in (Select Mbr From #TxMbr)
 
-Sql.T.?MbrDta.Sql.Sel
+Sql.T.?MbrDta.Sel
     Mbr . JCMCode
     Age . DATEDIFF(YEAR,CONVERT(DATETIME ,JCMDOB,112),GETDATE())
     Sex . JCMSex
@@ -152,39 +151,39 @@ Sql.T.?MbrDta.Sql.Sel
     Dist . JCMDist
     Area . JCMArea
 
-Sql.T.Div.Sql.Sel
+Sql.T.Div.Sel
     Div . Dept + Division
     Nm  . LongDesc
     Seq . Seq
     Sts . Status
 
-Sql.T.Sto.Sql.Sel
+Sql.T.Sto.Sel
     Sto . '0'+Loc_Code
     Nm  . Loc_Name
     CNm . Loc_CName
 
-Sql.T.Crd.Sql.Sel
+Sql.T.Crd.Sel
     Crd . CrdTyId
     Nm  . CrdTyNm
 
-Sql.O.Oup.Sql.Sel
+Sql.O.Oup.Sel
     ?Mbr ?BrkMbr @ Mbr
     ?Sto ?BrkSto @ Sto
     ?Div ?BrkDiv @ Div
 
-Sql.O.Cnt.Sql.Sel
+Sql.O.Cnt.Sel
     MbrCnt . MbrCnt
     RecCnt . Count(*)
     TxCnt  . Sum(TxCnt)
     Qty    . Sum(Qty)
     Amt    . Sum(Amt)
 
-Sql.O.Oup.Sql.Sel.Dte
+Sql.O.Oup.Sel.Dte
     Y @Comma TxY
     M @Comma TxY TxM
     W @Comma TxY TxM TxW
     D @Comma TxY TxM TxW TxD TxWD TxDte
-Sql.O.Oup.Sql.Jn
+Sql.O.Oup.Jn
     Crd          .LeftJn #Crd a #Crd on a.Crd=x.Crd
     ?Mbr ?BrkMbr .LeftJn #MbrDta b on a.Mbr = x.Mbr
     ?Div ?BrkDiv .LeftJn #Div on c.Div = x.Div
