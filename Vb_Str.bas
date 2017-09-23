@@ -28,9 +28,7 @@ Else
     End If
 End If
 End Function
-Function StrAppSpc$(S, Optional App = "")
-StrAppSpc = StrApp(S, App, " ")
-End Function
+
 Function AlignR$(S, W%)
 Dim L%: L = Len(S)
 If W > L Then
@@ -38,6 +36,14 @@ If W > L Then
 Else
     AlignR = S
 End If
+End Function
+
+Function Append$(S, A)
+If S <> "" Then Append = S & A
+End Function
+
+Function AppendDash$(S)
+AppendDash = Append(S, "-")
 End Function
 
 Function Brk(S, Sep, Optional NoTrim As Boolean) As S1S2
@@ -177,10 +183,6 @@ If Not AyIsEmpty(Ay) Then
 End If
 FmtMacroDic = O
 End Function
-Function FmtQQVBar$(QQStr$, ParamArray Ap())
-Dim Av(): Av = Ap
-FmtQQVBar = RplVBar(FmtQQAv(QQStr, Av))
-End Function
 
 Function FmtQQ$(QQStr$, ParamArray Ap())
 Dim Av(): Av = Ap
@@ -201,6 +203,11 @@ Dim O$
     Next
     If NeedUnEsc Then O = Replace(O, Chr(255), "?")
 FmtQQAv = O
+End Function
+
+Function FmtQQVBar$(QQStr$, ParamArray Ap())
+Dim Av(): Av = Ap
+FmtQQVBar = RplVBar(FmtQQAv(QQStr, Av))
 End Function
 
 Function FstChr$(S)
@@ -259,6 +266,7 @@ End Function
 Function JnCrLf$(Ay)
 JnCrLf = Join(Ay, vbCrLf)
 End Function
+
 Function JnDblCrLf$(Ay)
 JnDblCrLf = Join(Ay, vbCrLf & vbCrLf)
 End Function
@@ -318,6 +326,14 @@ Function ParseTerm$(OStr)
 OStr = Trim(OStr)
 ParseTerm = FstTerm(OStr)
 OStr = RmvFstTerm(OStr)
+End Function
+
+Function Prepend$(S, P)
+If S <> "" Then Prepend = P & S
+End Function
+
+Function PrependDash$(S)
+PrependDash = Prepend(S, "-")
 End Function
 
 Function Quote$(S, QuoteStr$)
@@ -478,10 +494,6 @@ Function SplitVBar(S) As String()
 SplitVBar = Split(S, "|")
 End Function
 
-Function StrAppCrLf$(S, App)
-StrAppCrLf = StrApp(S, App, vbCrLf)
-End Function
-
 Function StrApp$(S, App, Sep)
 If S = "" Then
     StrApp = App
@@ -489,6 +501,15 @@ Else
     StrApp = S & Sep & App
 End If
 End Function
+
+Function StrAppCrLf$(S, App)
+StrAppCrLf = StrApp(S, App, vbCrLf)
+End Function
+
+Function StrAppSpc$(S, Optional App = "")
+StrAppSpc = StrApp(S, App, " ")
+End Function
+
 Function StrAppVBar$(S, App)
 StrAppVBar = StrApp(S, App, "|")
 End Function
@@ -550,7 +571,6 @@ Dim mFnn$
     mFnn = IIf(IsEmpty(Fnn), TmpNm, Fnn)
 TmpFfn = TmpPth(Fdr) & mFnn & Ext
 End Function
-
 
 Private Function Brk1__(S, P&, Sep, NoTrim As Boolean) As S1S2
 If P = 0 Then

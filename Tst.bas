@@ -23,4 +23,3 @@ End Function
 Sub TstResPthBrw()
 PthBrw TstResPth
 End Sub
-

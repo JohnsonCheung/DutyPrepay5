@@ -7,9 +7,6 @@ Const ENm$ = "DivNm"
 Const ESeq$ = "Seq"
 Const ESts$ = "Status"
 Dim Prm As SR_Prm
-Private Sub SR_T_Div_Sql__Tst()
-Debug.Print SR_T_Div_Sql
-End Sub
 
 Function SR_T_Div_Sql$()
 Prm = SR_Prm
@@ -27,3 +24,7 @@ End Function
 Private Function Fny() As String()
 Fny = SplitLvs(FldLvs)
 End Function
+
+Private Sub SR_T_Div_Sql__Tst()
+Debug.Print SR_T_Div_Sql
+End Sub

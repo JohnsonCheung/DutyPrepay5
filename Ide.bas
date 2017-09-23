@@ -491,13 +491,31 @@ End Function
 Function MdSrcFn$(Optional A As CodeModule)
 MdSrcFn = MdCmp(A).Name & MdSrcExt(A)
 End Function
-
-Sub MdSrt(Optional A As CodeModule)
+Sub MdSrtRpt(Optional A As CodeModule)
 Dim Md As CodeModule: Set Md = DftMd(A)
 Dim Old$: Old = MdBdyLines(Md)
 Dim NewLines$: NewLines = MdSrtedBdyLines(Md)
+Dim O$: O = IIf(Old = NewLines, "(Same)", "<====Diff")
+Debug.Print MdNm(Md), O
+End Sub
+Sub MdSrtRptDif(Optional A As CodeModule)
+Dim Md As CodeModule: Set Md = DftMd(A)
+Dim Old$: Old = MdBdyLines(Md)
+Dim NewLines$: NewLines = MdSrtedBdyLines(Md)
+If Old <> NewLines Then
+    Debug.Print MdNm(Md), "<==== Dif"
+End If
+End Sub
+
+Sub MdSrt(Optional A As CodeModule)
+Dim Md As CodeModule: Set Md = DftMd(A)
+If MdNm(Md) = "Ide" Then
+    Debug.Print "Ide", "<<<< Skipped"
+End If
+Dim Old$: Old = MdBdyLines(Md)
+Dim NewLines$: NewLines = MdSrtedBdyLines(Md)
 If Old = NewLines Then
-    'Debug.Print MdNm(Md),"<== Same
+    Debug.Print MdNm(Md), "<== Same"
     Exit Sub
 End If
 Debug.Print MdNm(Md), "<-- Sorted"
@@ -713,6 +731,21 @@ O = FfnPth(DftPj(A).FileName) & "Src\": PthEns O
 O = O & Fn & "\":                       PthEns O
 PjSrcPth = O
 End Function
+Sub PjSrtRptDif(Optional A As VBProject)
+Dim Md As CodeModule, I
+For Each I In PjMdAy(A)
+    Set Md = I
+    MdSrtRptDif Md
+Next
+End Sub
+
+Sub PjSrtRpt(Optional A As VBProject)
+Dim Md As CodeModule, I
+For Each I In PjMdAy(A)
+    Set Md = I
+    MdSrtRpt Md
+Next
+End Sub
 
 Sub PjSrt(Optional A As VBProject)
 Dim Md As CodeModule, I

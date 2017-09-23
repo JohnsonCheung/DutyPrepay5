@@ -597,6 +597,7 @@ Dim O$()
     O = AyAddPfx("|    ", AyRmvEmpty(Sy))
 Evl_24129A__SqlJn = SomStr(Join(O))
 End Function
+
 Private Function Evl_2412A_SqlSelFldLis(A As KPD) As StrOpt
 
 End Function

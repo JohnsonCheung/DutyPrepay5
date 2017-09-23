@@ -1,22 +1,18 @@
 Attribute VB_Name = "Sqp"
 Option Compare Database
 Option Explicit
-Private ExprVblAy_
-Private Fny_
-'
+Private ExprVblAy_$()
+Private Fny_$()
 
 Property Get MulSqlDrp$(TblNmLvs$)
 
 End Property
 
-Function SqpGp$(ExprVblAy)
-ExprVblAy_ = ExprVblAy
-SqpGp = "|  Group By|" & Join(AlignedExprAy, ",|")
-End Function
 Function SqpAnd$(Expr$)
 If Expr = "" Then Exit Function
 SqpAnd = "|    And " & Expr
 End Function
+
 Function SqpAndIn$(ExprVblAy, InLisAy)
 Dim O$(), J%
 O = AyAddPfx(AlignedExprAy, "|    And ")
@@ -25,11 +21,15 @@ For J = 0 To UB(O)
 Next
 SqpAndIn = JnComma(O)
 End Function
-Function SqpWhBetStr$(FldNm$, FmStr$, ToStr$)
-SqpWhBetStr = FmtQQ("|  Where ? Between '?' and '?'", FldNm, FmStr, ToStr)
-End Function
+
 Function SqpFm$(T)
 SqpFm = "|  From " & T
+End Function
+
+Function SqpGp$(ExprVblAy)
+AssertIsVblAy ExprVblAy
+ExprVblAy_ = AySy(ExprVblAy)
+SqpGp = "|  Group By|" & Join(AlignedExprAy, ",|")
 End Function
 
 Function SqpInto$(T)
@@ -40,15 +40,40 @@ Function SqpSel$(Fny, ExprVblAy)
 AssertIsAy Fny
 AssertIsVblAy ExprVblAy
 Fny_ = Fny
-ExprVblAy_ = ExprVblAy
+ExprVblAy_ = AySy(ExprVblAy)
 If UB(Fny) <> UB(ExprVblAy) Then Stop
 Dim O$()
     O = S1S2AyConcat(S1S2Ay(AlignedExprAy(4, 2), AlignedFny), " ")
 SqpSel = "Select|" & Join(O, ",|")
 End Function
-Private Sub SqpSel__Tst()
-Debug.Print RplVBar(SqpSel(ZZFny, ZZExprVblAy))
-End Sub
+
+Function SqpSet$(FldLvs$, ExprVblAy)
+Fny_ = SplitLvs(FldLvs)
+ExprVblAy_ = AySy(ExprVblAy)
+AssertIsVblAy ExprVblAy
+If Sz(Fny_) <> Sz(ExprVblAy_) Then Stop
+Dim AFny$()
+Dim AExprAy$()
+    Dim W%
+    AFny = AyAddPfx(AlignedFny, "    ")
+    W = Len(AFny(0)) + 3
+    AExprAy = AlignedExprAy(0, W)
+Dim O$()
+    Dim J%
+    For J = 0 To UB(AFny)
+        Push O, "|" & AFny(J) & " = " & AExprAy(J)
+    Next
+SqpSet = "|  Set" & JnComma(O)
+End Function
+
+Function SqpUpd$(T)
+SqpUpd = "Update " & T
+End Function
+
+Function SqpWhBetStr$(FldNm$, FmStr$, ToStr$)
+SqpWhBetStr = FmtQQ("|  Where ? Between '?' and '?'", FldNm, FmStr, ToStr)
+End Function
+
 Private Sub AAA()
 SqpSel__Tst
 End Sub
@@ -89,7 +114,6 @@ For Each I In A
 Next
 ExprLinesAyWdt = O
 End Function
-
 
 Private Function ZCpy()
 
@@ -207,4 +231,8 @@ End Sub
 Private Sub AlignedExprAy__Tst()
 ZZSetPrm
 AyDmp AlignedExprAy
+End Sub
+
+Private Sub SqpSel__Tst()
+Debug.Print RplVBar(SqpSel(ZZFny, ZZExprVblAy))
 End Sub

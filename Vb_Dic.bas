@@ -11,53 +11,6 @@ Type KeyValOpt
 End Type
 Const DicSep$ = "{|}"
 
-Function DicByStr(DicStr$) As Dictionary
-Set DicByStr = DicByPairStrAy(Split(DicStr, DicSep))
-End Function
-Function DicByDry(DicDry) As Dictionary
-Dim O As New Dictionary
-If Not AyIsEmpty(DicDry) Then
-    Dim Dr
-    For Each Dr In DicDry
-        O.Add Dr(0), Dr(1)
-    Next
-End If
-Set DicByDry = O
-End Function
-Function DicByFt(Ft) As Dictionary
-Dim Ay$(): Ay = FtLy(Ft)
-Dim O As New Dictionary
-If Not AyIsEmpty(Ay) Then
-    Dim I
-    For Each I In Ay
-        If Not FstChr("#") And HasSubStr(I, "=") Then
-            With Brk(I, "=")
-                O.Add .S1, .S2
-            End With
-        End If
-    Next
-End If
-Set O = DicByFt
-End Function
-Function DicByPairStrAy(PairStrAy) As Dictionary
-Dim O As New Dictionary
-If Not AyIsEmpty(PairStrAy) Then
-    Dim I
-    For Each I In PairStrAy
-        With Brk(I, "=")
-            Dim S2$
-            If FstChr(.S2) = "." Then
-                S2 = " " & RmvFstChr(.S2)
-            Else
-                S2 = .S2
-            End If
-            O.Add .S1, S2
-        End With
-    Next
-End If
-Set DicByPairStrAy = O
-End Function
-
 Function DicAdd(A As Dictionary, ParamArray DicAp()) As Dictionary
 Dim Av(): Av = DicAp
 Dim I, Dic As Dictionary
@@ -108,6 +61,17 @@ Sub DicAssertKey(A As Dictionary, K$)
 If Not A.Exists(K) Then Stop
 End Sub
 
+Sub DicAssertKeyLvs(A As Dictionary, KeyLvs$)
+DicAssertKy A, SplitLvs(KeyLvs)
+End Sub
+
+Sub DicAssertKy(A As Dictionary, Ky)
+Dim K
+For Each K In Ky
+    If Not A.Exists(K) Then Debug.Print K: Stop
+Next
+End Sub
+
 Function DicAyAdd(Dy() As Dictionary) As Dictionary
 Dim O As Dictionary
     Set O = DicClone(Dy(0))
@@ -127,6 +91,56 @@ Function DicBrw(A As Dictionary)
 DrsBrw DicDrs(A)
 End Function
 
+Function DicByDry(DicDry) As Dictionary
+Dim O As New Dictionary
+If Not AyIsEmpty(DicDry) Then
+    Dim Dr
+    For Each Dr In DicDry
+        O.Add Dr(0), Dr(1)
+    Next
+End If
+Set DicByDry = O
+End Function
+
+Function DicByFt(Ft) As Dictionary
+Dim Ay$(): Ay = FtLy(Ft)
+Dim O As New Dictionary
+If Not AyIsEmpty(Ay) Then
+    Dim I
+    For Each I In Ay
+        If FstChr(I) <> "#" And HasSubStr(I, "=") Then
+            With Brk(I, "=")
+                O.Add .S1, .S2
+            End With
+        End If
+    Next
+End If
+Set O = DicByFt
+End Function
+
+Function DicByPairStrAy(PairStrAy) As Dictionary
+Dim O As New Dictionary
+If Not AyIsEmpty(PairStrAy) Then
+    Dim I
+    For Each I In PairStrAy
+        With Brk(I, "=")
+            Dim S2$
+            If FstChr(.S2) = "." Then
+                S2 = " " & RmvFstChr(.S2)
+            Else
+                S2 = .S2
+            End If
+            O.Add .S1, S2
+        End With
+    Next
+End If
+Set DicByPairStrAy = O
+End Function
+
+Function DicByStr(DicStr$) As Dictionary
+Set DicByStr = DicByPairStrAy(Split(DicStr, DicSep))
+End Function
+
 Function DicClone(A As Dictionary) As Dictionary
 Dim O As New Dictionary, K
 If A.Count > 0 Then
@@ -137,23 +151,23 @@ End If
 Set DicClone = O
 End Function
 
-Sub DicDmp(A As Dictionary)
-AyDmp DicLy(A)
+Sub DicDmp(A As Dictionary, Optional InclDicValTy As Boolean)
+AyDmp DicLy(A, InclDicValTy)
 End Sub
 
-Function DicDrs(A As Dictionary, Optional WithDicValTy As Boolean) As Drs
+Function DicDrs(A As Dictionary, Optional InclDicValTy As Boolean) As Drs
 Dim O As Drs
-O.Fny = SplitSpc("Key Val"): If WithDicValTy Then Push O.Fny, "ValTy"
-O.Dry = DicDry(A, WithDicValTy)
+O.Fny = SplitSpc("Key Val"): If InclDicValTy Then Push O.Fny, "ValTy"
+O.Dry = DicDry(A, InclDicValTy)
 DicDrs = O
 End Function
 
-Function DicDry(A As Dictionary, Optional WithDicValTy As Boolean) As Variant()
+Function DicDry(A As Dictionary, Optional InclDicValTy As Boolean) As Variant()
 Dim O(), I
 If A.Count = 0 Then Exit Function
 Dim K(): K = A.Keys
 If Not AyIsEmpty(K) Then
-    If WithDicValTy Then
+    If InclDicValTy Then
         For Each I In K
             Push O, Array(I, A(I), TypeName(A(I)))
         Next
@@ -166,8 +180,8 @@ End If
 DicDry = O
 End Function
 
-Function DicDt(A As Dictionary, Optional DtNm$ = "Dic", Optional WithDicValTy As Boolean) As Dt
-DicDt = Dt(DtNm, DicDrs(A, WithDicValTy))
+Function DicDt(A As Dictionary, Optional DtNm$ = "Dic", Optional InclDicValTy As Boolean) As Dt
+DicDt = Dt(DtNm, DicDrs(A, InclDicValTy))
 End Function
 
 Function DicHasBlankKey(A As Dictionary) As Boolean
@@ -182,8 +196,19 @@ Function DicIsEmpty(A As Dictionary) As Boolean
 DicIsEmpty = A.Count = 0
 End Function
 
-Function DicLy(A As Dictionary) As String()
-DicLy = DrsLy(DicDrs(A))
+Function DicKVLy(A As Dictionary) As String()
+If DicIsEmpty(A) Then Exit Function
+Dim O$(), K, W%, Ky
+Ky = A.Keys
+W = AyWdt(Ky)
+For Each K In Ky
+    Push O, AlignL(K, W) & " = " & A(K)
+Next
+DicKVLy = O
+End Function
+
+Function DicLy(A As Dictionary, Optional InclDicValTy As Boolean) As String()
+DicLy = DrsLy(DicDrs(A, InclDicValTy))
 End Function
 
 Function DicMge(PfxLvs$, ParamArray DicAp()) As Dictionary

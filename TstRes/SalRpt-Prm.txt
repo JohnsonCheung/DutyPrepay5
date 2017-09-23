@@ -1,0 +1,14 @@
+BrkCrd    = False
+BrkDiv    = False
+BrkMbr    = False
+BrkSto    = 
+CrdLis    = 
+StoLis    = 
+DivLis    = 
+FmDte     = 20170101
+ToDte     = 20170131
+SumLvl    = M
+InclAdr   = False
+InclNm    = False
+InclPhone = False
+InclEmail = False

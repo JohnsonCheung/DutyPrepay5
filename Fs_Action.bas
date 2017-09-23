@@ -2,6 +2,14 @@ Attribute VB_Name = "Fs_Action"
 Option Explicit
 Option Compare Database
 
+Sub FfnDlt(Ffn)
+If FfnIsExist(Ffn) Then Kill Ffn
+End Sub
+
+Function FfnIsExist(Ffn) As Boolean
+FfnIsExist = Fso.FileExists(Ffn)
+End Function
+
 Sub FilCpyToPth(FmFil, ToPth, Optional OvrWrt As Boolean)
 Fso.CopyFile FmFil, ToPth & FfnFn(FmFil), OvrWrt
 End Sub

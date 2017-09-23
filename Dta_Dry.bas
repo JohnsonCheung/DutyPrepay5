@@ -30,6 +30,21 @@ For Each Dr In A
 Next
 DryIsEq = True
 End Function
+
+Function DryMge(Dry, MgeIdx%, Sep$) As Variant()
+Dim O(), J%
+Dim Idx%
+For J = 0 To UB(Dry)
+    Idx = DryMgeIdx(O, Dry(J), MgeIdx)
+    If Idx = -1 Then
+        Push O, Dry(J)
+    Else
+        O(Idx)(MgeIdx) = O(Idx)(MgeIdx) & Sep & Dry(J)(MgeIdx)
+    End If
+Next
+DryMge = O
+End Function
+
 Function DryMgeIdx&(Dry, Dr, MgeIdx%)
 Dim O&, D, J%
 For O = 0 To UB(Dry)
@@ -44,20 +59,6 @@ For O = 0 To UB(Dry)
 Nxt:
 Next
 DryMgeIdx = -1
-End Function
-
-Function DryMge(Dry, MgeIdx%, Sep$) As Variant()
-Dim O(), J%
-Dim Idx%
-For J = 0 To UB(Dry)
-    Idx = DryMgeIdx(O, Dry(J), MgeIdx)
-    If Idx = -1 Then
-        Push O, Dry(J)
-    Else
-        O(Idx)(MgeIdx) = O(Idx)(MgeIdx) & Sep & Dry(J)(MgeIdx)
-    End If
-Next
-DryMge = O
 End Function
 
 Function DryNCol%(Dry)

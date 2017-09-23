@@ -70,12 +70,6 @@ TmpNm = "T" & Format(Now(), "YYYYMMDD_HHMMSS") & "_" & X
 X = X + 1
 End Function
 
-Function TmpPthFix$()
-Static X$
-If X = "" Then X = Fso.GetSpecialFolder(TemporaryFolder) & "\"
-TmpPthFix = X
-End Function
-
 Function TmpPth$(Optional Fdr)
 Dim X$
     If Fdr <> "" Then
@@ -86,4 +80,10 @@ Dim O$
     O = O & TmpNm & "\": PthEns O
     PthEns O
 TmpPth = O
+End Function
+
+Function TmpPthFix$()
+Static X$
+If X = "" Then X = Fso.GetSpecialFolder(TemporaryFolder) & "\"
+TmpPthFix = X
 End Function

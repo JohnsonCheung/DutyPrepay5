@@ -10,38 +10,6 @@ Else
     OV = V
 End If
 End Sub
-Function Dft(V, DftV)
-If IsEmpty(V) Then
-    Dft = V
-Else
-    Dft = DftV
-End If
-End Function
-Sub Never()
-Debug.Print "It should never reach Here"
-Stop
-End Sub
-Function IsIntAy(V) As Boolean
-IsIntAy = VarType(V) = vbArray + vbInteger
-End Function
-Function IsLngAy(V) As Boolean
-IsLngAy = VarType(V) = vbArray + vbLong
-End Function
-
-Function RplFstChr$(S, To_Str)
-RplFstChr = To_Str & RmvFstChr(S)
-End Function
-Function RplFstChrToIf$(S, To_Str, If_Str)
-If FstChr(S) = If_Str Then
-    RplFstChrToIf = RplFstChr(S, To_Str)
-Else
-    RplFstChrToIf = S
-End If
-End Function
-
-Function RmvFstChr$(S)
-RmvFstChr = Mid(S, 2)
-End Function
 
 Function CollObjAy(ObjColl) As Object()
 Dim O() As Object
@@ -52,6 +20,13 @@ Next
 CollObjAy = O
 End Function
 
+Function Dft(V, DftV)
+If IsEmpty(V) Then
+    Dft = V
+Else
+    Dft = DftV
+End If
+End Function
 
 Sub Er(MacroStr$, ParamArray Ap())
 Dim Av(): Av = Ap
@@ -93,6 +68,14 @@ For Each I In Av
 Next
 End Function
 
+Function IsIntAy(V) As Boolean
+IsIntAy = VarType(V) = vbArray + vbInteger
+End Function
+
+Function IsLngAy(V) As Boolean
+IsLngAy = VarType(V) = vbArray + vbLong
+End Function
+
 Function IsNothing(V) As Boolean
 IsNothing = TypeName(V) = "Nothing"
 End Function
@@ -113,9 +96,7 @@ Case _
     IsPrim = True
 End Select
 End Function
-Sub PrmEr()
-Stop
-End Sub
+
 Function IsStr(V) As Boolean
 IsStr = VarType(V) = vbString
 End Function
@@ -176,6 +157,11 @@ Next
 MsgLy = O
 End Function
 
+Sub Never()
+Debug.Print "It should never reach Here"
+Stop
+End Sub
+
 Property Get NowStr$()
 NowStr = Format(Now(), "YYYY-MM-DD HH:MM:SS")
 End Property
@@ -189,8 +175,28 @@ Next
 Asg O, PipeAy
 End Function
 
+Sub PrmEr()
+Stop
+End Sub
+
 Function RestTerm$(S)
 RestTerm = Brk1(Trim(S), " ").S2
+End Function
+
+Function RmvFstChr$(S)
+RmvFstChr = Mid(S, 2)
+End Function
+
+Function RplFstChr$(S, To_Str)
+RplFstChr = To_Str & RmvFstChr(S)
+End Function
+
+Function RplFstChrToIf$(S, To_Str, If_Str)
+If FstChr(S) = If_Str Then
+    RplFstChrToIf = RplFstChr(S, To_Str)
+Else
+    RplFstChrToIf = S
+End If
 End Function
 
 Function VarLy(V) As String()
