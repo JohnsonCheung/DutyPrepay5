@@ -67,7 +67,7 @@ Set Xls = X
 End Function
 
 Sub FxRmvWsIfExist__Tst()
-Dim T$: T = TmpFx
+Dim T$: T = TmpFx("FxRmvWsIfExist__Tst")
 Dim Wb As Workbook
 Set Wb = WbNew
 Wb.Sheets.Add

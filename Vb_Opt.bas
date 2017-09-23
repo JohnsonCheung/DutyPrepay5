@@ -36,6 +36,7 @@ End Function
 
 Function BoolAy_Or(A() As Boolean) As Boolean
 Dim I
+If AyIsEmpty(A) Then Exit Function
 For Each I In A
     If I Then BoolAy_Or = True: Exit Function
 Next

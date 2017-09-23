@@ -1,61 +1,67 @@
 Attribute VB_Name = "Sql3_CrdExpr"
 Option Compare Database
 Option Explicit
-Const Pfx$ = "|    "
+Private CrdTyLvs$
 
-Function CrdExpr$(CrdTyLvs$)
-CrdExpr = CrdExpr1(ZZCrdPfxTyDry, CrdTyLvs)
+Function CrdExpr$(CrdTyLvs_$)
+CrdTyLvs = CrdTyLvs_
+        Const CaseWhen$ = "Case When"
+CrdExpr = CaseWhen & Gp & ElseN & EndN
 End Function
 
-Function GpItm$(CrdTyId%, CrdPfxTyDry())
-Dim Ay$(): Ay = SHMCodeLikAy(CrdTyId, CrdPfxTyDry)
+Private Function CrdPfxAy(CrdTyId%) As String()
+Dim Dry(): Dry = DrySel(SR_CrdPfxTyDry, 1, CrdTyId)
+CrdPfxAy = DryStrCol(Dry, 0)
+End Function
+
+Private Function CrdTyAy() As Integer()
+CrdTyAy = AyAsgInto(SplitLvs(CrdTyLvs), EmptyIntAy)
+End Function
+
+Private Function ElseN$()
+ElseN = "|Else " & NGp + 1
+End Function
+
+Private Function EndN$()
+EndN = "|" & StrDup(NGp, "End ")
+End Function
+
+Private Function Gp$()
+Const ElseCaseWhen$ = "|Else Case When"
+Gp = Join(GpAy, ElseCaseWhen)
+End Function
+
+Private Function GpAy() As String()
+Dim O$(), J%, mCrdTyAy%()
+mCrdTyAy = CrdTyAy
+For J = 0 To UB(CrdTyAy)
+    Push O, GpItm(mCrdTyAy(J))
+Next
+GpAy = O
+End Function
+
+Private Function GpItm$(CrdTyId%)
+Dim Ay$(): Ay = SHMCodeLikAy(CrdTyId)
 Const Sep$ = " OR"
 GpItm = Join(Ay, Sep) & " THEN " & CrdTyId
 End Function
 
-Private Function CrdExpr1$(CrdPfxTyDry() As Variant, CrdTyLvs$)
-        Const CaseWhen$ = "    Case When"
-    Const ElseCaseWhen$ = "|    Else Case When"
-Dim CrdTyAy%(): CrdTyAy = AyAsgInto(SplitLvs(CrdTyLvs), EmptyIntAy)
-Dim NGp%:           NGp = Sz(CrdTyAy)
-Dim ElseN$:       ElseN = Pfx & "Else " & NGp + 1
-Dim EndN$:         EndN = Pfx & StrDup(NGp, "End ")
-Dim GpAy():        GpAy = AyMap(CrdTyAy, "GpItm", CrdPfxTyDry)
-Dim Gp$:             Gp = Join(GpAy, ElseCaseWhen)
-CrdExpr1 = RplVBar(CaseWhen & Gp & ElseN & EndN)
-End Function
-
-Private Function CrdPfxAy(CrdTyId%, CrdPfxTyDry()) As String()
-Dim Dry(): Dry = DrySel(CrdPfxTyDry, 1, CrdTyId)
-CrdPfxAy = DryColStr(Dry, 0)
+Private Function NGp%()
+NGp = Sz(CrdTyAy)
 End Function
 
 Private Function SHMCodeLik(Pfx)
-SHMCodeLik = FmtQQ("|    SHMCode Like '?%'", Pfx)
+SHMCodeLik = FmtQQ("|SHMCode Like '?%'", Pfx)
 End Function
 
-Private Function SHMCodeLikAy(CrdTyId%, CrdPfxTyDry()) As String()
+Private Function SHMCodeLikAy(CrdTyId%) As String()
 Dim O$(), Pfx
-Dim PfxAy$(): PfxAy = CrdPfxAy(CrdTyId, CrdPfxTyDry)
+Dim PfxAy$(): PfxAy = CrdPfxAy(CrdTyId)
 For Each Pfx In PfxAy
     Push O, SHMCodeLik(Pfx)
 Next
 O = AyAlignL(O)
 SHMCodeLikAy = O
-End Function
-
-Private Function ZZCrdPfxTyDry() As Variant()
-Dim O()
-Push O, Array("134234", 1)
-Push O, Array("12323", 1)
-Push O, Array("2444", 2)
-Push O, Array("2443434", 2)
-Push O, Array("24424", 2)
-Push O, Array("3", 3)
-Push O, Array("5446561", 4)
-Push O, Array("6234341", 5)
-Push O, Array("6234342", 5)
-ZZCrdPfxTyDry = O
 End Function
 
 Private Function ZZCrdTyLvs$()
@@ -68,5 +74,5 @@ Debug.Print RplVBar(S)
 End Sub
 
 Private Sub GpItm__Tst()
-Debug.Print GpItm(5, ZZCrdPfxTyDry)
+Debug.Print GpItm(5)
 End Sub

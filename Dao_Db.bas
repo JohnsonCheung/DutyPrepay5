@@ -339,8 +339,8 @@ Else
 End If
 End Function
 
-Function TmpDb() As Database
-Set TmpDb = DBEngine.CreateDatabase(TmpFb, Dao.LanguageConstants.dbLangGeneral)
+Function TmpDb(Optional Fnn) As Database
+Set TmpDb = DBEngine.CreateDatabase(TmpFb("TmpDb", Fnn), Dao.LanguageConstants.dbLangGeneral)
 End Function
 
 Private Sub DbQny__Tst()

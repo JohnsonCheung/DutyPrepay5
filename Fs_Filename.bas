@@ -52,20 +52,16 @@ Dim A$: A = RmvLasChr(Pth)
 PthFdr = TakAftRev(A, "\")
 End Function
 
-Function TmpFb$(Optional Fdr$)
-TmpFb = TmpPth(Fdr) & TmpFn(".accdb")
+Function TmpFb$(Optional Fdr$, Optional Fnn)
+TmpFb = TmpFfn(".accdb", Fdr, Fnn)
 End Function
 
-Function TmpFn$(Ext$)
-TmpFn = TmpNm & Ext
+Function TmpFt$(Optional Fdr$, Optional Fnn)
+TmpFt = TmpFfn(".txt", Fdr, Fnn)
 End Function
 
-Function TmpFt$(Optional Fdr$)
-TmpFt = TmpPth(Fdr) & TmpFn(".txt")
-End Function
-
-Function TmpFx$(Optional Fdr$)
-TmpFx = TmpPth(Fdr) & TmpFn(".xlsx")
+Function TmpFx$(Optional Fdr$, Optional Fnn)
+TmpFx = TmpFfn(".xlsx", Fdr, Fnn)
 End Function
 
 Function TmpNm$()
@@ -74,15 +70,20 @@ TmpNm = "T" & Format(Now(), "YYYYMMDD_HHMMSS") & "_" & X
 X = X + 1
 End Function
 
-Function TmpPth$(Optional Fdr$)
+Function TmpPthFix$()
 Static X$
 If X = "" Then X = Fso.GetSpecialFolder(TemporaryFolder) & "\"
-If Fdr = "" Then
-    TmpPth = X
-Else
-    Dim O$
-    O = X & Fdr & "\"
+TmpPthFix = X
+End Function
+
+Function TmpPth$(Optional Fdr)
+Dim X$
+    If Fdr <> "" Then
+        X = Fdr & "\"
+    End If
+Dim O$
+    O = TmpPthFix & X:   PthEns O
+    O = O & TmpNm & "\": PthEns O
     PthEns O
-    TmpPth = O
-End If
+TmpPth = O
 End Function

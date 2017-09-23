@@ -1,0 +1,98 @@
+Sql
+    X @ T
+Sql.X
+    T    @    Tx Upd#Tx
+Prm
+    DivLis . 01 02 03
+    CrdLis . 1 2 3 4
+    StoLis . 001 002 003 004
+    ?BrkDiv . 1
+    ?BrkSto . 1
+    ?BrkCrd . 1
+    ?BrkMbr . 0
+    ?InclNm . 1
+    ?InclAdr  . 1
+    ?InclPhone . 1
+    ?InclEmail . 1
+    SumLvl   . Y
+    Fm . 20170101
+    To . 20170131
+--============================================= *Sql
+Sql.X.T
+    Tx           * Sel Into Fm Wh And Gp
+    Upd#Tx       * Upd Set
+--============================================= *Tx
+Sql.X.T.Tx
+    Sel    # Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?TxY ?TxM ?TxW ?TxD ?TxDte
+    Fm     # SalesHistory
+    Wh     # SHSDate between '{Prm.Fm}' and '{Prm.To}'
+    And    # ?Div ?Sto ?Crd
+    Gp     # Crd ?Mbr ?Div ?Sto ?TxY ?TxM ?TxW ?TxD ?TxDte
+Sql.X.T.Tx.Sel
+    Crd          $ Expr.Crd
+    Amt          . Sum(SHAmount)
+    Qty          . Sum(SHQty)
+    Cnt          . Count(SHInvoice+SHSDate+SHRef)
+    ?Mbr ?BrkMbr . JCMMCode
+    ?Div ?BrkDiv $ Expr.Div
+    ?Sto ?BrkSto $ Expr.Sto
+    ?TxY   ?InclY . SUBSTR(SHSDate,1,4)
+    ?TxM   ?InclM . SUBSTR(SHSDate,5,2)
+    ?TxW   ?InclW . TxW-Expr
+    ?TxD   ?InclD . SUBSTR(SHSDate,7,2)
+    ?TxDte ?InclD . SUBSTR(SHSDate,1,4)+'/'+SUBSTR(SHSDate,5,2)+'/'+SUBSTR(SHSDate,7,2)
+Sql.X.T.Tx.And
+    ?Div ?SelDiv $In Expr.Div Div
+    ?Crd ?SelCrd $In Expr.Crd Crd
+    ?Sto ?SelSto $In Expr.Sto Sto
+Sql.X.T.Tx.And.?Crd Crd ! LvsJnComma      Prm.CrdLis
+Sql.X.T.Tx.And.?Div Div ! LvsJnQuoteComma Prm.DivLis
+Sql.X.T.Tx.And.?Sto Sto ! LvsJnQuoteComma Prm.StoLis
+--============================================= *Upd#Tx
+Sql.X.T.Upd#Tx
+    Set    # TxWD
+Sql.X.T.Upd#Tx.Set
+    TxWD
+        . CASE WHEN TxWD1 = 1 then 'Sun'
+        . ELSE WHEN TxWD1 = 2 THEN 'Mon'
+        . ELSE WHEN TxWD1 = 3 THEN 'Tue'
+        . ELSE WHEN TxWD1 = 4 THEN 'Mon'
+        . ELSE WHEN TxWD1 = 5 THEN 'Thu'
+        . ELSE WHEN TxWD1 = 6 THEN 'Fri'
+        . ELSE WHEN TxWD1 = 7 THEN 'Sat'
+        . ELSE NULL
+        . END END END END END END END
+--=============================================
+Expr
+    Crd ! CrdExpr Prm.CrdLis
+    Div . Div
+    Sto . Sto
+    Y   ?LvlY #Sel TxY
+    M   ?LvlM #Sel TxY TxM
+    W   ?LvlW #Sel TxY TxM TxW
+    D   ?LvlD #Sel TxY TxM TxW TxD TxWD TxDte
+Expr.Y TxY   . SUBSTR(SHSDate,1,4)
+Expr.M TxM   . SUBSTR(SHSDate,5,2)
+Expr.W TxW   . TxW
+Expr.D TxD   . SUBSTR(SHSDate,7,2)
+Expr.D TxDte . SHSDate
+In
+    Div ! LvsJnQuoteComma Prm.DivLis
+    Crd ! LvsJnComma      Prm.CrdLis
+    Sto ! LvsJnQuoteComma Prm.StoLis
+
+?
+    SelMbr .Or ?InclNm ?InclAdr ?InclPhone ?InclEmail
+    SelDiv .Ne Prm.DivLis *Blank
+    SelCrd .Ne Prm.CrdLis *Blank
+    SelSto .Ne Prm.StoLis *Blank
+    LvlY .Eq Prm.SumLvl Y
+    LvlM .Eq Prm.SumLvl M
+    LvlW .Eq Prm.SumLvl W
+    LvlD .Eq Prm.SumLvl D
+    InclY .Or ?LvlD ?LvlW ?LvlM ?LvlY
+    InclM .Or ?LvlD ?LvlW ?LvlM
+    InclW .Or ?LvlD ?LvlW
+    InclD .Or ?LvlD
+    BrkDte .Or ?LvlY ?LvlM ?LvlW ?LvlD
+    Mbr .And ?BrkMbr ?SelMbr

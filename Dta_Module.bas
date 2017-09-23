@@ -72,8 +72,8 @@ O.Dry = ODry
 DrsAddRowIdxCol = O
 End Function
 
-Sub DrsBrw(Drs As Drs, Optional MaxColWdt& = 100, Optional BrkColNm$)
-AyBrw DrsLy(Drs, MaxColWdt, BrkColNm$)
+Sub DrsBrw(Drs As Drs, Optional MaxColWdt& = 100, Optional BrkColNm$, Optional Fnn)
+AyBrw DrsLy(Drs, MaxColWdt, BrkColNm$), Fnn
 End Sub
 
 Function DrsCol(Drs As Drs, ColNm$) As Variant()
@@ -153,20 +153,8 @@ Next
 DryCol = O
 End Function
 
-Function DryColInt(Dry(), ColIdx%) As Integer()
-Dim U&
-    U = UB(Dry)
-Dim O%()
-    ReDim O(U)
-Dim J&
-For J = 0 To U
-    O(J) = Dry(J)(ColIdx)
-Next
-DryColInt = O
-End Function
-
-Function DryColStr(Dry(), ColIdx%) As String()
-DryColStr = AyAsgInto(DryCol(Dry, ColIdx), EmptySy)
+Function DryIntCol(Dry(), ColIdx%) As Integer()
+DryIntCol = AyIntAy(DryCol(Dry, ColIdx))
 End Function
 
 Function DrySel(Dry(), ColIdx%, EqVal) As Variant()
@@ -214,6 +202,10 @@ Dim O As Ds
     O.DtAy = DtAy
 DsNew = O
 End Function
+Function Drs(Fny, Dry) As Drs
+Drs.Fny = Fny
+Drs.Dry = Dry
+End Function
 
 Function Dt(DtNm$, Drs As Drs) As Dt
 Dt.Dry = Drs.Dry
@@ -221,13 +213,66 @@ Dt.Fny = Drs.Fny
 Dt.DtNm = DtNm
 End Function
 
+Function DrsDrpCol(A As Drs, ColLvs$) As Drs
+Dim IdxAy&(): IdxAy = FnyLIdxAy(A.Fny, ColLvs)
+Dim J%
+For J = 0 To UB(IdxAy)
+    If IdxAy(J) = -1 Then Stop
+Next
+Dim Fny$(): Fny = AyRmvEleByIdxAy(A.Fny, IdxAy)
+Dim Dry(): Dry = DryRmvColByIdxAy(A.Dry, IdxAy)
+With DrsDrpCol
+    .Fny = Fny
+    .Dry = Dry
+End With
+End Function
+Function DrsReOrd(A As Drs, ColLvs) As Drs
+Dim ReOrdFny$(): ReOrdFny = SplitLvs(ColLvs)
+Dim IdxAy&(): IdxAy = AyIdxAy(A.Fny, ReOrdFny)
+Dim OFny$(): OFny = AyReOrd(A.Fny, IdxAy)
+Dim ODry(): ODry = DryReOrd(A.Dry, IdxAy)
+DrsReOrd.Fny = OFny
+DrsReOrd.Dry = ODry
+End Function
+Function DtReOrd(A As Dt, ColLvs) As Dt
+Dim ReOrdFny$(): ReOrdFny = SplitLvs(ColLvs)
+Dim IdxAy&(): IdxAy = AyIdxAy(A.Fny, ReOrdFny)
+Dim OFny$(): OFny = AyReOrd(A.Fny, IdxAy)
+Dim ODry(): ODry = DryReOrd(A.Dry, IdxAy)
+DtReOrd.DtNm = A.DtNm
+DtReOrd.Fny = OFny
+DtReOrd.Dry = ODry
+End Function
+Function DryReOrd(Dry, IdxAy) As Variant()
+AssertIsAy Dry
+If AyIsEmpty(Dry) Then Exit Function
+Dim Dr, O()
+For Each Dr In Dry
+    Push O, AyReOrd(Dr, IdxAy)
+Next
+DryReOrd = O
+End Function
+Function DryRmvColByIdxAy(Dry, IdxAy&()) As Variant()
+If AyIsEmpty(Dry) Then Exit Function
+Dim O(), Dr
+For Each Dr In Dry
+    Push O, AyRmvEleByIdxAy(Dr, IdxAy)
+Next
+DryRmvColByIdxAy = O
+End Function
+Function DtDrpCol(A As Dt, ColLvs$) As Dt
+Dim B As Drs: B = DtDrs(A)
+Dim C As Drs: C = DrsDrpCol(B, ColLvs)
+DtDrpCol = Dt(A.DtNm, C)
+End Function
+
 Function DtAySz%(DtAy() As Dt)
 On Error Resume Next
 DtAySz = UBound(DtAy) + 1
 End Function
 
-Sub DtBrw(Dt As Dt)
-AyBrw DtLy(Dt)
+Sub DtBrw(Dt As Dt, Optional Fnn)
+AyBrw DtLy(Dt), IIf(IsEmpty(Fnn), Dt.DtNm, Fnn)
 End Sub
 
 Function DtCsvLy(A As Dt) As String()
@@ -264,7 +309,7 @@ End Sub
 Function FnyLIdxAy(Fny$(), FldNmLvs$) As Long()
 'FnyL = Fny + FldNmLvs
 'Return Field Idx Ay
-FnyLIdxAy = AyIdxAy(Fny, SplitSpc(FldNmLvs))
+FnyLIdxAy = AyIdxAy(Fny, SplitLvs(FldNmLvs))
 End Function
 
 Function IsEmptyDs(A As Ds) As Boolean
@@ -322,7 +367,7 @@ TblDt = O
 End Function
 
 Private Sub DrsSel__Tst()
-DrsBrw DrsSel(MdFunDrs, "MdNm FunNm Mdy Ty")
+DrsBrw DrsSel(MdMthDrs, "MdNm MthNm Mdy Ty")
 End Sub
 
 Private Sub DsNew__Tst()

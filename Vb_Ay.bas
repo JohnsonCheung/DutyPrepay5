@@ -2,11 +2,6 @@ Attribute VB_Name = "Vb_Ay"
 Option Explicit
 Option Compare Database
 
-Type FmTo
-    FmIdx As Long
-    ToIdx As Long
-End Type
-
 Sub AssertChk(Chk$())
 If AyIsEmpty(Chk) Then Exit Sub
 AyBrw Chk
@@ -110,11 +105,21 @@ Sub AyAssertEq(Ay1, Ay2, Optional Ay1Nm$ = "Exp", Optional Ay2Nm$ = "Act")
 AssertChk ChkEqAy(Ay1, Ay2, Ay1Nm, Ay2Nm)
 End Sub
 
-Function AyBrw(Ay)
+Function AyBrw(Ay, Optional Fnn)
 Dim T$
-T = TmpFt
+T = TmpFt("AyBrw", Fnn)
 AyWrt Ay, T
 FtBrw T
+End Function
+
+Function AyDic(Ay, Optional V = True) As Dictionary
+Dim O As New Dictionary, I
+If Not AyIsEmpty(Ay) Then
+    For Each I In Ay
+        O.Add I, V
+    Next
+End If
+Set AyDic = O
 End Function
 
 Function AyDist(Ay)
@@ -145,7 +150,7 @@ Next
 AyDupAy = O
 End Function
 
-Function AyFilter(Ay, FilterFunNm$, ParamArray Ap())
+Function AyFilter(Ay, FilterMthNm$, ParamArray Ap())
 Dim O: O = Ay: Erase O
 Dim I
 Dim Av()
@@ -153,7 +158,7 @@ Dim Av()
     AyIns Av
 For Each I In Ay
     Asg I, Av(0)
-    If RunAv(FilterFunNm, Av) Then
+    If RunAv(FilterMthNm, Av) Then
         Push O, I
     End If
 Next
@@ -171,13 +176,13 @@ End If
 AyFm = O
 End Function
 
-Function AyFmTo(Ay, FmTo As FmTo)
+Function AySelFmTo(Ay, FmTo As FmTo)
 Dim O: O = Ay: Erase O
 Dim J&
 For J = FmTo.FmIdx To FmTo.ToIdx
     Push O, Ay(J)
 Next
-AyFmTo = O
+AySelFmTo = O
 End Function
 
 Function AyGpDry(Ay) As Variant()
@@ -245,7 +250,7 @@ Function AyLasEle(Ay)
 AyLasEle = Ay(UB(Ay))
 End Function
 
-Function AyMap(Ay, FunNm$, ParamArray Ap()) As Variant()
+Function AyMap(Ay, MthNm$, ParamArray Ap()) As Variant()
 If AyIsEmpty(Ay) Then Exit Function
 Dim Av(): Av = Ap
 AyIns Av
@@ -255,17 +260,17 @@ Dim U&: U = UB(Ay)
     ReDim O(U)
 For Each I In Ay
     Asg I, Av(0)
-    Asg RunAv(FunNm, Av), O(J)
+    Asg RunAv(MthNm, Av), O(J)
     J = J + 1
 Next
 AyMap = O
 End Function
 
-Function AyMapIntoSy(Ay, FunNm$, ParamArray Ap()) As String()
+Function AyMapIntoSy(Ay, MthNm$, ParamArray Ap()) As String()
 If AyIsEmpty(Ay) Then Exit Function
 Dim Av(): Av = Ap
 If AyIsEmpty(Av) Then
-    AyMapIntoSy = AyMapIntoSy_NoPrm(Ay, FunNm)
+    AyMapIntoSy = AyMapIntoSy_NoPrm(Ay, MthNm)
     Exit Function
 End If
 Dim I, J&
@@ -274,22 +279,31 @@ Dim O$()
     AyIns Av
     For Each I In Ay
         Asg I, Av(0)
-        Asg RunAv(FunNm, Av), O(J)
+        Asg RunAv(MthNm, Av), O(J)
         J = J + 1
     Next
 AyMapIntoSy = O
 End Function
 
-Function AyMapIntoSy_NoPrm(Ay, FunNm$) As String()
+Function AyMapIntoSy_NoPrm(Ay, MthNm$) As String()
 If AyIsEmpty(Ay) Then Exit Function
 Dim I, J&
 Dim O$()
     ReDim O(UB(Ay))
     For Each I In Ay
-        Asg Run(FunNm, I), O(J)
+        Asg Run(MthNm, I), O(J)
         J = J + 1
     Next
 AyMapIntoSy_NoPrm = O
+End Function
+
+Function AyMax(Ay)
+If AyIsEmpty(Ay) Then Exit Function
+Dim O, I
+For Each I In Ay
+    If I > O Then O = I
+Next
+AyMax = O
 End Function
 
 Function AyMinus(Ay, ParamArray AyAp())
@@ -334,29 +348,60 @@ Dim O$()
     Next
 AyQuote = O
 End Function
+Function AyRmvEleAt(Ay, Optional At&)
+AyRmvEleAt = AyRmvEleAtCnt(Ay, At)
+End Function
+Function AyRmvEle(Ay, Ele)
+AyRmvEle = AyRmvEleAt(Ay, AyIdx(Ay, Ele))
+End Function
 
-Sub AyRmvEle(Ay, Optional Ele, Optional At& = -1)
-Dim Idx&
-    If IsMissing(Ele) Then
-        Idx = At
-    Else
-        Idx = AyIdx(Ay, Ele)
-    End If
-AyRmvEleAtCnt Ay, Idx, 1
-End Sub
-
-Sub AyRmvEleAtCnt(Ay, At&, Optional Cnt& = 1)
-If Cnt <= 0 Then Exit Sub
-If At < 0 Then Exit Sub
+Function AyRmvEleAtCnt(Ay, At&, Optional Cnt& = 1)
+If Cnt <= 0 Then Exit Function
 Dim U&: U = UB(Ay)
-If At > U Then Exit Sub
-If U = 0 Then Exit Sub
+If At > U Then Stop
+If At < 0 Then Stop
+If U = 0 Then Exit Function
+Dim O: O = Ay
 Dim J&
 For J = At To U - Cnt
-    Ay(J) = Ay(J + Cnt)
+    O(J) = O(J + Cnt)
 Next
-ReDim Preserve Ay(U - Cnt)
+ReDim Preserve O(U - Cnt)
+AyRmvEleAtCnt = O
+End Function
+Sub AyAssertSrt(Ay)
+Dim J&
+For J = 0 To UB(Ay) - 1
+    If Ay(J) > Ay(J + 1) Then Stop
+Next
 End Sub
+Private Sub AyRmvEleByIdxAy__Tst()
+Dim Ay(): Ay = Array("a", "b", "c", "d", "e", "f")
+Dim IdxAy: IdxAy = Array(1, 3)
+Dim Exp: Exp = Array("a", "c", "e", "f")
+Dim Act: Act = Ay: AyRmvEleByIdxAy Act, IdxAy
+Debug.Assert Sz(Act) = 4
+Dim J%
+For J = 0 To 3
+    Debug.Assert Act(J) = Exp(J)
+Next
+End Sub
+
+Sub AssertIsAy(V)
+If Not IsArray(V) Then Stop
+End Sub
+
+Function AyRmvEleByIdxAy(Ay, IdxAy)
+'IdxAy holds index if Ay to be remove.  It has been sorted else will be stop
+AyAssertSrt IdxAy
+AssertIsAy IdxAy
+Dim J&
+Dim O: O = Ay
+For J = UB(IdxAy) To 0 Step -1
+    O = AyRmvEleAt(O, CLng(IdxAy(J)))
+Next
+AyRmvEleByIdxAy = O
+End Function
 
 Function AyRmvEmpty(Ay)
 If AyIsEmpty(Ay) Then AyRmvEmpty = Ay: Exit Function
@@ -368,29 +413,65 @@ Next
 AyRmvEmpty = O
 End Function
 
-Sub AyRmvEmptyEleAtEnd(OAy)
+Function AyRmvEmptyEleAtEnd(Ay)
 Dim LasU&, U&
-For LasU = UB(OAy) To 0 Step -1
-    If Not IsEmpty(OAy(LasU)) Then
+Dim O: O = Ay
+For LasU = UB(Ay) To 0 Step -1
+    If Not IsEmpty(O(LasU)) Then
         Exit For
     End If
 Next
 If LasU = -1 Then
-    Erase OAy
+    Erase O
 Else
-    ReDim Preserve OAy(LasU)
+    ReDim Preserve O(LasU)
 End If
-End Sub
+AyRmvEmptyEleAtEnd = O
+End Function
 
-Sub AyRmvFstEle(Ay)
-AyRmvEle Ay, At:=0
-End Sub
+Function AyRmvFstEle(Ay)
+AyRmvFstEle = AyRmvEleAt(Ay)
+End Function
 
-Sub AyRmvLasEle(Ay)
-AyRmvEle Ay, At:=UB(Ay)
-End Sub
+Function AyRmvLasEle(Ay)
+AyRmvLasEle = AyRmvEleAt(Ay, UB(Ay))
+End Function
 
-Function AySelByIdxAy(Ay, IdxAy%())
+Function AyRTrim(Ay) As String()
+If AyIsEmpty(Ay) Then Exit Function
+Dim O$(), I
+For Each I In Ay
+    Push O, RTrim(I)
+Next
+AyRTrim = O
+End Function
+Function AyIdxByToUB(ToUB&) As Long()
+Dim O&(), J&
+ReDim O(ToUB)
+For J = 0 To ToUB
+    O(J) = J
+Next
+AyIdxByToUB = O
+End Function
+Function AyReOrd(Ay, IdxAy)
+Dim U&
+    U = UB(Ay)
+Dim R&()
+    R = AyIdxByToUB(U)
+    R = AyMinus(R, IdxAy)
+Dim J&, O
+O = Ay: Erase O
+For J = 0 To UB(IdxAy)
+    Push O, Ay(IdxAy(J))
+Next
+For J = 0 To UB(R)
+    Push O, Ay(R(J))
+Next
+AyReOrd = O
+End Function
+Function AySelByIdxAy(Ay, IdxAy)
+AssertIsAy Ay
+AssertIsAy IdxAy
 Dim O: O = Ay: Erase O
 Dim J&
 For J = 0 To UB(IdxAy)
@@ -399,9 +480,39 @@ Next
 AySelByIdxAy = O
 End Function
 
-Function AyShift(Ay)
-AyShift = Ay(0)
-AyRmvFstEle Ay
+Function AySelMulEle(Ay)
+'Return Set of Element as array in {Ay} having 2 or more element
+Dim Dry(): Dry = AyGpDry(Ay)
+Dim O: O = Ay: Erase O
+Dim Dr
+If Not AyIsEmpty(Dry) Then
+    For Each Dr In Dry
+        If Dr(1) > 1 Then
+            Push O, Dr(0)
+        End If
+    Next
+End If
+AySelMulEle = O
+End Function
+
+Function AySelSngEle(Ay)
+'Return Set of Element as array in {Ay} having 2 or more element
+Dim Dry(): Dry = AyGpDry(Ay)
+Dim O: O = Ay: Erase O
+Dim Dr
+If Not AyIsEmpty(Dry) Then
+    For Each Dr In Dry
+        If Dr(1) = 1 Then
+            Push O, Dr(0)
+        End If
+    Next
+End If
+AySelSngEle = O
+End Function
+
+Function AyShift(OAy)
+AyShift = OAy(0)
+OAy = AyRmvFstEle(OAy)
 End Function
 
 Sub AyShw(Ay)
@@ -437,29 +548,28 @@ AySrtIntoIdxAy = O
 End Function
 
 Function AyStrAy(Ay) As String()
-If AyIsEmpty(Ay) Then Exit Function
-Dim U&: U = UB(Ay)
-Dim O$()
-    Dim J&
-    ReDim O(U)
-    For J = 0 To U
-        O(J) = Ay(J)
-    Next
-AyStrAy = O
+AyStrAy = AySy(Ay)
 End Function
 
 Function AySy(Ay) As String()
-If AyIsEmpty(Ay) Then Exit Function
-If IsStrAy(Ay) Then AySy = Ay: Exit Function
-Dim U&, O$(), J&, I
-J = 0
-U = UB(Ay)
-ReDim O(U)
-For Each I In Ay
-    O(J) = I
-    J = J + 1
-Next
-AySy = O
+AySy = AyAsgInto(Ay, EmptySy)
+End Function
+Sub AyIntAy__Tst()
+Dim Act%(): Act = AyIntAy(Array(1, 2, 3))
+Debug.Assert Sz(Act) = 3
+Debug.Assert Act(0) = 1
+Debug.Assert Act(1) = 2
+Debug.Assert Act(2) = 3
+End Sub
+Sub AySy__Tst()
+Dim Act$(): Act = AySy(Array(1, 2, 3))
+Debug.Assert Sz(Act) = 3
+Debug.Assert Act(0) = 1
+Debug.Assert Act(1) = 2
+Debug.Assert Act(2) = 3
+End Sub
+Function AyIntAy(Ay) As Integer()
+AyIntAy = AyAsgInto(Ay, EmptyIntAy)
 End Function
 
 Sub AyTrim(Ay)
@@ -540,8 +650,17 @@ End Function
 Function EmptySy() As String()
 End Function
 
+
 Function Mul2&(A)
 Mul2 = A * 2
+End Function
+
+Function PfxAyHas(PfxAy, Itm) As Boolean
+If AyIsEmpty(PfxAy) Then Exit Function
+Dim Pfx
+For Each Pfx In PfxAy
+    If IsPfx(Itm, Pfx) Then PfxAyHas = True: Exit Function
+Next
 End Function
 
 Function Pop(Ay)
@@ -586,22 +705,30 @@ Sub RmvLasNEle(Ay, Optional NEle% = 1)
 ReDim Preserve Ay(UB(Ay) - NEle)
 End Sub
 
-Function RunAv(FunNm$, Av)
+Function RunAv(MthNm$, Av)
 Dim O
 Select Case Sz(Av)
-Case 0: O = Run(FunNm)
-Case 1: O = Run(FunNm, Av(0))
-Case 2: O = Run(FunNm, Av(0), Av(1))
-Case 3: O = Run(FunNm, Av(0), Av(1), Av(2))
-Case 4: O = Run(FunNm, Av(0), Av(1), Av(2), Av(3))
-Case 5: O = Run(FunNm, Av(0), Av(1), Av(2), Av(3), Av(4))
-Case 6: O = Run(FunNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5))
-Case 7: O = Run(FunNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5), Av(6))
-Case 8: O = Run(FunNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5), Av(6), Av(7))
-Case 9: O = Run(FunNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5), Av(6), Av(7), Av(8))
+Case 0: O = Run(MthNm)
+Case 1: O = Run(MthNm, Av(0))
+Case 2: O = Run(MthNm, Av(0), Av(1))
+Case 3: O = Run(MthNm, Av(0), Av(1), Av(2))
+Case 4: O = Run(MthNm, Av(0), Av(1), Av(2), Av(3))
+Case 5: O = Run(MthNm, Av(0), Av(1), Av(2), Av(3), Av(4))
+Case 6: O = Run(MthNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5))
+Case 7: O = Run(MthNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5), Av(6))
+Case 8: O = Run(MthNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5), Av(6), Av(7))
+Case 9: O = Run(MthNm, Av(0), Av(1), Av(2), Av(3), Av(4), Av(5), Av(6), Av(7), Av(8))
 Case Else: Stop
 End Select
 RunAv = O
+End Function
+
+Function S1S2AyConcat(A() As S1S2, Optional Sep$ = "") As String()
+Dim O$(), J&
+For J = 0 To S1S2UB(A)
+    Push O, A(J).S1 & Sep & A(J).S2
+Next
+S1S2AyConcat = O
 End Function
 
 Function StrWrt(S, Ft)
@@ -721,13 +848,15 @@ End Sub
 
 Private Sub AyRmvEleAtCnt__Tst()
 Dim Ay(): Ay = Array(1, 2, 3, 4, 5)
-AyRmvEleAtCnt Ay, 1, 2
-AyAssertEq Array(1, 4, 5), Ay
+Dim Act: Act = AyRmvEleAtCnt(Ay, 1, 2)
+AyAssertEq Array(1, 4, 5), Act
 End Sub
 
 Private Sub AyRmvEmptyEleAtEnd__Tst()
 Dim Ay: Ay = Array(Empty, Empty, Empty, 1, Empty, Empty)
-AyRmvEmptyEleAtEnd Ay: Debug.Assert Sz(Ay) = 4
+Dim Act: Act = AyRmvEmptyEleAtEnd(Ay)
+Debug.Assert Sz(Act) = 4
+Debug.Assert Act(3) = 1
 End Sub
 
 Private Sub AySrt__Tst()
@@ -738,21 +867,21 @@ Ay = Array(1, 2, 3, 4, 5): Exp = Array(5, 4, 3, 2, 1): Act = AySrt(Ay, True): Ay
 Ay = Array(":", "~", "P"): Exp = Array(":", "P", "~"): Act = AySrt(Ay):       AyAssertEq Exp, Act
 '-----------------
 Erase Ay
-Push Ay, ":PjUpdTstFun:Sub"
+Push Ay, ":PjUpdTstSub:Sub"
 Push Ay, ":SrcLinBrk:Function"
 Push Ay, "~~:Tst:Sub"
-Push Ay, ":PjTstFunNy_WithEr:Function"
+Push Ay, ":PjTstSubNy_WithEr:Function"
 Push Ay, "~Private:JnContinueLin__Tst:Sub"
 Push Ay, "Private:IsPfx:Function"
-Push Ay, "Private:MdFunDrs_FunBdyLy:Function"
-Push Ay, "Private:SrcFunIdxEndIdx:Function"
+Push Ay, "Private:MdMthDrs_FunBdyLy:Function"
+Push Ay, "Private:SrcMthEndIdx:Function"
 Erase Exp
-Push Exp, ":PjTstFunNy_WithEr:Function"
-Push Exp, ":PjUpdTstFun:Sub"
+Push Exp, ":PjTstSubNy_WithEr:Function"
+Push Exp, ":PjUpdTstSub:Sub"
 Push Exp, ":SrcLinBrk:Function"
 Push Exp, "Private:IsPfx:Function"
-Push Exp, "Private:MdFunDrs_FunBdyLy:Function"
-Push Exp, "Private:SrcFunIdxEndIdx:Function"
+Push Exp, "Private:MdMthDrs_FunBdyLy:Function"
+Push Exp, "Private:SrcMthEndIdx:Function"
 Push Exp, "~Private:JnContinueLin__Tst:Sub"
 Push Exp, "~~:Tst:Sub"
 Act = AySrt(Ay):       AyAssertEq Exp, Act
@@ -762,7 +891,14 @@ Exp = FtLy(TstResPth & "AySrt_Ft1_Exp.txt")
 Act = AySrt(Ay):       AyAssertEq Exp, Act
 
 End Sub
-
+Function AyIncN(Ay, Optional N& = 1)
+Dim O: O = Ay
+Dim J&
+For J = 0 To UB(Ay)
+    O(J) = O(J) + N
+Next
+AyIncN = O
+End Function
 Private Sub AySrtIntoIdxAy__Tst()
 Dim Ay: Ay = Array("A", "B", "C", "D", "E")
 AyAssertEq Array(0, 1, 2, 3, 4), AySrtIntoIdxAy(Ay)

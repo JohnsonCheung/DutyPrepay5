@@ -18,86 +18,47 @@
 --          Fst L3 must be Nm=Sql
 --          The rest must be sql-phrase, ie, Sel Fm Into
 Sql
+    X @ Drp T O
+Sql.X
     Drp  .Drp Tx TxMbr MbrDta Div Sto Crd Cnt Oup MbrWs
-    T    @    Tx Tx#Upd TxMbr ?MbrDta Div Sto Crd
+    T    @    Tx Upd#Tx TxMbr ?MbrDta Div Sto Crd
     O    @    Cnt Oup ?MbrWs
 Prm
     DivLis . 01 02 03
     CrdLis . 1 2 3 4
     StoLis . 001 002 003 004
-    BrkDiv . 1
-    BrkSto . 1
-    BrkCrd . 1
-    BrkMbr . 0
-    InclNm . 1
-    InclAdr  . 1
-    InclPhone . 1
-    InclEmail . 1
+    ?BrkDiv . 1
+    ?BrkSto . 1
+    ?BrkCrd . 1
+    ?BrkMbr . 0
+    ?InclNm . 1
+    ?InclAdr  . 1
+    ?InclPhone . 1
+    ?InclEmail . 1
     SumLvl   . Y
     Fm . 20170101
     To . 20170131
 --============================================= *Sql
-Sql.T
-    Tx           $ Sel Into Fm Wh And Gp
-    Tx#Upd       $ Upd Set
-    TxMbr        $ SelDis Into
-    ?MbrDta ?Mbr $ Sel Into Fm Wh
-    Div          $ Sel Into Fm
-    Sto          $ Sel Into Fm
-    Crd          $ Sel Into Fm
-Sql.O
-    Cnt          $ Sel Into Fm
-    Oup          $ Sel Into Fm Jn
-    ?MbrWs ?Mbr  $ Sel Into Fm Wh
---============================================= *Sql
-Sql.T.Tx
-    Sel    #  Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
+Sql.X.T
+    Tx           * Sel Into Fm Wh And Gp
+    Upd#Tx       * Upd Set
+    TxMbr        * SelDis Into Fm
+    ?MbrDta ?Mbr * Sel Into Fm Wh
+    Div          * Sel Into Fm
+    Sto          * Sel Into Fm
+    Crd          * Sel Into Fm
+Sql.X.O
+    Cnt          * Sel Into Fm
+    Oup          * Sel Into Fm Jn
+    ?MbrWs ?Mbr  * Sel Into Fm Wh
+--============================================= *Tx
+Sql.X.T.Tx
+    Sel    # Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?TxY ?TxM ?TxW ?TxD ?TxDte
     Fm     # SalesHistory
     Wh     # SHSDate between '{Prm.Fm}' and '{Prm.To}'
-    And    #  ?Div ?Sto ?Dte
-    Gp     #  Crd ?Mbr ?Div ?Sto ?Dte
-Sql.T.Tx#Upd
-    Upd    #
-    Set    # TxWD
-Sql.T.Tx#Upd.Set
-    TxWD
-        . |    CASE WHEN TxWD1 = 1 then 'Sun'
-        . .    ELSE WHEN TxWD1 = 2 THEN 'Mon'
-        . .    ELSE WHEN TxWD1 = 3 THEN 'Tue'
-        . .    ELSE WHEN TxWD1 = 4 THEN 'Mon'
-        . .    ELSE WHEN TxWD1 = 5 THEN 'Thu'
-        . .    ELSE WHEN TxWD1 = 6 THEN 'Fri'
-        . .    ELSE WHEN TxWD1 = 7 THEN 'Sat'
-        . .    ELSE NULL
-        . .    END END END END END END END
-Sql.T.TxMbr
-    SelDis # Mbr
-    Fm     # #Tx
-Sql.T.?MbrDta
-    Sel # ?BrkMbr Mbr Age Sex Sts Dist Area
-    Fm  # JCMember
-    Wh  # JCMCode (Select Mbr From #TxMbr)
-Sql.T.Div
-    Sel #  Div Nm Seq Sts
-    Fm  # Division
-Sql.T.Sto
-    Sel  # Sto Nm CNm
-    Fm   # LocTbl
-Sql.T.Crd
-    Sel  # Crd Nm
-    Fm   # JR_FrqMbrLis_#CrdTy()
-Sql.O.Cnt
-    Sel  # ?MbrCnt RecCnt TxCnt Qty Amt
-    Fm   # #Tx
-Sql.O.Oup
-    Sel  # .Crd ?Mbr ?Sto ?Div ?Dte .Amt .Qty .TxCnt
-    Fm   # #Tx x
-    Jn   # Crd ?Div ?Sto ?Mbr
-Sql.O.?MbrWs
-    Sel # Mbr ?Nm ?Adr ?Mail ?Phone
-    Fm  # JCMember
-    Wh  # JCMCode
-Sql.T.Tx.Sel
+    And    # ?Div ?Sto ?Crd
+    Gp     # Crd ?Mbr ?Div ?Sto ?TxY ?TxM ?TxW ?TxD ?TxDte
+Sql.X.T.Tx.Sel
     Crd          $ Expr.Crd
     Amt          . Sum(SHAmount)
     Qty          . Sum(SHQty)
@@ -105,102 +66,150 @@ Sql.T.Tx.Sel
     ?Mbr ?BrkMbr . JCMMCode
     ?Div ?BrkDiv $ Expr.Div
     ?Sto ?BrkSto $ Expr.Sto
-    ?Dte         $ Expr.Dte
-Sql.T.Tx.And
+    ?TxY   ?InclY . SUBSTR(SHSDate,1,4)
+    ?TxM   ?InclM . SUBSTR(SHSDate,5,2)
+    ?TxW   ?InclW . TxW-Expr
+    ?TxD   ?InclD . SUBSTR(SHSDate,7,2)
+    ?TxDte ?InclD . SUBSTR(SHSDate,1,4)+'/'+SUBSTR(SHSDate,5,2)+'/'+SUBSTR(SHSDate,7,2)
+Sql.X.T.Tx.And
     ?Div ?SelDiv $In Expr.Div Div
     ?Crd ?SelCrd $In Expr.Crd Crd
     ?Sto ?SelSto $In Expr.Sto Sto
-Sql.T.Tx.And.?Div Div ! Lvs_QuoteLvc Prm.DivLis
-Sql.T.Tx.And.?Div Crd ! Lvs_Lvc      Prm.CrdLis
-Sql.T.Tx.And.?Sto Crd ! Lvs_Lvc      Prm.StoLis
-Sql.T.Tx.Gp
-    Crd          $ Expr.Crd
-    ?Mbr ?BrkMbr . SHMCode
-    ?Div ?BrkDiv $ Expr.Div
-    ?Sto ?BrkSto $ Expr.Sto
-    ?Dte ?BrkDte $ Expr.Dte
-Expr
-    Crd ! CrdExpr Prm.CrdLis
-    Div . Div
-    Sto . Sto
-    Dte
-        ?LvlY @Comma TxY
-        ?LvlM @Comma TxY TxM
-        ?LvlW @Comma TxY TxM TxW
-        ?LvlD @Comma TxY TxM TxW TxD TxWD TxDte
-Expr.Dte
-    TxY . SUBSTR(SHSDate,1,4)
-    TxM . SUBSTR(SHSDate,5,2)
-    TxW . TxW
-    TxD . SUBSTR(SHSDate,7,2)
-    TxWD . TxWD
-    TxDte . SHSDate
-In
-    Div ! Lvs_JnQuoteComma Prm.DivLis
-    Crd ! Lvs_JnComma      Prm.CrdLis
-    Sto ! Lvs_JnQuoteComma Prm.StoLis
-
-Sql.O.?MbrWs.Wh
-    JCMCode . JCMCode in (Select Mbr From #TxMbr)
-
-Sql.T.?MbrDta.Sel
+Sql.X.T.Tx.And.?Crd Crd ! LvsJnComma      Prm.CrdLis
+Sql.X.T.Tx.And.?Div Div ! LvsJnQuoteComma Prm.DivLis
+Sql.X.T.Tx.And.?Sto Sto ! LvsJnQuoteComma Prm.StoLis
+--============================================= *Upd#Tx
+Sql.X.T.Upd#Tx
+    Set    # TxWD
+Sql.X.T.Upd#Tx.Set
+    TxWD
+        . CASE WHEN TxWD1 = 1 then 'Sun'
+        . ELSE WHEN TxWD1 = 2 THEN 'Mon'
+        . ELSE WHEN TxWD1 = 3 THEN 'Tue'
+        . ELSE WHEN TxWD1 = 4 THEN 'Mon'
+        . ELSE WHEN TxWD1 = 5 THEN 'Thu'
+        . ELSE WHEN TxWD1 = 6 THEN 'Fri'
+        . ELSE WHEN TxWD1 = 7 THEN 'Sat'
+        . ELSE NULL
+        . END END END END END END END
+--============================================= *Upd#Tx
+Sql.X.T.TxMbr
+    SelDis # Mbr
+    Fm     # #Tx
+Sql.X.T.TxMbr.SelDis
+    Mbr  . JCMMCode
+--============================================= ?MbrDta
+Sql.X.T.?MbrDta
+    Sel # Mbr Age Sex Sts Dist Area
+    Fm  # JCMember
+    Wh  # JCMCode (Select Mbr From #TxMbr)
+Sql.X.T.?MbrDta.Sel
     Mbr . JCMCode
     Age . DATEDIFF(YEAR,CONVERT(DATETIME ,JCMDOB,112),GETDATE())
     Sex . JCMSex
     Sts . JCMStatus
     Dist . JCMDist
     Area . JCMArea
-
-Sql.T.Div.Sel
+--============================================= #Div
+Sql.X.T.Div
+    Sel #  Div Nm Seq Sts
+    Fm  # Division
+Sql.X.T.Div.Sel
     Div . Dept + Division
     Nm  . LongDesc
     Seq . Seq
     Sts . Status
-
-Sql.T.Sto.Sel
+--============================================= #Sto
+Sql.X.T.Sto
+    Sel  # Sto Nm CNm
+    Fm   # LocTbl
+Sql.X.T.Sto.Sel
     Sto . '0'+Loc_Code
     Nm  . Loc_Name
     CNm . Loc_CName
-
-Sql.T.Crd.Sel
+--============================================= #Crd
+Sql.X.T.Crd
+    Sel  # Crd Nm
+    Fm   # JR_FrqMbrLis_#CrdTy()
+Sql.X.T.Crd.Sel
     Crd . CrdTyId
     Nm  . CrdTyNm
-
-Sql.O.Oup.Sel
-    ?Mbr ?BrkMbr . Mbr
-    ?Sto ?BrkSto . Sto
-    ?Div ?BrkDiv . Div
-
-Sql.O.Cnt.Sel
+--============================================= #Cnt
+Sql.X.O.Cnt
+    Sel  # ?MbrCnt RecCnt TxCnt Qty Amt
+    Fm   # #Tx
+Sql.X.O.Cnt.Sel
     ?MbrCnt ?BrkMbr . MbrCnt
     RecCnt          . Count(*)
     TxCnt           . Sum(TxCnt)
     Qty             . Sum(Qty)
     Amt             . Sum(Amt)
-
-Sql.O.Oup.Sel.Dte
-    Y . TxY
-    M . TxY,TxM
-    W . TxY,TxM,TxW
-    D . TxY,TxM,TxW,TxD,TxWD,TxDte
-Sql.O.Oup.Jn
+--============================================= #Oup
+Sql.X.O.Oup
+    Sel  # .Crd ?Mbr ?Sto ?Div ?TxY ?TxM ?TxW ?TxD ?TxDte .Amt .Qty .TxCnt
+    Fm   # #Tx x
+    Jn   # Crd ?Div ?Sto ?Mbr
+Sql.X.O.Oup.Sel
+    ?Mbr   ?BrkMbr  . Mbr
+    ?Sto   ?BrkSto  . Sto
+    ?Div   ?BrkDiv  . Div
+    ?TxY   ?InclY   . TxY
+    ?TxM   ?InclM   . TxM
+    ?TxW   ?InclW   . TxW
+    ?TxD   ?InclD   . TxD
+    ?TxDte ?InclD . TxDte
+Sql.X.O.Oup.Jn
     Crd  .         .   Left Join #Crd a #Crd on a.Crd=x.Crd
     ?Div ?BrkMbr . .   Left Join #MbrDta b on a.Mbr = x.Mbr
     ?Sto ?BrkDiv . .   Left Join #Div on c.Div = x.Div
     ?Mbr ?BrkSto . .   Left Join #Sto on d.Sto = x.Sto
+--============================================= #MbrWs
+Sql.X.O.?MbrWs
+    Sel # Mbr ?Nm ?Adr ?Mail ?Phone
+    Fm  # JCMember
+    Wh  # JCMCode
+Sql.X.O.?MbrWs.Sel
+    Mbr . JCMCode
+    ?Nm ?InclNm . JCMName
+    ?Adr
+        ?InclAdr . Adr1
+        ?InclAdr . + Adr2
+    ?Mail ?InclEmail . Mail
+    ?Phone ?InclPhone . Phone
+Sql.X.O.?MbrWs.Wh
+    JCMCode . JCMCode in (Select Mbr From #TxMbr)
+--=============================================
+Expr
+    Crd ! CrdExpr Prm.CrdLis
+    Div . Div
+    Sto . Sto
+    Y   ?LvlY #Sel TxY
+    M   ?LvlM #Sel TxY TxM
+    W   ?LvlW #Sel TxY TxM TxW
+    D   ?LvlD #Sel TxY TxM TxW TxD TxWD TxDte
+Expr.Y TxY   . SUBSTR(SHSDate,1,4)
+Expr.M TxM   . SUBSTR(SHSDate,5,2)
+Expr.W TxW   . TxW
+Expr.D TxD   . SUBSTR(SHSDate,7,2)
+Expr.D TxDte . SHSDate
+In
+    Div ! LvsJnQuoteComma Prm.DivLis
+    Crd ! LvsJnComma      Prm.CrdLis
+    Sto ! LvsJnQuoteComma Prm.StoLis
+
 ?
-    SelMbr .Or Prm.InclNm Prm.InclAdr Prm.InclPhone Prm.InclEmail
+    SelMbr .Or ?InclNm ?InclAdr ?InclPhone ?InclEmail
     SelDiv .Ne Prm.DivLis *Blank
     SelCrd .Ne Prm.CrdLis *Blank
     SelSto .Ne Prm.StoLis *Blank
-    BrkDiv .Eq Prm.BrkSto 1
-    BrkCrd .Eq Prm.BrkCrd 1
-    BrkSto .Eq Prm.BrkSto 1
-    BrkMbr .Eq Prm.BrkMbr 1
     LvlY .Eq Prm.SumLvl Y
     LvlM .Eq Prm.SumLvl M
     LvlW .Eq Prm.SumLvl W
     LvlD .Eq Prm.SumLvl D
+    InclY .Or ?LvlD ?LvlW ?LvlM ?LvlY
+    InclM .Or ?LvlD ?LvlW ?LvlM
+    InclW .Or ?LvlD ?LvlW
+    InclD .Or ?LvlD
     BrkDte .Or ?LvlY ?LvlM ?LvlW ?LvlD
     Mbr .And ?BrkMbr ?SelMbr
 

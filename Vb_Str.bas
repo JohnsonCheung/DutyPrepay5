@@ -12,7 +12,7 @@ Type Map
 End Type
 
 Function AlignL$(S, W)
-Dim L%:
+Dim L%
 If IsNull(S) Then
     L = 0
 Else
@@ -28,7 +28,9 @@ Else
     End If
 End If
 End Function
-
+Function StrAppSpc$(S, Optional App = "")
+StrAppSpc = StrApp(S, App, " ")
+End Function
 Function AlignR$(S, W%)
 Dim L%: L = Len(S)
 If W > L Then
@@ -141,6 +143,10 @@ If P = 0 Then Err.Raise "BrkRev: Str[" & S & "] does not contains Sep[" & Sep & 
 BrkRev = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
 
+Function DftStr$(S, DftVal)
+DftStr = Dft(S, DftVal)
+End Function
+
 Function FmtMacro$(MacroStr$, ParamArray Ap())
 Dim Av(): Av = Ap
 FmtMacro = FmtMacroAv(MacroStr, Av)
@@ -155,6 +161,25 @@ For Each I In Ay
     J = J + 1
 Next
 FmtMacroAv = O
+End Function
+
+Function FmtMacroDic$(MacroStr$, Dic As Dictionary)
+Dim Ay$(): Ay = MacroStrNy(MacroStr)
+If Not AyIsEmpty(Ay) Then
+    Dim O$: O = MacroStr
+    Dim I, K$
+    For Each I In Ay
+        K = RmvFstLasChr(I)
+        If Dic.Exists(K) Then
+            O = Replace(O, I, Dic(K))
+        End If
+    Next
+End If
+FmtMacroDic = O
+End Function
+Function FmtQQVBar$(QQStr$, ParamArray Ap())
+Dim Av(): Av = Ap
+FmtQQVBar = RplVBar(FmtQQAv(QQStr, Av))
 End Function
 
 Function FmtQQ$(QQStr$, ParamArray Ap())
@@ -231,11 +256,14 @@ Function JnComma$(Ay)
 JnComma = Join(Ay, ",")
 End Function
 
-Function JnCrLf(Ay)
+Function JnCrLf$(Ay)
 JnCrLf = Join(Ay, vbCrLf)
 End Function
+Function JnDblCrLf$(Ay)
+JnDblCrLf = Join(Ay, vbCrLf & vbCrLf)
+End Function
 
-Function JnSpc(Ay)
+Function JnSpc$(Ay)
 JnSpc = Join(Ay, " ")
 End Function
 
@@ -247,16 +275,20 @@ Function LasLin$(S)
 LasLin = AyLasEle(SplitCrLf(S))
 End Function
 
+Function LinesLasLin$(Lines)
+LinesLasLin = AyLasEle(SplitCrLf(Lines))
+End Function
+
 Function LinesLinCnt&(Lines)
 LinesLinCnt = Sz(SplitCrLf(Lines))
 End Function
 
-Function Lvs_JnComma$(Lvs$)
-Lvs_JnComma = JnComma(SplitLvs(Lvs))
+Function LvsJnComma$(Lvs$)
+LvsJnComma = JnComma(SplitLvs(Lvs))
 End Function
 
-Function Lvs_JnQuoteComma$(Lvs$)
-Lvs_JnQuoteComma = JnComma(AyQuote(SplitLvs(Lvs), "'"))
+Function LvsJnQuoteComma$(Lvs$)
+LvsJnQuoteComma = JnComma(AyQuote(SplitLvs(Lvs), "'"))
 End Function
 
 Function MacroStrNy(MacroStr$, Optional ExclBkt As Boolean) As String()
@@ -294,6 +326,14 @@ With BrkQuote(QuoteStr)
 End With
 End Function
 
+Function Rmv2Dash$(Lin)
+Rmv2Dash = RTrim(RmvAft(Lin, "--"))
+End Function
+
+Function Rmv3Dash$(Lin)
+Rmv3Dash = RTrim(RmvAft(Lin, "---"))
+End Function
+
 Function RmvAft$(S, Sep)
 RmvAft = Brk1(S, Sep, NoTrim:=True).S1
 End Function
@@ -306,8 +346,8 @@ Wend
 RmvDblSpc = O
 End Function
 
-Function RmvFstChr$(S)
-RmvFstChr = RmvFstNChr(S)
+Function RmvFstLasChr$(I)
+RmvFstLasChr = RmvFstChr(RmvLasChr(I))
 End Function
 
 Function RmvFstNChr$(S, Optional N% = 1)
@@ -335,6 +375,15 @@ Else
 End If
 End Function
 
+Function RmvSfx$(S, Sfx)
+Dim L%: L = Len(Sfx)
+If Right(S, L) = Sfx Then
+    RmvSfx = Left(S, Len(S) - L)
+Else
+    RmvSfx = S
+End If
+End Function
+
 Function RplVBar$(S)
 RplVBar = Replace(S, "|", vbCrLf)
 End Function
@@ -342,6 +391,66 @@ End Function
 Function S1S2(S1, S2) As S1S2
 S1S2.S1 = S1
 S1S2.S2 = S2
+End Function
+
+Function S1S2Ay(Ay1, Ay2) As S1S2()
+If AyIsEmpty(Ay1) Then Exit Function
+Dim U&: U = UB(Ay2)
+If U <> UB(Ay1) Then Stop
+Dim O() As S1S2
+ReDim O(U)
+Dim J&
+For J = 0 To U
+    O(J) = S1S2(Ay1(J), Ay2(J))
+Next
+S1S2Ay = O
+End Function
+
+Function S1S2AyDrs(A() As S1S2) As Drs
+S1S2AyDrs.Fny = SplitSpc("S1 S2")
+S1S2AyDrs.Dry = S1S2AyDry(A)
+End Function
+
+Function S1S2AyDry(A() As S1S2) As Variant()
+Dim O()
+Dim J%
+For J = 0 To S1S2UB(A)
+    With A(J)
+        Push O, Array(.S1, .S2)
+    End With
+Next
+S1S2AyDry = O
+End Function
+
+Function S1S2AyS1Ay(A() As S1S2) As String()
+Dim O$(), J&
+For J = 0 To S1S2UB(A)
+    Push O, A(J).S1
+Next
+S1S2AyS1Ay = O
+End Function
+
+Function S1S2AyS2Ay(A() As S1S2) As String()
+Dim O$(), J&
+For J = 0 To S1S2UB(A)
+    Push O, A(J).S2
+Next
+S1S2AyS2Ay = O
+End Function
+
+Sub S1S2Push(O() As S1S2, I As S1S2)
+Dim N&: N = S1S2Sz(O)
+ReDim Preserve O(N)
+O(N) = I
+End Sub
+
+Function S1S2Sz&(A() As S1S2)
+On Error Resume Next
+S1S2Sz = UBound(A) + 1
+End Function
+
+Function S1S2UB&(A() As S1S2)
+S1S2UB = S1S2Sz(A) - 1
 End Function
 
 Function SpcEsc$(S)
@@ -370,15 +479,22 @@ SplitVBar = Split(S, "|")
 End Function
 
 Function StrAppCrLf$(S, App)
-If S = "" Then
-    StrAppCrLf = App
-Else
-    StrAppCrLf = S & vbCrLf & App
-End If
+StrAppCrLf = StrApp(S, App, vbCrLf)
 End Function
 
-Sub StrBrw(S)
-Dim T$: T = TmpFt
+Function StrApp$(S, App, Sep)
+If S = "" Then
+    StrApp = App
+Else
+    StrApp = S & Sep & App
+End If
+End Function
+Function StrAppVBar$(S, App)
+StrAppVBar = StrApp(S, App, "|")
+End Function
+
+Sub StrBrw(S, Optional Fnn)
+Dim T$: T = TmpFt("StrBrw", Fnn)
 StrWrt S, T
 FtBrw T
 End Sub
@@ -428,6 +544,13 @@ With Brk1(S, S1, NoTrim)
     TakBet = O
 End With
 End Function
+
+Function TmpFfn(Ext$, Optional Fdr, Optional Fnn)
+Dim mFnn$
+    mFnn = IIf(IsEmpty(Fnn), TmpNm, Fnn)
+TmpFfn = TmpPth(Fdr) & mFnn & Ext
+End Function
+
 
 Private Function Brk1__(S, P&, Sep, NoTrim As Boolean) As S1S2
 If P = 0 Then

@@ -6,10 +6,12 @@ Function FxOpn(Fx) As Workbook
 Set FxOpn = Xls.Workbooks.Open(Fx)
 End Function
 
-Function WbAddWs(A As Workbook, WsNm$) As Worksheet
+Function WbAddWs(A As Workbook, Optional WsNm$) As Worksheet
 Dim O As Worksheet
 Set O = A.Sheets.Add(, WbLasWs(A))
-O.Name = WsNm
+If WsNm <> "" Then
+    O.Name = WsNm
+End If
 Set WbAddWs = O
 End Function
 

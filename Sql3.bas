@@ -2,58 +2,46 @@ Attribute VB_Name = "Sql3"
 Option Explicit
 Option Compare Database
 Public Enum eOp
-    eSqlFix '  [#.]
     eExpIn  ' [$In]
     eRun    ' [!]
     eSqlPhrase ' [#]
-    'eStr eNbr eFlag eNbrLis eStrLis eFlag are valid only in Ns:Prm
-    eFixSql     ' [.Sql]
+    eSqlStmt     ' [*]
+    eSqlSel    ' [#Sel]
     eFixEq      ' [.EQ]
-    eExpAnd     ' [@And] means <Prm> is term list for "Sql-And"
+    eFixNe      ' [.NE]
     eExpComma   ' [@Comma]
-    eExpDrp
-    eExpGp
-    eExpJn
-    eExpLeftJn
-    eExpOr  ' [@Or] means <Prm> is term list for "Sql-Or"
-    eExpSel  ' [@Sel] means <Prm> is term list for "Sql-Select"
-    eExpSelDis  ' [@SelDis] means <Prm> is term list for "Sql-Select-Distinct"
     eExp  ' [@]   means <Prm> is term list for sql-statment
-    eExpSet   ' [@Set] means <Prm> is term list which will be expanded into "Set <Term> = <Exp-term>, .."
     eExpWh   ' [@Wh] means <Prm> is term list for "Sql-Where"
     eFixAnd  ' [.And] means <Prm> is fixed str for "Sql-And"
+    eFixOr  ' [.Or] means <Prm> is fixed str for "Sql-Or"
     eFixComma ' [.Comma]
     eFixDrp
-    eFixFm      ' [.Fm]  means <Prm> is fixed str for "Sql-From"
-    eFixGp
-    eFixOr  ' [.Or] means <Prm> is fixed str for "Sql-Or"
-    eFixSel  ' [.Sel] means <Prm> is fixed str for "Sql-Select"
-    eFixSet  ' [.Set] means <Prm> is fixed str for "Sql-Set" to be expanded as Set <Prm>
-    eFixSelDis ' [.SelDis] means <Prm> is fixed str for "Sql-Select-Distinct"
     eFixStr    ' [.]   means <Prm> is fixed str
-    eFixUpd    ' [.Upd]  means <Prm> is empty "Sql-Update" to be expanded Update #<Nm>
-    eFixWh     ' [.Wh] means <Prm> is fixed str for "Sql-Where"
-    eFixFlag      ' [.Flag]
-    eFixLeftJn ' [.LeftJn] means <Prm> is fixed str for "Sql-Left-Join"
-    eFixJn     ' [.Jn] means <Prm> is fixed str for "Sql-inner-Join"
     eMac       ' [$] means <Prm> is a macro string ( a template string with {..} to be expand.  Inside {..} is a <Ns>.<Nm>.
-    eMacAnd    ' [$And] means <Prm> is a macro-string
-    eMacOr     ' [$Or] means <Prm> is a Macro String to be used in Sql-Or
-    eMacWh     ' [$Wh] means <Prm> is a Macro String to be used in Sql-Where
-    eFixNbr     ' [.Nbr] means <Prm> is a number
-    eFixNbrLis  ' [.NbrLis]
-    eFixNe      ' [.NE]
-    eFixStrLis  ' [.StrLis]
     eUnknown '
 End Enum
+Private Type ErDrOpt
+    Som As Boolean
+    ErDr() As Variant
+End Type
+Private Type L12SOPS
+    LinI As Integer
+    L1 As String
+    L2 As String
+    Op As eOp
+    Switch As String
+    Prm As String
+    S As Variant  ' Must be Boolean for Switch or String for other
+    Don As Boolean
+End Type
+Private Type L12SOPSAyOpt
+    L12SOPSAy() As L12SOPS
+    Som As Boolean
+End Type
 Private Type KPD
     K As String   ' Ns.Nm
     P As String   ' L3Prm
     D As Dictionary
-End Type
-Private Type PrmR
-    FunNm As String
-    PrmAy() As String
 End Type
 Private Type L123
     L1 As String
@@ -65,25 +53,6 @@ Private Type L123Opt
     Som As Boolean
     L123 As L123
 End Type
-Private Type L1233
-    LinI As Integer
-    L1 As String
-    L2 As String
-    Swtich As String
-    OpStr As String
-    Prm As String
-End Type
-Private Type ExpOpt
-    Som As Boolean
-    L123AyLeft() As L123
-    Dic As Dictionary
-End Type
-
-Private Type L33
-    Switch As String
-    OpStr As String
-    Prm As String
-End Type
 Private Type L3
     L3 As String     ' [?<Switch>] <OpTy>[<Op>] [<Prm>]
     Switch As String ' Start with ?, but
@@ -91,753 +60,54 @@ Private Type L3
     Op As eOp
     Prm As String    ' RestTerm of L3
 End Type
-Private Type Wr
-    LinI As Integer
-    Ns As String
-    Nm As String
-    Switch As String
-    Op As eOp
-    Prm As String
-End Type
 Private Type WrkDr
     Ns As String
     Nm As String
     L3 As L3
     LinI As Integer
 End Type
-Private Type Sts
-    Wy() As WrkDr
-    Dic As Dictionary
-End Type
-Private Type Sts1
-    Wrs As Drs
-    Dic As Dictionary
-End Type
-Private Type StsRun
-    RestWy() As WrkDr
-    RunDic As Dictionary
-End Type
 
-Private Type StsMulNm
-    MulNmDic As Dictionary
-    RestWy() As WrkDr
-End Type
-
-Private Type WrkDrOpt
-    Som As Boolean
-    WrkDr As WrkDr
-End Type
-Private Type StsPrm
-    PrmDic As Dictionary
-    RestWy() As WrkDr
-End Type
-Private Type StsSwitch
-    RestWy() As WrkDr
-    SwitchDic As Dictionary
-End Type
-Private Type StsFixXXX
-    RestWy() As WrkDr
-    XXXDic As Dictionary
-End Type
-Private Type StsFixStr
-    RestWy() As WrkDr
-    StrDic As Dictionary
-End Type
-Private Type StsFixFm
-    RestWy() As WrkDr
-    FmDic As Dictionary
-End Type
-Private Type StsFixWh
-    RestWy() As WrkDr
-    WhDic As Dictionary
-End Type
-Private Type StsFixUpd
-    RestWy() As WrkDr
-    UpdDic As Dictionary
-End Type
-Private Type StsFixLeftJn
-    RestWy() As WrkDr
-    LeftJnDic As Dictionary
-End Type
-Private Type StsFixJn
-    RestWy() As WrkDr
-    JnDic As Dictionary
-End Type
-Private Type StsFixSelDis
-    RestWy() As WrkDr
-    SelDisDic As Dictionary
-End Type
-Private Type StsFixDrp
-    RestWy() As WrkDr
-    DrpDic As Dictionary
-End Type
-Private Type StsExp
-    RestWy() As WrkDr
-    ExpDic As Dictionary
-End Type
-
-Sub AA()
-Sql3Ft_Dic__Tst
-End Sub
-
-Sub AA_Sql__Flow()
-'-- Rmk: -- is remark
-'-- 3Lvl: alway 3 level
-'-- 4spc: Lvl1 has no space, Lvl2 has exactly 4 space and L3 always have 8 space
-'-- NoSpcInNm: Lvl2 (name), cannot have space
-'-- Lvl1: is namespace, use do to separate
-'-- Lvl2: is name.  That means is always under a namespace
-'-- Root Ns: fst non remark line is root ns
-'-- L3: is Exp_ression
-'-- Lvl2Nm-?: can be have optional ? in front which means its value can be empty string
-'-- Lvl2Nm-?-Fst-term-of- Exp_ression: It must belong with ?
-'-- ?: namepace-? is for 
-'-- Output: a hash of all name with namespace
-'-- FirstLvl1: first Lvl1 is consider as the output
-'Sql
-'    Drp  .Drp Tx TxMbr MbrDta Div Sto Crd Cnt Oup MbrWs
-'    T    @ Tx TxMbr ?MbrDta Div Sto Crd
-'    O    @ Cnt Oup ?MbrWs
-'Sql.T
-'    Tx
-'        .Sel@ Crd Amt Qty Cnt ?Mbr ?Div ?Sto ?Dte
-'        .Into
-'        .Fm SalesHistory
-'        .Wh SHSDate between '@P.Fm' and '@P.To'
-'        .And@ ?Div ?Sto ?Dte
-'        .Gp@ Crd ?Mbr ?Div ?Sto ?Dte
-'    Tx .Upd .Set@ TxWD
-'    TxMbr
-'        .SelDis Mbr
-'        .Into
-'        .Fm #Tx
-'    ?MbrDta ?BrkMbr 
-'        .Sel@ Mbr Age Sex Sts Dist Area 
-'        .Into
-'        .Fm JCMember
-'        .Wh JCMCode (Select Mbr From #TxMbr)
-'    Div .Sel@ Div Nm Seq Sts .Fm Division
-'    Sto .Sel@ Sto Nm CNm .Fm LocTbl
-'    Crd .Sel@ Crd Nm .Fm JR_FrqMbrLis_#CrdTy()
-'Sql.O
-'    Cnt .Sel@ ?MbrCnt RecCnt TxCnt Qty Amt .Into .Fm #Tx
-'    Oup
-'        .Sel@ Crd ?Mbr ?Sto ?Div ?Dte Amt Qty TxCnt
-'        .Into
-'        .Fm #Tx x
-'        .Jn@ Crd ?Div ?Sto ?Mbr
-'    ?MbrWs ?SelMbr 
-'        .Sel@ Mbr ?Nm ?Adr ?Mail ?Phone 
-'        .Into
-'        .Fm JCMember 
-'        .Wh JCMCode in (Select Mbr From #TxMbr)
-'Sql.T.Tx.Set
-'    TxWD ...
-'Sql.T.Tx.Sel
-'    Crd @ CasewhenThen Else End
-'    Amt Sum(SHAmount)
-'    Qty Sum(SHQty)
-'    Cnt Count(SHInvoice+SHSDate+SHRef)
-'    ?Mbr ?BrkMbr JCMMCode
-'    ?Div ?BrkDiv @Exp_r
-'    ?Sto ?BrkSto @Exp_r
-'    ?Dte @Exp_r
-'@Sql.T.Tx.Sel.Crd
-'    CasewhenThen ...
-'    Else ...
-'    :NEnd .Repeat :N END~
-'    End | :NEnd
-'@Sql.T.Tx.And
-'    ?Div ?SelDiv And .Fld@ in (.List@)
-'    ?Crd ?SelCrd And .Fld@ in (.List@)
-'    ?Sto ?SelSto And .Fld@ in (.List@)
-'Sql.T.Tx.And.?Div Fld @Exp_r.Div
-'Sql.T.Tx.And.?Crd Fld @Exp_r.Crd
-'Sql.T.Tx.And.?Sto Fld @Exp_r.Sto
-'Sql.T.Tx.And.?Div List @In.Div
-'Sql.T.Tx.And.?Sto List @In.Sto
-'Sql.T.Tx.And.?Crd List @In.Crd
-'Sql.T.Tx.Gp
-'    Crd @Exp_r.Crd
-'    ?Mbr ?BrkMbr SHMCode
-'    ?Div ?BrkDiv @Exp_r.Div
-'    ?Sto ?BrkSto @Exp_r.Sto
-'    ?Dte ?BrkDte @Exp_r.Dte
-'Exp_r
-'    Div
-'    Sto
-'    Dte
-'        ?SumY @Exp_r. TxY
-'        ?SumM @Exp_r. TxY TxM
-'        ?SumW @Exp_r. TxY TxM TxW
-'        ?SumD @Exp_r. TxY TxM TxW TxD TxWD TxDte
-'    TxY
-'    TxM
-'    TxW
-'    TxD
-'    TxWD
-'    TxDte
-'Sql.T.Print MbrDta.Sel
-'    Mbr JCMCode
-'    Age DATEDIFF(YEAR,CONVERT(DATETIME ,JCMDOB,112),GETDATE())
-'    Sex JCMSex
-'    Sts JCMStatus
-'    Dist JCMDist
-'    Area JCMArea
-'Sql.T.Div.Sel
-'    Div Dept + Division
-'    Nm LongDesc
-'    Seq Seq
-'    Sts Status
-'Sql.T.Sto.Sel
-'    Sto '0'+Loc_Code
-'    Nm Loc_Name
-'    CNm Loc_CName
-'Sql.T.Crd.Sel
-'    Crd CrdTyId
-'    Nm CrdTyNm
-'Print
-'    SelDiv .Ne @P.DivLis *Blank
-'    SelCrd .Ne @P.CrdLis *Blank
-'    SelSto .Ne @P.StoLis *Blank
-'    BrkDiv .Eq @P.BrkSto 1
-'    BrkSto .Eq @P.BrkSto 1
-'    BrkSto .Eq @P.BrkSto 1
-'    Y .Eq @P.SumLvl Y
-'    M .Eq @P.SumLvl M
-'    W .Eq @P.SumLvl W
-'    D .Eq @P.SumLvl D
-'    Dte .Or Y M W D
-'    AnyMbrInf @P !Or .InclAdr .InclPhone .InclMail
-'    Mbr .And BrkMbr AnyMbrInf
-'Sql.O.Oup.Sel
-'    ?Mbr ?BrkMbr Mbr
-'    ?Sto ?BrkSto Sto
-'    ?Div ?BrkDiv Div
-'Sql.O.Oup.Sel.Dte
-'    Y TxY
-'    M TxY TxM
-'    W TxY TxM TxW
-'    D TxY TxM TxW TxD TxWD TxDte
-'Sql.O.Cnt.Sel
-'    MbrCnt 
-'    RecCnt Count(*)
-'    TxCnt Sum(TxCnt)
-'    Qty Sum(Qty)
-'    Amt Sum(Amt)
-'Sql.O.Oup.Jn
-'    Crd | Left Join #Crd a #Crd on a.Crd=x.Crd
-'    ?Mbr ?BrkMbr | Left Join #MbrDta b on a.Mbr = x.Mbr
-'    ?Div ?BrkDiv | Left Join #Div on c.Div = x.Div
-'    ?Sto ?BrkSto | Left Join #Sto on d.Sto = x.Sto ---aaa
-
+Sub AA(Optional Sql3FtVarNm = "")
+Evl__Tst Sql3FtVarNm
 End Sub
 
 Sub AAA()
-L123Ay_L123Pass3Ay__Tst
+Evl_ToDic__Tst
 End Sub
 
-Sub Edt()
-ZZSql3Ft_Edt
+Sub Edt(Optional Sql3FtVarNm = "")
+ZZSql3Ft_Edt Sql3FtVarNm
 End Sub
 
-Function L123(LinI%, L1$, L2$, L3$) As L123
-Dim O As L123
-With O
-    .L1 = L1
-    .L2 = L2
-    .L3 = L3
-    .LinI = LinI
-End With
-L123 = O
-End Function
-
-Function Lin_No3DashLin$(Lin)
-Lin_No3DashLin = RTrim(RmvAft(Lin, "---"))
-End Function
-
-Function Lin_TrmLin$(Lin)
-Lin_TrmLin = RTrim(RmvAft(Lin, "--"))
-End Function
-
-Sub Main()
-Sql3Ft_Dic__Tst
-End Sub
-
-Function Sql3Ft_Dic(Sql3Ft$) As Dictionary
+Private Function Evl(Sql3Ft$) As Dictionary
 Dim Ly$(): Ly = FtLy(Sql3Ft)
 Dim L123Ay() As L123
-L123Ay = Sql3Ly_L123Ay(Ly)
-Set Sql3Ft_Dic = L123Ay_Dic(L123Ay)
+L123Ay = Evl_1____FmSql3Ly_ToL123Ay(Ly)
+'L123Ay = L123Ay_SelNsPfxLvs(L123Ay, "Sql.X.T.Tx Expr Prm ?")
+Set Evl = Evl_2____FmL123Ay_ToDic(L123Ay)
 End Function
 
-Function Sql3Ly_TrmLy(Sql3Ly$()) As String()
-Sql3Ly_TrmLy = AyMapIntoSy(Sql3Ly, "Lin_TrmLin")
+Private Function Evl_1____FmSql3Ly_ToL123Ay(Sql3Ly$()) As L123()
+Dim A() As L123: A = Evl_1___Pass1(Sql3Ly)
+Dim B() As L123: B = Evl_1___Pass2(A)
+Evl_1____FmSql3Ly_ToL123Ay = B
 End Function
 
-Function SwitchPrm_BoolAy(SwitchPrm$, Dic As Dictionary) As Boolean()
-Dim TermAy$()
-    TermAy = SplitSpc(SwitchPrm)
-Dim O() As Boolean
-    ReDim O(UB(TermAy))
-    Dim J%
-    For J = 0 To UB(TermAy)
-        With SwitchTerm_Val(TermAy(J), Dic)
-            If Not .Som Then
-                Stop
-                Exit Function
+Private Function Evl_1___Pass1(Sql3Ly$()) As L123()
+Dim O() As L123
+    Dim L, LinI%, A As L123Opt
+    For Each L In Sql3Ly_TrmLy(Sql3Ly)
+        With TrmLin_L123Opt(L, LinI)
+            If .Som Then
+                L123_Push O, .L123
             End If
-            O(J) = .Bool
         End With
+        LinI = LinI + 1
     Next
-SwitchPrm_BoolAy = O
+Evl_1___Pass1 = O
 End Function
 
-Function SwitchPrm_Val_And(SwitchPrm$, Dic As Dictionary) As Boolean
-SwitchPrm_Val_And = BoolAy_Or(SwitchPrm_BoolAy(SwitchPrm$, Dic))
-End Function
-
-Function SwitchPrm_Val_Eq(SwitchPrm$, Dic As Dictionary) As Boolean
-With SwitchPrm_V1V2(SwitchPrm$, Dic)
-    SwitchPrm_Val_Eq = .S1 = .S2
-End With
-End Function
-
-Function SwitchPrm_Val_Ne(SwitchPrm$, Dic As Dictionary) As Boolean
-With SwitchPrm_V1V2(SwitchPrm$, Dic)
-    SwitchPrm_Val_Ne = .S1 <> .S2
-End With
-End Function
-
-Function SwitchPrm_Val_Or(SwitchPrm$, Dic As Dictionary) As Boolean
-SwitchPrm_Val_Or = BoolAy_Or(SwitchPrm_BoolAy(SwitchPrm$, Dic))
-End Function
-
-Function Wy_RmvItms(A() As WrkDr, IdxAy%()) As WrkDr()
-If AyIsEmpty(IdxAy) Then Wy_RmvItms = A: Exit Function
-Dim O() As WrkDr, J%
-For J = 0 To Wy_UB(A)
-    If Not AyHas(IdxAy, J) Then Wy_Push O, A(J)
-Next
-Wy_RmvItms = O
-End Function
-
-Function Wy_StsPrm(Wy() As WrkDr) As StsPrm
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Ns(Wy, "Prm")
-Dim ODic As New Dictionary
-    Dim J%
-    Dim K$, V$
-    For J = 0 To UB(IdxAy)
-        With Wy(IdxAy(J))
-            V = .L3.Prm
-            K = .Ns & "." & .Nm
-            ODic.Add K, V
-        End With
-    Next
-Set Wy_StsPrm.PrmDic = ODic
-Wy_StsPrm.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Sub ZZSql3Ft_Edt()
-FtBrw ZZSql3Ft
-End Sub
-
-Private Function Eval_L123(A As L123, Dic As Dictionary) As StrOpt
-Dim K$: K = L3_Key(A)
-Dim L3Sy$(): L3Sy = SplitCrLf(A.L3)
-Dim Vy$()
-Dim J%
-
-For J = 0 To UB(L3Sy)
-    With Eval_L3Str(L3Sy(J), K, Dic)
-        If Not .Som Then Exit Function
-        PushNonEmpty Vy, .Str
-    End With
-Next
-Eval_L123 = SomStr(JnVBar(Vy))
-End Function
-
-Private Function Eval_L123Ay(A() As L123, Dic As Dictionary) As ExpOpt
-Dim O As ExpOpt
-    Set O.Dic = New Dictionary
-
-Dim J%, K$
-For J = 0 To L123_UB(A)
-    With Eval_L123(A(J), Dic)
-        If .Som Then
-            O.Som = True
-            K = L123_Key(A(J))
-            O.Dic.Add K, .Str
-        Else
-            L123_Push O.L123AyLeft, A(J)
-        End If
-    End With
-Next
-Eval_L123Ay = O
-End Function
-
-Private Function Eval_L3Str(L3Str$, K$, Dic As Dictionary) As StrOpt
-Dim L3 As L3: L3 = L3_Brk(L3Str)
-If L3_HasSwitch(L3) Then
-    If L3_SwitchIsOff(L3, Dic) Then Eval_L3Str = SomStr(""): Exit Function
-End If
-Dim A As KPD
-    A = KPD(K, L3.Prm, Dic)
-If IsSfx(K, ".Into") Then Stop
-Dim O As StrOpt
-    Select Case L3.Op
-    Case eFixStr:   O = KPD_FixStr(L3.Prm)
-    Case eFixDrp:   O = KPD_Drp(L3.Prm)
-    Case eExp:      O = KPD_Exp(A)
-    Case eExpIn:    O = KPD_ExpIn
-    Case eFixFlag:  O = KPD_FixFlag
-    Case eMac:      O = KPD_Mac(A)
-    Case eRun:      O = KPD_Run(A)
-    Case eExpComma: O = KPD_ExpComma(A)
-    Case eSqlFix:   O = KPD_SqlFix
-    Case eSqlPhrase: O = KPD_SqlPhrase(A)
-    Case eFixLeftJn: O = KPD_FixLeftJn
-    Case eFixAnd:    O = KPD_FixAnd
-    Case eFixEq:     O = KPD_FixEq
-    Case eFixOr:     O = KPD_FixOr
-    Case eFixNe:     O = KPD_FixNe
-    Case Else: Stop
-    End Select
-Eval_L3Str = O
-End Function
-
-Private Function FixOpAy() As eOp()
-
-End Function
-
-Private Function FixOpDic() As Dictionary
-
-End Function
-
-Private Function FixPrm_Val$(FixPrm$, FixOp)
-End Function
-
-Private Function FixPrm_Val_QQ$(FixPrm$, QQStr$)
-End Function
-
-Private Function Key_Ns$(K$)
-Key_Ns = TakBefRev(K, ".")
-End Function
-
-Private Function KPD(K$, L3Prm$, Dic As Dictionary) As KPD
-With KPD
-    .K = K
-    .P = L3Prm
-    Set .D = Dic
-End With
-End Function
-
-Private Function KPD_Drp(L3Prm$) As StrOpt
-KPD_Drp = SomStr(L3Prm)
-End Function
-
-Private Function KPD_Exp(A As KPD) As StrOpt
-Dim Sy$()
-    With KPD_SyOpt(A)
-        If Not .Som Then Exit Function
-        Sy = .Sy
-    End With
-KPD_Exp = SomStr(JnVBar(Sy))
-End Function
-
-Private Function KPD_ExpComma(A As KPD) As StrOpt
-Dim Ay$()
-    Ay = SplitLvs(A.P)
-Dim Sy$()
-    With KPD_SyOpt(A)
-        If Not .Som Then Exit Function
-        Sy = .Sy
-    End With
-Dim O$()
-    Dim J%, B$
-    For J = 0 To UB(Ay)
-        B = Sy(J) & " " & Ay(J)
-        Push O, B
-    Next
-KPD_ExpComma = SomStr(Join(O, ",|    "))
-End Function
-
-Private Function KPD_ExpIn() As StrOpt
-
-End Function
-
-Private Function KPD_FixAnd() As StrOpt
-
-End Function
-
-Private Function KPD_FixEq() As StrOpt
-
-End Function
-
-Private Function KPD_FixFlag() As StrOpt
-
-End Function
-
-Private Function KPD_FixLeftJn() As StrOpt
-
-End Function
-
-Private Function KPD_FixNe() As StrOpt
-
-End Function
-
-Private Function KPD_FixOr() As StrOpt
-
-End Function
-
-Private Function KPD_FixStr(L3Prm$) As StrOpt
-If FstChr(L3Prm) = "." Then
-    KPD_FixStr = SomStr(RmvFstChr(L3Prm))
-Else
-    KPD_FixStr = SomStr(L3Prm)
-End If
-End Function
-
-Private Function KPD_Mac(A As KPD) As StrOpt
-Dim Sy$()
-    With KPD_SyOpt(A)
-        If Not .Som Then Exit Function
-        Sy = .Sy
-    End With
-KPD_Mac = SomStr(JnVBar(Sy))
-End Function
-
-Private Function KPD_Run(A As KPD) As StrOpt
-Dim Ay$()
-    Ay = SplitLvs(A.P)
-Dim FunNm$
-    FunNm = AyShift(Ay)
-Dim Av$()
-    With PrmAy_SyOpt(A.K, Ay, A.D)
-        If Not .Som Then Exit Function
-        Av = .Sy
-    End With
-KPD_Run = SomStr(RunAv(FunNm, Av))
-End Function
-
-Private Function KPD_SqlFix() As StrOpt
-Stop
-End Function
-
-Private Function KPD_SqlPhrase(A As KPD) As StrOpt
-'Debug.Print "KPD_SqlPhrase-", A.P
-Dim SqlKw$
-SqlKw = TakAftRev(A.K, ".")
-Dim O As StrOpt
-Select Case SqlKw
-Case "Sel": O = SqlPhrase_Sel(A)
-Case "Fm": O = SqlPhrase_Fm(A.P)
-Case "Into": O = SqlPhrase_Into(A.K)
-Case "And"
-Case "Gp"
-Case "Upd": O = SqlPhrase_Upd(A.K)
-Case "Set": O = SqlPhrase_Set(A)
-Case "SelDis": O = SqlPhrase_SelDis(A)
-Case "Wh": O = SqlPhrase_Wh(A)
-Case "Jn": O = SqlPhrase_Jn(A)
-Case Else
-    Stop
-End Select
-KPD_SqlPhrase = O
-End Function
-
-Private Function KPD_SyOpt(A As KPD) As SyOpt
-Dim Ay$(): Ay = SplitLvs(A.P)
-KPD_SyOpt = PrmAy_SyOpt(A.K, Ay, A.D)
-End Function
-
-Private Function L123_Dr(A As L123) As Variant()
-With A
-    L123_Dr = Array(.LinI, .L1, .L2, .L3)
-End With
-End Function
-
-Private Function L123_IsEq(A As L123, B As L123)
-With A
-    If .L1 <> B.L1 Then Exit Function
-    If .L2 <> B.L2 Then Exit Function
-End With
-L123_IsEq = True
-End Function
-
-Private Function L123_IsPrmItm(A As L123) As Boolean
-L123_IsPrmItm = A.L1 = "Prm"
-End Function
-
-Private Function L123_IsSwitchItm(A As L123) As Boolean
-L123_IsSwitchItm = A.L1 = "?"
-End Function
-
-Private Function L123_Key$(A As L123)
-L123_Key = A.L1 & "." & A.L2
-End Function
-
-Private Function L123_L1233(A As L123) As L1233
-Dim O As L1233
-With A
-    O.L1 = .L1
-    O.L2 = .L2
-End With
-With L3_L33(A.L3)
-    O.Swtich = .Switch
-    O.OpStr = .OpStr
-    O.Prm = .Prm
-End With
-L123_L1233 = O
-End Function
-
-Private Sub L123_Push(Ay() As L123, M As L123)
-Dim N%: N = L123_Sz(Ay)
-ReDim Preserve Ay(N)
-Ay(N) = M
-End Sub
-
-Private Sub L123_PushL3(O() As L123, I As L123)
-Dim Idx%
-    Idx = L123Ay_Idx(O, I)
-If Idx = -1 Then
-    L123_Push O, I
-    Exit Sub
-End If
-Dim M As L123
-    M = O(Idx)
-    M.L3 = StrAppCrLf(M.L3, I.L3)
-    O(Idx) = M
-End Sub
-
-Private Function L123_Sz%(Ay() As L123)
-On Error Resume Next
-L123_Sz = UBound(Ay) + 1
-End Function
-
-Private Function L123_UB%(Ay() As L123)
-L123_UB = L123_Sz(Ay) - 1
-End Function
-
-Private Function L123_WrkDr(A As L123) As WrkDr
-Dim O As WrkDr
-With O
-    O.LinI = A.LinI
-    O.Ns = A.L1
-    O.Nm = A.L2
-    O.L3 = L3_Brk(A.L3)
-End With
-L123_WrkDr = O
-End Function
-
-Private Function L1233_Dr(A As L1233) As Variant()
-With A
-    L1233_Dr = Array(.LinI, .L1, .L2, .Swtich, .OpStr, .Prm)
-End With
-End Function
-
-Private Function L1233Ay_Drs(A() As L1233) As Drs
-Dim O As Drs
-O.Fny = SplitSpc("LinI L1 L2 Switch OpStr Prm")
-O.Dry = L1233Ay_Dry(A)
-L1233Ay_Drs = O
-End Function
-
-Private Function L1233Ay_Dry(A() As L1233) As Variant()
-Dim O(), J%
-For J = 0 To UBound(A)
-    Push O, L1233_Dr(A(J))
-Next
-L1233Ay_Dry = O
-End Function
-
-Private Sub L123Ay_Brw(A() As L123)
-DrsWs L123Ay_Drs(A)
-End Sub
-
-Private Sub L123Ay_Brw_L1233(A() As L123)
-DrsBrw L123Ay_Drs_L1233(A)
-End Sub
-
-Private Function L123Ay_Dic(A() As L123) As Dictionary
-Dim O As Dictionary
-    Set O = L123Ay_PrmDic(A)
-    Set O = DicAdd(O, L123Ay_SwitchDic(A, O))
-Dim B() As L123
-    B = L123Ay_RmvPrmItm(A)
-    B = L123Ay_RmvSwitchItm(B)
-Dim J%
-Do
-    J = J + 1
-    If J > 100 Then Stop
-    Dim C As ExpOpt
-    C = Eval_L123Ay(B, O)
-    Set O = DicAdd(O, C.Dic)
-    If Not C.Som Then Exit Do
-    B = C.L123AyLeft
-Loop
-If Not L123Ay_IsEmpty(C.L123AyLeft) Then
-    Dim Ay$()
-        Ay = AyAdd(DicLy(O), L123Ay_Ly(C.L123AyLeft))
-    Push Ay, "# of loops: " & J
-    AyBrw Ay
-    Stop
-End If
-Set L123Ay_Dic = O
-End Function
-
-Private Function L123Ay_DistOpSy(A() As L123) As String()
-Dim J%, O() As eOp
-For J = 0 To L123_UB(A)
-    Push O, L3_Brk(A(J).L3).Op
-Next
-Dim OO$(), I, Op As eOp
-For Each I In AyDist(O)
-    Op = I
-    Push OO, OpStr(Op)
-Next
-L123Ay_DistOpSy = OO
-End Function
-
-Private Function L123Ay_Drs(A() As L123) As Drs
-Dim J%, Dry()
-For J = 0 To L123_UB(A)
-    Push Dry, L123_Dr(A(J))
-Next
-L123Ay_Drs.Dry = Dry
-L123Ay_Drs.Fny = SplitSpc("LinI L1 L2 L3")
-End Function
-
-Private Function L123Ay_Drs_L1233(A() As L123) As Drs
-Dim B() As L1233: B = L123Ay_L1233Ay(A)
-L123Ay_Drs_L1233 = L1233Ay_Drs(B)
-End Function
-
-Private Function L123Ay_Idx%(A() As L123, I As L123)
-Dim J%
-For J = 0 To L123_UB(A)
-    If L123_IsEq(A(J), I) Then L123Ay_Idx = J: Exit Function
-Next
-L123Ay_Idx = -1
-End Function
-
-Private Function L123Ay_IsEmpty(A() As L123) As Boolean
-L123Ay_IsEmpty = L123_Sz(A) = 0
-End Function
-
-Private Function L123Ay_L1233Ay(A() As L123) As L1233()
-Dim U%
-    U = UBound(A)
-Dim O() As L1233
-    ReDim O(U)
-Dim J%
-For J = 0 To UBound(O)
-    O(J) = L123_L1233(A(J))
-Next
-L123Ay_L1233Ay = O
-End Function
-
-Private Function L123Ay_L123Pass2Ay(A() As L123) As L123()
+Private Function Evl_1___Pass2(A() As L123) As L123()
 Dim U%
     U = UBound(A)
 Dim O() As L123
@@ -865,20 +135,762 @@ Dim O() As L123
         LasL1 = M.L1
         LasL2 = M.L2
     Next
-L123Ay_L123Pass2Ay = L123Ay_RmvL1(O)
+Evl_1___Pass2 = Evl_1___Pass2_RmvL1(O)
 End Function
 
-Private Function L123Ay_L123Pass3Ay(A() As L123) As L123()
-Dim J%
-Dim O() As L123
+Private Function Evl_1___Pass2_RmvL1(A() As L123) As L123()
+Dim O() As L123, J%
 For J = 0 To L123_UB(A)
-    L123_PushL3 O, A(J)
+    With A(J)
+        If .L2 <> "" Or .L3 <> "" Then L123_Push O, A(J)
+    End With
 Next
-L123Ay_L123Pass3Ay = O
+Evl_1___Pass2_RmvL1 = O
+End Function
+
+Private Function Evl_2____FmL123Ay_ToDic(A() As L123) As Dictionary
+Dim B1() As L12SOPS
+Dim B2() As L12SOPS
+Dim B3() As L12SOPS
+    B1 = Evl_21___FmL123Ay_ToL12SOPSAy(A)
+    B2 = Evl_22___EvlPrm(B1)
+    B3 = Evl_23___EvlSwitch(B2)
+Dim C1() As L12SOPS
+    C1 = B3
+Dim J%, C2() As L12SOPS
+For J = 0 To 99
+    C2 = Evl_24___EvlOneCycle(C1)
+    
+    Dim Bef_UB%: Bef_UB = L12SOPS_UB(C1)
+    Dim Aft_UB%: Aft_UB = L12SOPS_UB(C2)
+    If Aft_UB <> Bef_UB Then Stop
+    
+    Dim Bef%: Bef = L12SOPSAy_DonCnt(C1)
+    Dim Aft%: Aft = L12SOPSAy_DonCnt(C2)
+    If Bef = Aft Then GoTo X
+    C1 = C2
+Next
+Never
+X:
+Dim O As Dictionary
+    Set O = Evl_ToDic(C2)
+
+Dim IsAllDon As Boolean: IsAllDon = L12SOPSAy_IsAllDon(C2)
+Dim NotDonCnt%:          NotDonCnt = L12SOPSAy_NotDonCnt(C2)
+If Not IsAllDon Then
+    Dim Dt1 As Dt: Dt1 = L12SOPSAy_Dt(L12SOPSAy_Srt(C2))
+                   Dt1 = DtDrpCol(Dt1, "L1 L2")
+                   Dt1 = DtReOrd(Dt1, "Done")
+    Dim Dt2 As Dt: Dt2 = DicDt(O, "Rslt Dic")
+    Dim Dt3 As Dt: Dt3 = DicDt(DicByDry(Array( _
+        Array("Loop Count", J), _
+        Array("IsAllDon", IsAllDon), _
+        Array("NotDonCnt", NotDonCnt))))
+    Dim Ds As Ds
+        DsAddDt Ds, Dt1
+        DsAddDt Ds, Dt2
+        DsAddDt Ds, Dt3
+    DtBrw Dt1
+    DtBrw Dt2
+    DtBrw Dt3
+    Stop
+End If
+Set Evl_2____FmL123Ay_ToDic = O
+End Function
+
+Private Function Evl_21___FmL123Ay_ToL12SOPSAy(A() As L123) As L12SOPS()
+Dim O() As L12SOPS
+Dim J%
+For J = 0 To L123_UB(A)
+    L12SOPS_Push O, L123_L12SOPS(A(J))
+Next
+Evl_21___FmL123Ay_ToL12SOPSAy = O
+End Function
+
+Private Function Evl_22___EvlPrm(A() As L12SOPS) As L12SOPS()
+Dim O() As L12SOPS
+    O = A
+Dim J%
+For J = 0 To L12SOPS_UB(A)
+    If A(J).L1 = "Prm" Then
+        O(J).S = A(J).Prm
+        O(J).Don = True
+    End If
+Next
+Evl_22___EvlPrm = O
+End Function
+
+Private Function Evl_23___EvlSwitch(A() As L12SOPS) As L12SOPS()
+Dim O() As L12SOPS
+    O = A
+Dim X%
+For X = 0 To 99
+    Dim J%
+    With Evl_231__EvlSwitchOneCycle(O)
+        If .Som Then
+            O = .L12SOPSAy
+            GoTo Nxt
+        End If
+        If Not L12SOPSAy_IsAllSwitchSet(O) Then Stop
+        Evl_23___EvlSwitch = O
+        Exit Function
+    End With
+Nxt:
+Next
+Debug.Print "Never reach here"
+Stop
+End Function
+
+Private Function Evl_23___EvlSwitchVal(Op As eOp, Prm$, Dic As Dictionary) As Boolean
+Dim O As Boolean
+Select Case Op
+Case eFixEq:  O = Evl_231__EvlSwitchVal_ForEq(Prm, Dic)
+Case eFixNe:  O = Evl_232__EvlSwitchVal_ForNe(Prm, Dic)
+Case eFixOr:  O = Evl_233__EvlSwitchVal_ForOr(Prm, Dic)
+Case eFixAnd: O = Evl_234__EvlSwitchVal_ForAnd(Prm, Dic)
+Case Else: Stop
+End Select
+Evl_23___EvlSwitchVal = O
+End Function
+
+Private Function Evl_231__EvlSwitchOneCycle(A() As L12SOPS) As L12SOPSAyOpt
+Dim J%, O() As L12SOPS, Som As Boolean
+O = A
+For J = 0 To L12SOPS_UB(A)
+    With Evl_2311_EvlSwitchItm(O, J)
+        If .Som Then
+            O(J).S = .Bool      'Only case for .S to Be boolean
+            O(J).Don = True
+            Som = True
+        End If
+    End With
+Next
+If Som Then
+    Evl_231__EvlSwitchOneCycle = SomL12SOPSAy(O)
+End If
+End Function
+
+Private Function Evl_231__EvlSwitchVal_ForEq(SwitchPrm$, Dic As Dictionary) As Boolean
+With SwitchPrm_V1V2(SwitchPrm$, Dic)
+    Evl_231__EvlSwitchVal_ForEq = .S1 = .S2
+End With
+End Function
+
+Private Function Evl_2311_EvlSwitchItm(A() As L12SOPS, Idx%) As BoolOpt
+Dim M As L12SOPS
+M = A(Idx)
+If M.Don Then Exit Function
+If M.L1 <> "?" Then Exit Function
+If M.Switch <> "" Then Stop ' SwitchItm cannot have Switch
+Dim L3Str$
+Dim Dic As Dictionary
+    Set Dic = Evl_ToDic(A)
+    L3Str = OpStr(M.Op) & " " & M.Prm
+Evl_2311_EvlSwitchItm = SomBool(L3Str_SwitchVal(L3Str, Dic))
+End Function
+
+Private Function Evl_232__EvlSwitchVal_ForNe(SwitchPrm$, Dic As Dictionary) As Boolean
+With SwitchPrm_V1V2(SwitchPrm$, Dic)
+    Evl_232__EvlSwitchVal_ForNe = .S1 <> .S2
+End With
+End Function
+
+Private Function Evl_233__EvlSwitchVal_ForOr(SwitchPrm$, Dic As Dictionary) As Boolean
+Evl_233__EvlSwitchVal_ForOr = BoolAy_Or(SwitchPrm_BoolAy(SwitchPrm$, Dic))
+End Function
+
+Private Function Evl_234__EvlSwitchVal_ForAnd(SwitchPrm$, Dic As Dictionary) As Boolean
+Evl_234__EvlSwitchVal_ForAnd = BoolAy_Or(SwitchPrm_BoolAy(SwitchPrm$, Dic))
+End Function
+
+Private Function Evl_24___EvlOneCycle(A() As L12SOPS) As L12SOPS()
+Dim O() As L12SOPS
+    O = A
+Dim J%
+For J = 0 To L12SOPS_UB(A)
+    With Evl_241__EvlOneIdx(A, J)
+        If .Som Then
+            O(J).S = .Str
+            O(J).Don = True
+        End If
+    End With
+Next
+Evl_24___EvlOneCycle = O
+End Function
+
+Private Function Evl_241__EvlOneIdx(A() As L12SOPS, Idx%) As StrOpt
+Dim M As L12SOPS: M = A(Idx)
+If M.Don Then Exit Function
+Dim K$: K = L12SOPS_Key(M)
+Dim O() As L12SOPS
+    O = A
+Dim Dic As Dictionary
+    Set Dic = Evl_ToDic(O)
+Evl_241__EvlOneIdx = Evl_2412_EvlOneItm(K, M.Switch, M.Op, M.Prm, Dic)
+End Function
+
+Private Function Evl_2412_EvlOneItm(K$, Switch$, Op As eOp, Prm$, Dic As Dictionary) As StrOpt
+If Evl_24120_HasSwitch_And_IsOff(Switch, Dic) Then
+    Evl_2412_EvlOneItm = SomStr("")
+    Exit Function
+End If
+
+Dim A As KPD
+    A = KPD(K, Prm, Dic)
+Dim O As StrOpt
+    Select Case Op
+    Case eSqlStmt:   O = Evl_24121_SqlStmt(A)
+    Case eFixStr:    O = Evl_24122_FixStr(Prm)
+    Case eFixDrp:    O = Evl_24123_Drp(Prm)
+    Case eExp:       O = Evl_24124_Exp(A)
+    Case eExpIn:     O = Evl_24125_ExpIn(A)
+    Case eMac:       O = Evl_24126_Mac(A)
+    Case eRun:       O = Evl_24127_Run(A)
+    Case eExpComma:  O = Evl_24128_ExpComma(A)
+    Case eSqlPhrase: O = Evl_24129_SqlPhrase(A)
+    Case eSqlSel:    O = Evl_2412A_SqlSelFldLis(A)
+    Case Else: Stop
+    End Select
+Evl_2412_EvlOneItm = O
+End Function
+
+Private Function Evl_24120_HasSwitch_And_IsOff(L3Switch$, Dic As Dictionary) As Boolean
+If L3Switch = "" Then Exit Function
+If Not Dic.Exists(L3Switch) Then Stop
+Dim V: V = Dic(L3Switch)
+If Not IsBool(V) Then Stop
+Evl_24120_HasSwitch_And_IsOff = Not V
+End Function
+
+Private Function Evl_24121_SqlStmt(A As KPD) As StrOpt
+Dim Sy$()
+    'A.P is a list of sql phrase.  Some of them does not find in A.D, but they can evaluated directly
+    'Those terms are: Into Upd
+    Dim Ay$(): Ay = SplitLvs(A.P)
+    Dim I
+    For Each I In Ay
+        Select Case I
+        Case "Into":    Push Sy, "|  Into #" & RmvPfx(TakAftRev(A.K, "."), "?")
+        Case "Upd":     Push Sy, "Update #" & TakAftRev(A.K, "#")
+        Case Else
+            With Evl_PrmAy_1__EvlOneTerm(A.K, I, A.D)
+                If Not .Som Then Exit Function
+                Push Sy, .Str
+            End With
+        End Select
+    Next
+Evl_24121_SqlStmt = SomStr(Join(Sy) & "|")
+End Function
+
+Private Function Evl_24122_FixStr(L3Prm$) As StrOpt
+Evl_24122_FixStr = SomStr(RplFstChrToIf(L3Prm, ".", " "))
+End Function
+
+Private Function Evl_24123_Drp(L3Prm$) As StrOpt
+Evl_24123_Drp = SomStr("Drop " & L3Prm & "|")
+End Function
+
+Private Function Evl_24124_Exp(A As KPD) As StrOpt
+Dim Sy$()
+    With Evl_PrmLvs(A)
+        If Not .Som Then Exit Function
+        Sy = .Sy
+    End With
+Evl_24124_Exp = SomStr(JnVBar(Sy))
+End Function
+
+Private Function Evl_24125_ExpIn(A As KPD) As StrOpt
+Static N%
+N = N + 1
+Dim Ay$(): Ay = SplitLvs(A.P)
+If Sz(Ay) <> 2 Then Stop
+If N >= 20 Then Stop
+Dim S$, InLis$
+    With Evl_PrmAy(A.K, Ay, A.D)
+        If Not .Som Then Exit Function
+        S = .Sy(0)
+        InLis = .Sy(1)
+    End With
+Evl_24125_ExpIn = SomStr(FmtQQ("? In (?)", S, InLis))
+End Function
+
+Private Function Evl_24126_Mac(A As KPD) As StrOpt
+Dim Sy$()
+    With Evl_PrmLvs(A)
+        If Not .Som Then Exit Function
+        Sy = .Sy
+    End With
+Evl_24126_Mac = SomStr(JnVBar(Sy))
+End Function
+
+Private Function Evl_24127_Run(A As KPD) As StrOpt
+Dim Ay$()
+    Ay = SplitLvs(A.P)
+Dim MthNm$
+    MthNm = AyShift(Ay)
+Dim Av$()
+    With Evl_PrmAy(A.K, Ay, A.D)
+        If Not .Som Then Exit Function
+        Av = .Sy
+    End With
+Evl_24127_Run = SomStr(RunAv(MthNm, Av))
+End Function
+
+Private Function Evl_24128_ExpComma(A As KPD) As StrOpt
+Dim Ay$()
+    Ay = SplitLvs(A.P)
+Dim Sy$()
+    With Evl_PrmLvs(A)
+        If Not .Som Then Exit Function
+        Sy = .Sy
+    End With
+Dim O$()
+    Dim J%, B$
+    For J = 0 To UB(Ay)
+        B = Sy(J) & " " & Ay(J)
+        Push O, B
+    Next
+Evl_24128_ExpComma = SomStr(Join(O, ",|    "))
+End Function
+
+Private Function Evl_24129_SqlPhrase(A As KPD) As StrOpt
+'Debug.Print "Evl_24129_SqlPhrase-", A.P
+Dim SqlKw$
+SqlKw = TakAftRev(A.K, ".")
+Dim O As StrOpt
+Select Case SqlKw
+Case "Sel":    O = Evl_241291__SqlSel(A)
+Case "Into":   Stop: O = Evl_241292__SqlInto(A.K) ' No need to define [Into]
+Case "Fm":     O = Evl_241293__SqlFm(A.P)
+Case "And":    O = Evl_241294__SqlAnd(A)          ' No need to define [Into]
+Case "Gp":     O = Evl_241295__SqlGp(A)
+Case "Upd":    Stop: O = Evl_241296__SqlUpd(A.K)  ' No need to define [Upd]
+Case "Set":    O = Evl_241297__SqlSet(A)
+Case "SelDis": O = Evl_241298__SqlSelDis(A)
+Case "Wh":     O = Evl_241299__SqlWh(A)
+Case "Jn":     O = Evl_24129A__SqlJn(A)
+Case Else
+    Stop
+End Select
+Evl_24129_SqlPhrase = O
+End Function
+
+Private Function Evl_241291__SqlSel(A As KPD) As StrOpt
+Dim O$
+    With Evl_2412A_SqlSelFldLis(A)
+        If Not .Som Then Exit Function
+        O = .Str
+    End With
+Evl_241291__SqlSel = SomStr("Select|" & O)
+End Function
+
+Private Function Evl_241292__SqlInto(K$) As StrOpt
+Debug.Print "It should never be called, because, SqlKw-Into is no need to code."
+Debug.Print "In $ or @"
+Stop
+Dim T$
+    With BrkRev(K$, ".")
+        If .S2 <> "Into" Then Stop
+        T = TakAftRev(.S1, ".")
+    End With
+Evl_241292__SqlInto = SomStr("|   Into " & T)
+End Function
+
+Private Function Evl_241293__SqlFm(L3Prm$) As StrOpt
+Evl_241293__SqlFm = SomStr("|  From " & L3Prm)
+End Function
+
+Private Function Evl_241294__SqlAnd(A As KPD) As StrOpt
+Dim Sy$()
+    With Evl_PrmLvs(A)
+        If Not .Som Then
+            Exit Function
+        End If
+        Sy = .Sy
+    End With
+Evl_241294__SqlAnd = SomStr(Join(AyAddPfx("|    And ", Sy)))
+End Function
+
+Private Function Evl_241295__SqlGp(A As KPD) As StrOpt
+Dim B As KPD
+    B = A
+    If Not IsSfx(B.K, ".Gp") Then Stop
+    B.K = RmvSfx(B.K, ".Gp") & ".Sel"
+Dim Sy$()
+    With Evl_PrmLvs(B)
+        If Not .Som Then
+            Exit Function
+        End If
+        Sy = AyRmvEmpty(.Sy)
+    End With
+Dim O$
+    Sy = AyAlignL(Sy)
+    Sy = AyAddPfx(Sy, "|    ")
+    O = JnComma(Sy)
+    O = "|  Group By" & O
+    Evl_241295__SqlGp = SomStr(O)
+End Function
+
+Private Function Evl_241296__SqlUpd(K$) As StrOpt
+Debug.Print "It should never be called, because, SqlKw-Upd is no need to code."
+Debug.Print "In $ or @"
+Stop
+Dim Ns$: Ns = Key_Ns(K)
+Dim A$: A = TakAftRev(Ns, ".")
+Dim T$: T = TakBefRev(A, "#")
+Dim O$
+    O = "Update #" & T
+Evl_241296__SqlUpd = SomStr(O)
+End Function
+
+Private Function Evl_241297__SqlSet(A As KPD) As StrOpt
+Dim Ay$()
+    Ay = SplitLvs(A.P)
+Dim Sy$()
+    With Evl_PrmLvs(A)
+        If Not .Som Then Exit Function
+        Sy = .Sy
+    End With
+Dim O$()
+    Dim J%, B$
+    For J = 0 To UB(Ay)
+        B = Ay(J) & " = " & Sy(J)
+        Push O, B
+    Next
+Evl_241297__SqlSet = SomStr("|  Set|    " & Join(O, ",|    "))
+End Function
+
+Private Function Evl_241298__SqlSelDis(A As KPD) As StrOpt
+Dim Ay$()
+    Ay = SplitLvs(A.P)
+Dim Sy$()
+    With Evl_PrmLvs(A)
+        If Not .Som Then Exit Function
+        Sy = .Sy
+    End With
+Dim O$()
+    Dim J%, B$
+    For J = 0 To UB(Ay)
+        B = Sy(J) & " " & Ay(J)
+        Push O, B
+    Next
+Evl_241298__SqlSelDis = SomStr("Select|  Distinct|    " & Join(O, ",|    "))
+End Function
+
+Private Function Evl_241299__SqlWh(A As KPD) As StrOpt
+Dim O$
+    O = "|  Where " & FmtMacroDic(A.P, A.D)
+Evl_241299__SqlWh = SomStr(O)
+End Function
+
+Private Function Evl_24129A__SqlJn(A As KPD) As StrOpt
+Dim Ay$()
+    Ay = SplitLvs(A.P)
+Dim Sy$()
+    With Evl_PrmLvs(A)
+        If Not .Som Then
+            Exit Function
+        End If
+        Sy = .Sy
+    End With
+Dim O$()
+    O = AyAddPfx("|    ", AyRmvEmpty(Sy))
+Evl_24129A__SqlJn = SomStr(Join(O))
+End Function
+Private Function Evl_2412A_SqlSelFldLis(A As KPD) As StrOpt
+
+End Function
+
+Private Function Evl_PrmAy(K$, PrmAy$(), Dic As Dictionary) As SyOpt
+'{Prm} in PrmAy is either with [.] or not.
+'If FstChr is [.], just the {Prm}
+'If with [.], just use {Prm} to lookup value in Dic
+'If no [.], use {K}.{Prm} to lookup value in Dic
+Dim Vy$(), PrmTerm
+    For Each PrmTerm In PrmAy
+        With Evl_PrmAy_1__EvlOneTerm(K, PrmTerm, Dic)
+            If Not .Som Then Exit Function
+            Push Vy, .Str
+        End With
+    Next
+Evl_PrmAy = SomSy(Vy)
+End Function
+
+Private Function Evl_PrmAy_1__EvlOneTerm(K$, PrmTerm, Dic As Dictionary) As StrOpt
+If Not Evl_PrmAy_11_IsTermValid(K, PrmTerm, Dic) Then Exit Function
+
+If FstChr(PrmTerm) = "." Then
+    Evl_PrmAy_1__EvlOneTerm = SomStr(PrmTerm)
+    Exit Function
+End If
+If HasSubStr(PrmTerm, ".") Then
+    Evl_PrmAy_1__EvlOneTerm = SomStr(Dic(PrmTerm))
+    Exit Function
+End If
+Evl_PrmAy_1__EvlOneTerm = SomStr(Dic(K & "." & PrmTerm))
+End Function
+
+Private Function Evl_PrmAy_11_IsTermValid(K$, PrmTerm, Dic As Dictionary) As Boolean
+Evl_PrmAy_11_IsTermValid = True
+If FstChr(PrmTerm) = "." Then Exit Function
+If HasSubStr(PrmTerm, ".") Then
+    If Dic.Exists(PrmTerm) Then Exit Function
+End If
+If Dic.Exists(K & "." & PrmTerm) Then Exit Function
+Evl_PrmAy_11_IsTermValid = False
+End Function
+
+Private Function Evl_PrmLvs(A As KPD) As SyOpt
+Dim Ay$(): Ay = SplitLvs(A.P)
+Evl_PrmLvs = Evl_PrmAy(A.K, Ay, A.D)
+End Function
+
+Private Function Evl_SetFixStr(A() As L12SOPS) As L12SOPS()
+Dim O() As L12SOPS: O = A
+Dim J&
+For J = 0 To L12SOPS_UB(O)
+    If O(J).Op = eFixStr Then
+        O(J).Don = True
+        O(J).S = RplFstChrToIf(O(J).Prm, ".", " ")
+    End If
+Next
+Evl_SetFixStr = O
+End Function
+
+Private Function Evl_ToDic(A() As L12SOPS) As Dictionary
+Dim PrmQ As Dictionary: Set PrmQ = Evl_ToDic_1_FmPrmQ(A)
+Dim SngD As Dictionary: Set SngD = Evl_ToDic_2_FmSngNm(A)
+Dim MulD As Dictionary: Set MulD = Evl_ToDic_3_FmMulNm(A)
+Set Evl_ToDic = DicAdd(PrmQ, SngD, MulD)
+End Function
+
+Private Function Evl_ToDic_1_FmPrmQ(A() As L12SOPS) As Dictionary
+Dim J%, O As New Dictionary, K$, V As Boolean
+For J = 0 To L12SOPS_UB(A)
+    If L12SOPS_IsPrmSwitch(A(J)) Then
+        K = A(J).L2
+        Select Case A(J).Prm
+        Case "1": V = True
+        Case "0": V = False
+        Case Else: Stop
+        End Select
+        O.Add K, V
+    End If
+Next
+Set Evl_ToDic_1_FmPrmQ = O
+End Function
+
+Private Function Evl_ToDic_2_FmSngNm(A() As L12SOPS) As Dictionary
+Dim B() As L12SOPS: B = L12SOPSAy_SelSngNm(A)
+Dim J%, O As New Dictionary
+For J = 0 To L12SOPS_UB(B)
+    If B(J).Don Then
+        O.Add L12SOPS_Key(B(J)), B(J).S
+    End If
+Next
+Set Evl_ToDic_2_FmSngNm = O
+End Function
+
+Private Function Evl_ToDic_3_FmMulNm(A() As L12SOPS) As Dictionary
+Dim B() As L12SOPS
+    B = A
+Dim O As New Dictionary
+Dim X%
+For X = 0 To 99
+    With L12SOPSAy_MulNmS1S2Opt(B)
+        If Not .Som Then
+            Set Evl_ToDic_3_FmMulNm = O
+            Exit Function
+        End If
+        With .S1S2
+            O.Add .S1, .S2
+            B = L12SOPSAy_MinusL1L2(B, .S1, .S2)
+        End With
+    End With
+Next
+Never
+End Function
+
+Private Function Key_Ns$(K$)
+Key_Ns = TakBefRev(K, ".")
+End Function
+
+Private Function KPD(K$, L3Prm$, Dic As Dictionary) As KPD
+With KPD
+    .K = K
+    .P = L3Prm
+    Set .D = Dic
+End With
+End Function
+
+Private Sub KPD_Brw(A As KPD)
+AyBrw KPD_Ly(A)
+End Sub
+
+Private Function KPD_Ly(A As KPD)
+Dim O As New Dictionary
+    O.Add ".Key", A.K
+    O.Add ".Prm", A.P
+    Set O = DicAdd(O, A.D)
+KPD_Ly = DicLy(O)
+End Function
+
+Private Sub KPDDmp(A1 As KPD)
+AyDmp KPDLy(A1)
+End Sub
+
+Private Function KPDLy(A As KPD) As String()
+Dim D As Dictionary
+    Set D = DicClone(A.D)
+    D.Add "**Key", A.K
+    D.Add "**Prm", A.P
+    Set D = DicSrt(D)
+KPDLy = DicLy(D)
+End Function
+
+Private Function L123(LinI%, L1$, L2$, L3$) As L123
+Dim O As L123
+With O
+    .L1 = L1
+    .L2 = L2
+    .L3 = L3
+    .LinI = LinI
+End With
+L123 = O
+End Function
+
+Private Function L123_Dr(A As L123) As Variant()
+With A
+    L123_Dr = Array(.LinI, .L1, .L2, .L3)
+End With
+End Function
+
+Private Function L123_IsEq(A As L123, B As L123)
+With A
+    If .L1 <> B.L1 Then Exit Function
+    If .L2 <> B.L2 Then Exit Function
+End With
+L123_IsEq = True
+End Function
+
+Private Function L123_IsInDic(A As L123, D As Dictionary) As Boolean
+Dim K$: K = L123_Key(A)
+L123_IsInDic = D.Exists(K)
+End Function
+
+Private Function L123_IsPrmItm(A As L123) As Boolean
+L123_IsPrmItm = A.L1 = "Prm"
+End Function
+
+Private Function L123_IsSwitchItm(A As L123) As Boolean
+L123_IsSwitchItm = A.L1 = "?"
+End Function
+
+Private Function L123_Key$(A As L123)
+L123_Key = A.L1 & "." & A.L2
+End Function
+
+Private Function L123_L12SOPS(A As L123) As L12SOPS
+Dim O As L12SOPS
+Dim B As L3
+B = L3Str_Brk(A.L3)
+With O
+    .LinI = A.LinI
+    .L1 = A.L1
+    .L2 = A.L2
+    .Prm = B.Prm
+    .Switch = B.Switch
+    .Op = B.Op
+End With
+L123_L12SOPS = O
+End Function
+
+Private Sub L123_Push(Ay() As L123, M As L123)
+Dim N%: N = L123_Sz(Ay)
+ReDim Preserve Ay(N)
+Ay(N) = M
+End Sub
+
+Private Function L123_Sz%(Ay() As L123)
+On Error Resume Next
+L123_Sz = UBound(Ay) + 1
+End Function
+
+Private Function L123_UB%(Ay() As L123)
+L123_UB = L123_Sz(Ay) - 1
+End Function
+
+Private Function L123_WrkDr(A As L123) As WrkDr
+Dim O As WrkDr
+With O
+    O.LinI = A.LinI
+    O.Ns = A.L1
+    O.Nm = A.L2
+    O.L3 = L3Str_Brk(A.L3)
+End With
+L123_WrkDr = O
+End Function
+
+Private Sub L123Ay_Brw(A() As L123, Optional Fnn)
+DrsBrw L123Ay_Drs(A), Fnn:=Fnn
+End Sub
+
+Private Function L123Ay_DistOpSy(A() As L123) As String()
+Dim J%, O() As eOp
+For J = 0 To L123_UB(A)
+    Push O, L3Str_Brk(A(J).L3).Op
+Next
+Dim OO$(), I, Op As eOp
+For Each I In AyDist(O)
+    Op = I
+    Push OO, OpStr(Op)
+Next
+L123Ay_DistOpSy = OO
+End Function
+
+Private Function L123Ay_Drs(A() As L123) As Drs
+Dim J%, Dry()
+For J = 0 To L123_UB(A)
+    Push Dry, L123_Dr(A(J))
+Next
+L123Ay_Drs.Dry = Dry
+L123Ay_Drs.Fny = SplitSpc("LinI L1 L2 L3")
+End Function
+
+Private Function L123Ay_Dt(A() As L123) As Dt
+Dim O As Dt
+With L123Ay_Drs(A)
+    O.Dry = .Dry
+    O.Fny = .Fny
+End With
+O.DtNm = "L123"
+L123Ay_Dt = O
+End Function
+
+Private Function L123Ay_Idx%(A() As L123, I As L123)
+Dim J%
+For J = 0 To L123_UB(A)
+    If L123_IsEq(A(J), I) Then L123Ay_Idx = J: Exit Function
+Next
+L123Ay_Idx = -1
+End Function
+
+Private Function L123Ay_IsEmpty(A() As L123) As Boolean
+L123Ay_IsEmpty = L123_Sz(A) = 0
 End Function
 
 Private Function L123Ay_Ly(A() As L123) As String()
 L123Ay_Ly = DrsLy(L123Ay_Drs(A))
+End Function
+
+Private Function L123Ay_MinusDic(A() As L123, D As Dictionary) As L123()
+Dim O() As L123, J%
+For J = 0 To L123_UB(A)
+    If Not L123_IsInDic(A(J), D) Then
+        L123_Push O, A(J)
+    End If
+Next
+L123Ay_MinusDic = O
 End Function
 
 Private Function L123Ay_PrmDic(A() As L123) As Dictionary
@@ -888,22 +900,12 @@ Dim O As New Dictionary
     Dim K$, V$
     For J = 0 To L123_UB(B)
         With B(J)
-            V = L3_Brk(.L3).Prm
+            V = L3Str_Brk(.L3).Prm
             K = .L1 & "." & .L2
             O.Add K, V
         End With
     Next
 Set L123Ay_PrmDic = O
-End Function
-
-Private Function L123Ay_RmvL1(A() As L123) As L123()
-Dim O() As L123, J%
-For J = 0 To L123_UB(A)
-    With A(J)
-        If .L2 <> "" Or .L3 <> "" Then L123_Push O, A(J)
-    End With
-Next
-L123Ay_RmvL1 = O
 End Function
 
 Private Function L123Ay_RmvPrmItm(A() As L123) As L123()
@@ -936,6 +938,18 @@ Next
 L123Ay_SelL1 = O
 End Function
 
+Private Function L123Ay_SelNsPfxLvs(L123Ay() As L123, NsPfxLvs$) As L123()
+Dim J%, NsPfxAy$(), M As L123, O() As L123
+NsPfxAy = SplitLvs(NsPfxLvs)
+For J = 0 To L123_UB(L123Ay)
+    M = L123Ay(J)
+    If PfxAyHas(NsPfxAy, M.L1) Then
+        L123_Push O, M
+    End If
+Next
+L123Ay_SelNsPfxLvs = O
+End Function
+
 Private Function L123Ay_SelPrm(A() As L123) As L123()
 L123Ay_SelPrm = L123Ay_SelL1(A, "Prm")
 End Function
@@ -947,9 +961,10 @@ End Function
 Private Function L123Ay_SwitchDic(A() As L123, PrmDic As Dictionary) As Dictionary
 Dim B() As L123
     B = L123Ay_SelSwitch(A)
-Dim O As New Dictionary
+Dim O As Dictionary
+    Set O = SwitchPrmDic(PrmDic)    '<== Any Prm with Nm = ?XXX, promote them as Switch
     Dim Dic As Dictionary
-    Set Dic = DicClone(PrmDic)
+    Set Dic = DicAdd(PrmDic, O)
     Dim J%, K$, V As Boolean
     For J = 0 To L123_UB(B)
         K = "?" & B(J).L2
@@ -972,9 +987,223 @@ Next
 L123Ay_Wy = O
 End Function
 
-Private Function L3_Brk(L3$) As L3
-Dim L$: L = Trim(L3)
-If L3 = "" Then Exit Function
+Private Function L12SOPS_Dr(A As L12SOPS) As Variant()
+With A
+    L12SOPS_Dr = Array(.LinI, .L1, .L2, L12SOPS_Key(A), .Switch, OpStr(.Op), .Prm, .S, .Don)
+End With
+End Function
+
+Private Function L12SOPS_IsInDic(A As L12SOPS, D As Dictionary) As Boolean
+Dim K$: K = L12SOPS_Key(A)
+L12SOPS_IsInDic = D.Exists(K)
+End Function
+
+Private Function L12SOPS_IsPrmSwitch(A As L12SOPS) As Boolean
+With A
+    If .L1 = "Prm" Then
+        If IsPfx(.L2, "?") Then
+            L12SOPS_IsPrmSwitch = True
+        End If
+    End If
+End With
+End Function
+
+Private Function L12SOPS_Key$(A As L12SOPS)
+If A.L1 = "?" Then
+    L12SOPS_Key = "?" & A.L2
+Else
+    L12SOPS_Key = A.L1 & "." & A.L2
+End If
+End Function
+
+Private Sub L12SOPS_Push(A() As L12SOPS, M As L12SOPS)
+Dim N%: N = L12SOPS_Sz(A)
+ReDim Preserve A(N)
+A(N) = M
+End Sub
+
+Private Function L12SOPS_Sz%(A() As L12SOPS)
+On Error Resume Next
+L12SOPS_Sz = UBound(A) + 1
+End Function
+
+Private Function L12SOPS_UB%(A() As L12SOPS)
+L12SOPS_UB = L12SOPS_Sz(A) - 1
+End Function
+
+Private Function L12SOPSAy_Brw(A() As L12SOPS, Optional Fnn)
+DtBrw L12SOPSAy_Dt(A), Fnn
+End Function
+
+Private Function L12SOPSAy_Brw_NoL1L2(A() As L12SOPS, Optional Fnn)
+DtBrw L12SOPSAy_Dt_NoL1L2(A), Fnn
+End Function
+
+Private Function L12SOPSAy_DonCnt%(A() As L12SOPS)
+Dim O%
+Dim J%
+For J = 0 To L12SOPS_UB(A)
+    If A(J).Don Then O = O + 1
+Next
+L12SOPSAy_DonCnt% = O
+End Function
+
+Private Function L12SOPSAy_Drs(A() As L12SOPS) As Drs
+L12SOPSAy_Drs = Drs(L12SOPSAy_Fny, L12SOPSAy_Dry(A))
+End Function
+
+Private Function L12SOPSAy_Dry(A() As L12SOPS) As Variant()
+Dim Dr, O(), J%
+For J = 0 To L12SOPS_UB(A)
+    Push O, L12SOPS_Dr(A(J))
+Next
+L12SOPSAy_Dry = O
+End Function
+
+Private Function L12SOPSAy_Dt(A() As L12SOPS) As Dt
+L12SOPSAy_Dt = Dt("L12SOPS", L12SOPSAy_Drs(A))
+End Function
+
+Private Function L12SOPSAy_Dt_NoL1L2(A() As L12SOPS) As Dt
+Dim B As Dt: B = L12SOPSAy_Dt(A)
+L12SOPSAy_Dt_NoL1L2 = DtDrpCol(B, "L1 L2")
+End Function
+
+Private Function L12SOPSAy_Fny() As String()
+L12SOPSAy_Fny = SplitLvs("LinI L1 L2 Key Switch OpStr Prm S Done")
+End Function
+
+Private Function L12SOPSAy_Has(A() As L12SOPS, I As L12SOPS) As Boolean
+Dim J%
+With I
+    For J = 0 To L12SOPS_UB(A)
+        If A(J).L1 <> I.L1 Then GoTo Nxt
+        If A(J).L2 <> I.L2 Then GoTo Nxt
+        L12SOPSAy_Has = True
+        Exit Function
+Nxt:
+    Next
+End With
+End Function
+
+Private Function L12SOPSAy_IsAllDon(A() As L12SOPS) As Boolean
+L12SOPSAy_IsAllDon = L12SOPSAy_NotDonCnt(A) = 0
+End Function
+
+Private Function L12SOPSAy_IsAllSwitchSet(A() As L12SOPS) As Boolean
+Dim J%
+For J = 0 To L12SOPS_UB(A)
+    With A(J)
+        If .L1 = "?" Then
+            If Not .Don Then Exit Function
+        End If
+    End With
+Next
+L12SOPSAy_IsAllSwitchSet = True
+End Function
+
+Private Function L12SOPSAy_IsEmpty(A() As L12SOPS) As Boolean
+L12SOPSAy_IsEmpty = L12SOPS_Sz(A) = 0
+End Function
+
+Private Function L12SOPSAy_Ky(A() As L12SOPS) As String()
+Dim O$(), J%
+For J = 0 To L12SOPS_UB(A)
+    Push O, L12SOPS_Key(A(J))
+Next
+L12SOPSAy_Ky = O
+End Function
+
+Private Function L12SOPSAy_Ky_Uniq(A() As L12SOPS) As String()
+L12SOPSAy_Ky_Uniq = AyDist(L12SOPSAy_Ky(A))
+End Function
+
+Private Function L12SOPSAy_Ky_UniqSrt(A() As L12SOPS) As String()
+L12SOPSAy_Ky_UniqSrt = L12SOPSAy_Ky_Uniq(A)
+End Function
+
+Private Function L12SOPSAy_MinusL1L2(A() As L12SOPS, L1$, L2$) As L12SOPS()
+
+End Function
+
+Private Function L12SOPSAy_MulNmS1S2Opt(A() As L12SOPS) As S1S2Opt
+
+End Function
+
+Private Function L12SOPSAy_NotDonCnt%(A() As L12SOPS)
+Dim J%, O%
+For J = 0 To L12SOPS_UB(A)
+    If Not A(J).Don Then O = O + 1
+Next
+L12SOPSAy_NotDonCnt = O
+End Function
+
+Private Function L12SOPSAy_SelSngNm(A() As L12SOPS) As L12SOPS()
+Dim Ky$(): Ky = L12SOPSAy_SngKy(A)
+Dim O() As L12SOPS, J%, K$
+For J = 0 To L12SOPS_UB(A)
+    K = L12SOPS_Key(A(J))
+    If AyHas(Ky, K) Then
+        L12SOPS_Push O, A(J)
+    End If
+Next
+L12SOPSAy_SelSngNm = O
+End Function
+
+Private Function L12SOPSAy_SngKy(A() As L12SOPS) As String()
+Dim Ky$(): Ky = L12SOPSAy_Ky(A)
+L12SOPSAy_SngKy = AySelSngEle(Ky)
+End Function
+
+Private Function L12SOPSAy_Srt(A() As L12SOPS) As L12SOPS()
+Dim I&(): I = L12SOPSAy_SrtIntoIdxAy(A)
+Dim O() As L12SOPS: O = A
+Dim J%
+For J = 0 To L12SOPS_UB(A)
+    O(J) = A(I(J))
+Next
+L12SOPSAy_Srt = O
+End Function
+
+Private Function L12SOPSAy_SrtIntoIdxAy(A() As L12SOPS) As Long()
+Dim K$(), J%
+For J = 0 To L12SOPS_UB(A)
+    Push K, L12SOPS_Key(A(J))
+Next
+L12SOPSAy_SrtIntoIdxAy = AySrtIntoIdxAy(K)
+End Function
+
+Private Function L12SOPSStr$(A As L12SOPS)
+Dim K$, S$, P$, Op$, L$
+    K = " " & L12SOPS_Key(A)
+    With A
+        S = .Switch: If S <> "" Then S = " " & S
+        P = .Prm
+        Op = " " & OpStr(.Op)
+        L = .LinI
+    End With
+L12SOPSStr = L & K & S & Op & P
+End Function
+
+Private Sub L1TrmLin_Brk(L1TrmLin, OL1$, OL2$, OL3$)
+'L1TrmLin is either have only 1 term for L1 or 3 term for L1,2,3
+If HasSubStr(L1TrmLin, " ") Then
+    Dim L$: L = L1TrmLin
+    OL1 = ParseTerm(L): If OL1 = "" Then Stop
+    OL2 = ParseTerm(L): If OL2 = "" Then Stop
+    OL3 = L: If OL3 = "" Then Stop
+Else
+    OL1 = L1TrmLin
+End If
+End Sub
+
+Private Function L3_Key$(A As L123)
+L3_Key = A.L1 & "." & A.L2
+End Function
+
+Private Function L3Str_Brk(L3Str) As L3
+Dim L$: L = Trim(L3Str)
+If L3Str = "" Then Exit Function
 Dim Switch$
     If FstChr(L) = "?" Then
         Switch = FstTerm(L)
@@ -985,78 +1214,18 @@ Dim OpStr$
    
 Dim O As L3
 With O
-    .L3 = L3
+    .L3 = L3Str
     .Switch = Switch
     .OpStr = OpStr
     .Op = Op(OpStr)
     .Prm = RestTerm(L)
 End With
-L3_Brk = O
-End Function
-
-Private Function L3_HasSwitch(L3 As L3) As Boolean
-L3_HasSwitch = L3.Switch <> ""
-End Function
-
-Private Function L3_Key$(A As L123)
-L3_Key = A.L1 & "." & A.L2
-End Function
-
-Private Function L3_L33(L3) As L33
-Dim O As L33
-Dim A$: A = Trim(L3)
-With O
-    If FstChr(L3) = "?" Then
-        .Switch = ParseTerm(A)
-    End If
-    .OpStr = ParseTerm(A)
-    .Prm = A
-End With
-L3_L33 = O
-End Function
-
-Private Function L3_SwitchIsOff(L3 As L3, Dic As Dictionary) As Boolean
-Dim V: V = Dic(L3.Switch)
-If Not IsBool(V) Then Stop
-L3_SwitchIsOff = Not V
+L3Str_Brk = O
 End Function
 
 Private Function L3Str_SwitchVal(L3Str$, Dic As Dictionary) As Boolean
-Dim A As L3: A = L3_Brk(L3Str)
-Select Case A.Op
-Case eFixEq:  L3Str_SwitchVal = SwitchPrm_Val_Eq(A.Prm, Dic)
-Case eFixNe:  L3Str_SwitchVal = SwitchPrm_Val_Ne(A.Prm, Dic)
-Case eFixOr:  L3Str_SwitchVal = SwitchPrm_Val_Or(A.Prm, Dic)
-Case eFixAnd: L3Str_SwitchVal = SwitchPrm_Val_And(A.Prm, Dic)
-Case Else: Stop
-End Select
-End Function
-
-Private Function LookupTerm_IsValid(K$, LookupTerm, Dic As Dictionary) As Boolean
-LookupTerm_IsValid = True
-If FstChr(LookupTerm) = "." Then Exit Function
-If LookupTerm = "Into" Then Exit Function
-If HasSubStr(LookupTerm, ".") Then
-    If Dic.Exists(LookupTerm) Then Exit Function
-End If
-If Dic.Exists(K & "." & LookupTerm) Then Exit Function
-LookupTerm_IsValid = False
-End Function
-
-Private Function LookupTerm_Val$(K$, LookupTerm, Dic As Dictionary)
-If FstChr(LookupTerm) = "." Then
-    LookupTerm_Val = LookupTerm
-    Exit Function
-End If
-If LookupTerm = "Into" Then
-    LookupTerm_Val = "  Into #" & TakAftRev(K, ".")
-    Exit Function
-End If
-If HasSubStr(LookupTerm, ".") Then
-    LookupTerm_Val = Dic(LookupTerm)
-    Exit Function
-End If
-LookupTerm_Val = Dic(K & "." & LookupTerm)
+Dim A As L3: A = L3Str_Brk(L3Str)
+L3Str_SwitchVal = Evl_23___EvlSwitchVal(A.Op, A.Prm, Dic)
 End Function
 
 Private Function Macro_ExpLis(Dic As Dictionary, Ns$, Nm$, TermLis) As SyOpt
@@ -1094,59 +1263,39 @@ Private Function Op(OpStr$) As eOp
 Dim O As eOp
 Select Case OpStr
 Case "!": O = eRun
+Case "*": O = eSqlStmt
 Case "$In": O = eExpIn
-Case "#.": O = eSqlFix
 Case "#": O = eSqlPhrase
+Case "#Sel": O = eSqlSel
 Case "$": O = eMac
-Case "$And": O = eMacAnd
-Case "$Or": O = eExpOr
-Case "$Wh": O = eMacWh
 Case ".": O = eFixStr
 Case ".And": O = eFixAnd
+Case ".Or": O = eFixOr
 Case ".Comma": O = eFixComma
 Case ".Drp": O = eFixDrp
 Case ".Eq": O = eFixEq
-Case ".Flag": O = eFixFlag
-Case ".Fm": O = eFixFm
-Case ".Gp": O = eFixGp
-Case ".Jn": O = eFixJn
-Case ".LeftJn": O = eFixLeftJn
-Case ".Nbr": O = eNbr
-Case ".NbrLis": O = eFixNbrLis
 Case ".Ne": O = eFixNe
 Case ".Or": O = eFixOr
-Case ".Sel": O = eFixSel
-Case ".SelDis": O = eFixSelDis
-Case ".Set": O = eFixSet
-Case ".Sql": O = eFixSql
-Case ".StrLis": O = eFixStrLis
-Case ".Upd": O = eFixUpd
-Case ".Wh": O = eFixWh
 Case "@": O = eExp
-Case "@And": O = eExpAnd
 Case "@Comma": O = eExpComma
-Case "@Drp": O = eExpDrp
-Case "@Gp": O = eExpGp
-Case "@Jn": O = eExpJn
-Case "@Jn": O = eExpJn
-Case "@LeftJn": O = eExpLeftJn
-Case "@Or": O = eExpOr
-Case "@Sel": O = eExpSel
-Case "@SelDis": O = eExpSelDis
-Case "@Set": O = eExpSet
-Case "@Wh": O = eExpWh
-Case Else: O = eUnknown
+Case Else: Stop: O = eUnknown
 End Select
 Op = O
 End Function
 
 Private Function Op_AlwSwitchOpAy() As eOp()
-Dim O() As eOp, I
-For Each I In Array(eOp.eFixFm, eOp.eFixGp, eOp.eExpGp, eOp.eFixSelDis, eOp.eExpSelDis, eOp.eMac, eOp.eExp, eOp.eExpComma, _
-    eOp.eFixLeftJn, eOp.eFixJn, eOp.eExpJn, eOp.eExpLeftJn, _
-    eOp.eExpIn, eOp.eExpSel, eOp.eFixSel, eOp.eMacAnd, eOp.eMacOr, eOp.eFixStr)
-    Push O, I
-Next
+Static X As Boolean, O
+Dim I
+If Not X Then
+    Dim A() As eOp
+    O = A
+    X = True
+    For Each I In Array(eOp.eMac, eOp.eExp, eOp.eExpComma, _
+        eOp.eSqlStmt, eOp.eFixStr, eOp.eSqlSel, _
+        eOp.eExpIn)
+        Push O, I
+    Next
+End If
 Op_AlwSwitchOpAy = O
 End Function
 
@@ -1171,23 +1320,14 @@ End Function
 Private Function Op_IsExp(A As eOp) As Boolean
 Select Case A
 Case eOp.eMac, _
-    eOp.eExpAnd, _
     eOp.eExpIn, _
     eOp.eExpComma, _
-    eOp.eExpDrp, _
-    eOp.eExpGp, _
-    eOp.eExpJn, _
-    eOp.eExpOr, _
-    eOp.eExpSel, _
-    eOp.eExpSelDis, _
-    eOp.eExpSet, _
     eOp.eExp
     Op_IsExp = True
 End Select
 End Function
 
 Private Function Op_IsVdt(OpStr$) As Boolean
-
 End Function
 
 Private Function Op_Sy() As String()
@@ -1198,94 +1338,62 @@ Next
 Op_Sy = O
 End Function
 
-Private Function OpAy_FixXXX() As eOp()
-Dim O() As eOp
-Push O, eOp.eFixFm
-Push O, eOp.eFixWh
-Push O, eOp.eFixJn
-Push O, eOp.eFixLeftJn
-Push O, eOp.eFixComma
-Push O, eOp.eFixDrp
-Push O, eOp.eFixEq
-Push O, eOp.eFixOr
-Push O, eOp.eFixSel
-Push O, eOp.eFixSelDis
-OpAy_FixXXX = O
-
-End Function
-
-Private Function OpStr(A As eOp)
+Private Function OpStr$(A As eOp)
 Dim O$
 Select Case A
 Case eExpIn: O = "$In"
 Case eRun: O = "!"
-Case eSqlFix: O = "#."
 Case eSqlPhrase: O = "#"
-Case eFixSql: O = ".Sql"
-Case eFixEq:        O = ".Eq"
-Case eExpAnd:    O = "@And"
+Case eSqlSel:    O = "#Sel"
+Case eFixEq:     O = ".Eq"
+Case eSqlStmt:   O = "*"
 Case eExpComma:  O = "@Comma"
-Case eExpDrp:    O = "@Drp"
-Case eExpGp:     O = "@Gp"
-Case eExpJn:     O = "@Jn"
-Case eExpLeftJn: O = "@LeftJn"
-Case eExpOr:     O = "@Or"
-Case eExpSel:    O = "@Sel"
-Case eExpSelDis: O = "@SelDis"
-Case eExpSet:    O = "@Set"
-Case eExp:   O = "@"
-Case eExpWh: O = "@Wh"
-Case eFixAnd: O = ".And"
-Case eFixComma:   O = ".Comma"
-Case eFixDrp: O = ".Drp"
-Case eFixJn: O = ".Jn"
-Case eFixFm: O = ".Fm"
-Case eFixGp: O = ".Gp"
-Case eFixJn: O = ".Jn"
-Case eFixOr: O = ".Or"
-Case eFixSel: O = ".Sel"
-Case eFixSelDis: O = ".SelDis"
-Case eFixSet: O = ".Set"
+Case eExp:       O = "@"
+Case eFixAnd:    O = ".And"
+Case eFixOr:    O = ".Or"
+Case eFixEq:    O = ".Eq"
+Case eFixNe:    O = ".Ne"
+Case eFixDrp:    O = ".Drp"
+Case eFixComma:  O = ".Comma"
 Case eFixStr: O = "."
-Case eFixUpd: O = ".Upd"
-Case eFixWh: O = ".Wh"
-Case eFixFlag: O = ".Flag"
-Case eFixLeftJn:   O = ".LeftJn"
 Case eMac:   O = "$"
-Case eMacAnd: O = "$And"
-Case eMacWh: O = "$Wh"
-Case eMacOr:   O = "$Or"
-Case eNbr: O = ".Nbr"
-Case eFixNbrLis: O = ".NbrLis"
-Case eFixNe: O = ".Ne"
-Case eFixStrLis: O = ".StrLis"
-Case Else: O = "?Unknown"
+Case Else: Stop: O = "?Unknown"
 End Select
 OpStr = O
 End Function
 
-Private Function PrmAy_SyOpt(K$, PrmAy$(), Dic As Dictionary) As SyOpt
-'{Prm} in PrmAy is either with [.] or not.
-'If FstChr is [.], just the {Prm}
-'If with [.], just use {Prm} to lookup value in Dic
-'If no [.], use {K}.{Prm} to lookup value in Dic
-Dim LookupTerm
-    For Each LookupTerm In PrmAy
-        If Not LookupTerm_IsValid(K, LookupTerm, Dic) Then Exit Function
-    Next
-Dim Vy$()
-    For Each LookupTerm In PrmAy
-        Push Vy, LookupTerm_Val(K, LookupTerm, Dic)
-    Next
-PrmAy_SyOpt = SomSy(Vy)
+Private Function PrmIsLisOfRf_Of_OpAy() As eOp()
+Static O() As eOp, X As Boolean
+If Not X Then
+    X = True
+    Push O, eOp.eSqlPhrase
+    Push O, eOp.eExp
+    Push O, eOp.eMac
+End If
+PrmIsLisOfRf_Of_OpAy = O
 End Function
 
-Private Function PrmR_Val$(A As PrmR, PrmDic As Dictionary)
-Dim ValAy(): ValAy = AyMap(A.PrmAy, "PrmRTerm_Val", PrmDic)
-PrmR_Val = RunAv(A.FunNm, ValAy)
+Private Function PrmIsLisOfRf_Of_SqlKw() As String()
+Static X As Boolean, O
+If Not X Then
+    Dim A$()
+    O = A
+    X = True
+    Push O, "Jn"
+    Push O, "And"
+    Push O, "Or"
+    Push O, "Gp"
+    Push O, "Sel"
+    Push O, "SelDis"
+End If
+PrmIsLisOfRf_Of_SqlKw = O
 End Function
 
-Private Function PrmRTerm_Val(PrmRTerm$, PrmDic As Dictionary) As String()
+Private Function SomErDr(ErDr) As ErDrOpt
+With SomErDr
+    .Som = True
+    .ErDr = ErDr
+End With
 End Function
 
 Private Function Soml123(LinI%, L1$, L2$, L3$) As L123Opt
@@ -1293,9 +1401,11 @@ Soml123.Som = True
 Soml123.L123 = L123(LinI%, L1, L2, L3)
 End Function
 
-Private Function SomWrkDr(A As WrkDr) As WrkDrOpt
-SomWrkDr.Som = True
-SomWrkDr.WrkDr = A
+Private Function SomL12SOPSAy(A() As L12SOPS) As L12SOPSAyOpt
+With SomL12SOPSAy
+    .Som = True
+    .L12SOPSAy = A
+End With
 End Function
 
 Private Function Sql3_Rmv2Dash(Ly$()) As String()
@@ -1316,20 +1426,29 @@ End Sub
 Private Function Sql3Ft_WrtEr(Ft) As Boolean
 Sql3Ft_Rmv3Dash Ft
 Dim Ly$(): Ly = FtLy(Ft)
-Dim Ly1$(): Ly1 = Sql3Ly_ValidatedLy(Ly): If AyIsEmpty(Ly1) Then Exit Function
+Dim Ly1$(): Ly1 = Sql3Ly_ValidatedLy(Ly)
+If AyIsEmpty(Ly1) Then
+    Exit Function
+End If
 If AyIsEq(Ly, Ly1) Then Exit Function
 AyWrt Ly1, Ft
 Sql3Ft_WrtEr = True
 End Function
 
 Private Function Sql3Ly_AddEr(Sql3Ly$(), ErDry()) As String()
-Dim I&, Dr
 Dim W%, O$()
     O = Sql3Ly_No3DashLy(Sql3Ly)
+    O = AyRTrim(O)
     W = AyWdt(O)
-For Each Dr In ErDry
-    I = Dr(0)
-    O(I) = AlignL(O(I), W) & " --- " & Dr(1)
+Dim LinI%, Dr
+DryBrw ErDry
+Dim ErDry1()
+    ErDry1 = DryMge(ErDry, 1, " | ")
+'DryBrw ErDry1: Stop
+For Each Dr In ErDry1
+    LinI = Dr(0)
+    If Len(O(LinI)) > W Then Stop
+    O(LinI) = AlignL(O(LinI), W) & " --- " & Dr(1)
 Next
 AyRmvEmptyEleAtEnd O
 Push O, FmtQQ("--- [?] error(s)", Sz(ErDry))
@@ -1337,28 +1456,7 @@ Sql3Ly_AddEr = O
 End Function
 
 Private Function Sql3Ly_ErDry(Sql3Ly$()) As Variant()
-Sql3Ly_ErDry = Wy_ErDry(Sql3Ly_Wy(Sql3Ly))
-End Function
-
-Private Function Sql3Ly_L123Ay(Sql3Ly$()) As L123()
-Dim A() As L123: A = Sql3Ly_L123Pass1Ay(Sql3Ly)
-Dim B() As L123: B = L123Ay_L123Pass2Ay(A)
-Dim C() As L123: C = L123Ay_L123Pass3Ay(B)
-Sql3Ly_L123Ay = C
-End Function
-
-Private Function Sql3Ly_L123Pass1Ay(Sql3Ly$()) As L123()
-Dim O() As L123
-    Dim L, LinI%, A As L123Opt
-    For Each L In Sql3Ly_TrmLy(Sql3Ly)
-        With TrmLin_L123Opt(L, LinI)
-            If .Som Then
-                L123_Push O, .L123
-            End If
-        End With
-        LinI = LinI + 1
-    Next
-Sql3Ly_L123Pass1Ay = O
+Sql3Ly_ErDry = Vdt(Sql3Ly_Wy(Sql3Ly))
 End Function
 
 Private Function Sql3Ly_LinLvlDrs(Sql3Ly$()) As Drs
@@ -1374,7 +1472,11 @@ Sql3Ly_LinLvlDrs = O
 End Function
 
 Private Function Sql3Ly_No3DashLy(Sql3Ly$()) As String()
-Sql3Ly_No3DashLy = AyMapIntoSy(Sql3Ly, "Lin_No3DashLin")
+Sql3Ly_No3DashLy = AyMapIntoSy(Sql3Ly, "Rmv3Dash")
+End Function
+
+Private Function Sql3Ly_TrmLy(Sql3Ly$()) As String()
+Sql3Ly_TrmLy = AyMapIntoSy(Sql3Ly, "Rmv2Dash")
 End Function
 
 Private Function Sql3Ly_ValidatedLy(Sql3Ly$()) As String()
@@ -1384,252 +1486,32 @@ Sql3Ly_ValidatedLy = Sql3Ly_AddEr(Sql3Ly, ErDry)
 End Function
 
 Private Function Sql3Ly_Wy(Sql3Ly$()) As WrkDr()
-Dim A() As L123: A = Sql3Ly_L123Pass1Ay(Sql3Ly)
-Dim B() As L123: B = L123Ay_L123Pass2Ay(A)
-Dim C() As L123: C = L123Ay_L123Pass3Ay(B)
+Dim A() As L123: A = Evl_1___Pass1(Sql3Ly)
+Dim B() As L123: B = Evl_1___Pass2(A)
 Sql3Ly_Wy = L123Ay_Wy(B)
-End Function
-
-Private Function SqlPhrase_Fm(L3Prm$) As StrOpt
-SqlPhrase_Fm = SomStr("|  From " & L3Prm)
-End Function
-
-Private Function SqlPhrase_Into(K$) As StrOpt
-Dim T$
-    With BrkRev(K$, ".")
-        If .S2 <> "Into" Then Stop
-        T = TakAftRev(.S1, ".")
-    End With
-SqlPhrase_Into = SomStr("|  Into " & T)
-End Function
-
-Private Function SqlPhrase_Jn(A As KPD) As StrOpt
-Dim Ay$()
-    Ay = SplitLvs(A.P)
-Dim Sy$()
-    With KPD_SyOpt(A)
-        If Not .Som Then Exit Function
-        Sy = .Sy
-    End With
-Dim O$()
-    O = AyAddPfx("|    ", AyRmvEmpty(Sy))
-SqlPhrase_Jn = SomStr(Join(O))
-End Function
-
-Private Function SqlPhrase_Sel(A As KPD) As StrOpt
-Dim Ay$()
-    Ay = SplitLvs(A.P)
-Dim Sy$()
-    With KPD_SyOpt(A)
-        If Not .Som Then Exit Function
-        Sy = .Sy
-    End With
-Dim O$()
-    Dim J%, B$
-    For J = 0 To UB(Ay)
-        If FstChr(Ay(J)) = "." Then
-            B = RmvFstChr(Ay(J))
-        ElseIf FstChr(Ay(J)) = "?" Then
-            If Sy(J) = "" Then GoTo Nxt
-            Ay(J) = RmvFstChr(Ay(J))
-            B = Sy(J) & " " & Ay(J)
-        Else
-            B = Sy(J) & " " & Ay(J)
-        End If
-        Push O, B
-Nxt:
-    Next
-SqlPhrase_Sel = SomStr("Select|    " & Join(O, ",|    "))
-End Function
-
-Private Function SqlPhrase_SelDis(A As KPD) As StrOpt
-Dim Ay$()
-    Ay = SplitLvs(A.P)
-Dim Sy$()
-    With KPD_SyOpt(A)
-        If Not .Som Then Exit Function
-        Sy = .Sy
-    End With
-Dim O$()
-    Dim J%, B$
-    For J = 0 To UB(Ay)
-        B = Sy(J) & " " & Ay(J)
-        Push O, B
-    Next
-SqlPhrase_SelDis = SomStr("Select Distinct|    " & Join(O, ",|    "))
-Stop
-End Function
-
-Private Function SqlPhrase_Set(A As KPD) As StrOpt
-Dim Ay$()
-    Ay = SplitLvs(A.P)
-Dim Sy$()
-    With KPD_SyOpt(A)
-        If Not .Som Then Exit Function
-        Sy = .Sy
-    End With
-Dim O$()
-    Dim J%, B$
-    For J = 0 To UB(Ay)
-        B = Ay(J) & " = " & Sy(J)
-        Push O, B
-    Next
-SqlPhrase_Set = SomStr("  Set|    " & Join(O, ",|    "))
-End Function
-
-Private Function SqlPhrase_Upd(K$) As StrOpt
-Dim Ns$: Ns = Key_Ns(K)
-Dim A$: A = TakAftRev(Ns, ".")
-Dim T$: T = TakBefRev(A, "#")
-Dim O$
-    O = "Update #" & T
-SqlPhrase_Upd = SomStr(O)
-End Function
-
-Private Function SqlPhrase_Wh(A As KPD) As StrOpt
-Dim B$
-    
-Dim O$
-    O = "|  Where " & B
-SqlPhrase_Wh = SomStr(O)
-End Function
-
-Private Function Sts_StsExp(A As Sts) As Sts
-Dim O As Sts
-'    Dim Wy() As WrkDr
-'    Sts_SplitOp A, eOp.eExp, O, Wy
-'    Dim J%, M As Wr
-'    For J = 0 To UB(A.Wrs.Dry)
-'        M = Wr(A.Wrs.Dry(J))
-'        Dim K$, V$
-'        K = M.Ns & "." & M.Nm
-'        V = Wy_StsExp__Val(M.Prm)
-'        O.Dic.Add K, V
-'    Next
-Sts_StsExp = O
-End Function
-
-Private Function Sts_StsSwitch(A As Sts1) As Sts1
-Dim O As Sts1
-    Dim Wrs As Drs
-    Sts1_SplitNs A, "?", O, Wrs
-    Dim J%, M As Wr, K$
-    For J = 0 To UB(Wrs.Dry)
-        M = Wrs_Wr(Wrs, J)
-        K = "?" & M.Nm
-        O.Dic.Add K, SwitchWr_Val(M, O.Dic) '<===
-    Next
-Sts_StsSwitch = O
-End Function
-
-Private Sub Sts1_SplitNs(A As Sts1, Ns$, O As Sts1, ByRef OWrs As Drs)
-Dim IdxAy&()
-    IdxAy = Wrs_IdxAy_Ns(A.Wrs, Ns)
-OWrs = DrsSelRow(A.Wrs, IdxAy)
-Set O.Dic = DicClone(A.Dic)
-O.Wrs = DrsExlRow(A.Wrs, IdxAy)
-End Sub
-
-Private Sub Sts1_SplitOp(A As Sts1, Op As eOp, O As Sts1, OWrs As Drs)
-Dim IdxAy&()
-    IdxAy = Wrs_IdxAy_Op(A.Wrs, eFixStr)
-OWrs = DrsSelRow(A.Wrs, IdxAy)
-Set O.Dic = DicClone(A.Dic)
-O.Wrs = DrsExlRow(A.Wrs, IdxAy)
-End Sub
-
-Private Function Sts1_StsFixStr(A As Sts1) As Sts1
-Dim O As Sts1
-    Dim Wrs As Drs
-    Sts1_SplitOp A, eFixStr, O, Wrs
-    Dim J%
-    Dim M As Wr
-    For J = 0 To UB(Wrs.Dry)
-        M = Wrs_Wr(Wrs, J)
-        Dim K$: K = M.Ns & "." & M.Nm
-        Dim V$
-            If SwitchVal(A.Dic, M.Switch) Then
-                V = M.Prm
-            Else
-                V = ""
-            End If
-        O.Dic.Add K, V
-    Next
-Sts1_StsFixStr = O
-End Function
-
-Private Function Sts1_StsPrm(A As Sts1) As Sts1
-Dim O As Sts1
-    Dim Wrs As Drs
-    Sts1_SplitNs A, "Prm", O, Wrs
-    Dim J%
-    Dim K$, V$
-    For J = 0 To UB(Wrs.Dry)
-        With Wrs.Dry(J)
-            V = .Prm
-            K = .Ns & "." & .Nm
-            O.Dic.Add K, V           '<====
-        End With
-    Next
-Sts1_StsPrm = O
-End Function
-
-Private Function Sts1Pair_Ds(Bef As Sts1, Aft As Sts1, DsNm$) As Ds
-Dim O As Ds
-Dim Cur() As WrkDr
-'    Cur = Wy_Minus(Bef.Wy, Aft.Wy)
-Dim CurDic As Dictionary
-    Set CurDic = DicMinus(Bef.Dic, Aft.Dic)
-'DsAddDt O, Dt("Bef", Wy_Drs(Bef.Wy, Aft.Dic))
-'DsAddDt O, Dt("Aft", Wy_Drs(Aft.Wy, Aft.Dic))
-'DsAddDt O, Dt("Cur", Wy_Drs(Cur, Aft.Dic))
-'DsAddDt O, DicDt(Bef.Dic, "BefDic")
-'DsAddDt O, DicDt(Aft.Dic, "AftDic")
-'DsAddDt O, DicDt(CurDic, "CurDic")
-Sts1Pair_Ds = O
-End Function
-
-Private Sub StsPair_Assert(Bef As Sts, Aft As Sts)
-Dim Diff%
-    Dim B%, A%
-    B = Wy_UB(Bef.Wy)
-    A = Wy_UB(Aft.Wy)
-    Diff = A - B
-Debug.Assert Diff <> Aft.Dic.Count - Bef.Dic.Count
-End Sub
-
-Private Function Switch_Dic(Wy() As WrkDr) As Dictionary
-'Return Dic with Switch value is off
-Dim J%, O As New Dictionary
-For J = 0 To Wy_UB(Wy)
-    With Wy(J)
-        If .Ns <> "?" Then GoTo Nxt
-    Stop
-'        If Not .Done Then Stop
-'        O.Add .Nm, .Str = "1"
-    End With
-Nxt:
-Next
-Set Switch_Dic = O
-End Function
-
-Private Function Switch_Exist(Wy() As WrkDr, Switch$) As Boolean
-Dim J%
-For J = 0 To UBound(Wy)
-    With Wy(J).L3
-        If .Switch = "" Then GoTo Nxt
-        If .Switch <> Switch Then
-            Switch_Exist = True
-            Exit Function
-        End If
-    End With
-Nxt:
-Next
 End Function
 
 Private Sub SwitchNm_Assert(SwitchNm$)
 If FstChr(SwitchNm) <> "?" Then Stop
 End Sub
+
+Private Function SwitchPrm_BoolAy(SwitchPrm$, Dic As Dictionary) As Boolean()
+Dim TermAy$()
+    TermAy = SplitSpc(SwitchPrm)
+Dim O() As Boolean
+    ReDim O(UB(TermAy))
+    Dim J%
+    For J = 0 To UB(TermAy)
+        With SwitchTerm_Val(TermAy(J), Dic)
+            If Not .Som Then
+'                Stop
+                Exit Function
+            End If
+            O(J) = .Bool
+        End With
+    Next
+SwitchPrm_BoolAy = O
+End Function
 
 Private Function SwitchPrm_V1V2(SwitchPrm$, Dic As Dictionary) As S1S2
 SwitchTerm_Assert SwitchPrm
@@ -1648,6 +1530,21 @@ Dim V1$
 Dim V2$
     If T2 = "*Blank" Then V2 = "" Else V2 = T2
 SwitchPrm_V1V2 = S1S2(V1, V2)
+End Function
+
+Private Function SwitchPrmDic(PrmDic As Dictionary) As Dictionary
+'Prm may have Nm=?xxx.  These are the SwitchPrm.  It must have value 1 or 0
+'Return a Dic of this SwitchPrm
+If DicIsEmpty(PrmDic) Then Set SwitchPrmDic = New Dictionary: Exit Function
+Dim K, V, O As New Dictionary
+For Each K In PrmDic.Keys
+    If IsPfx(K, "Prm.?") Then
+        V = PrmDic(K)
+        If V <> "1" And V <> "0" Then Stop
+        O.Add RmvPfx(K, "Prm."), V = "1"
+    End If
+Next
+Set SwitchPrmDic = O
 End Function
 
 Private Sub SwitchTerm_Assert(SwitchTerm)
@@ -1688,22 +1585,12 @@ With DicBoolOpt(SwitchDic, SwitchNm)
 End With
 End Function
 
-Private Function SwitchWr_Val(A As Wr, Dic As Dictionary) As Boolean
-Select Case A.Op
-Case eFixEq:  SwitchWr_Val = SwitchPrm_Val_Eq(A.Prm, Dic)
-Case eFixNe:  SwitchWr_Val = SwitchPrm_Val_Ne(A.Prm, Dic)
-Case eFixOr:  SwitchWr_Val = SwitchPrm_Val_Or(A.Prm, Dic)
-Case eFixAnd: SwitchWr_Val = SwitchPrm_Val_And(A.Prm, Dic)
-Case Else: Stop
-End Select
-End Function
-
 Private Function SwitchWrkDr_Val(A As WrkDr, Dic As Dictionary) As Boolean
 Select Case A.L3.Op
-Case eFixEq:  SwitchWrkDr_Val = SwitchPrm_Val_Eq(A.L3.Prm, Dic)
-Case eFixNe:  SwitchWrkDr_Val = SwitchPrm_Val_Ne(A.L3.Prm, Dic)
-Case eFixOr:  SwitchWrkDr_Val = SwitchPrm_Val_Or(A.L3.Prm, Dic)
-Case eFixAnd: SwitchWrkDr_Val = SwitchPrm_Val_And(A.L3.Prm, Dic)
+Case eFixEq:  SwitchWrkDr_Val = Evl_231__EvlSwitchVal_ForEq(A.L3.Prm, Dic)
+Case eFixNe:  SwitchWrkDr_Val = Evl_232__EvlSwitchVal_ForNe(A.L3.Prm, Dic)
+Case eFixOr:  SwitchWrkDr_Val = Evl_233__EvlSwitchVal_ForOr(A.L3.Prm, Dic)
+Case eFixAnd: SwitchWrkDr_Val = Evl_234__EvlSwitchVal_ForAnd(A.L3.Prm, Dic)
 Case Else: Stop
 End Select
 End Function
@@ -1733,7 +1620,7 @@ Dim Lvl%: Lvl = TrmLin_Lvl(TrmLin)
 If Not IsIn(Lvl, 1, 2, 3) Then Exit Function
 Dim L1$, L2$, L3$, A$
 Select Case Lvl
-    Case 1: L1 = TrmLin                ' Assume L1 can only have one term
+    Case 1: L1TrmLin_Brk TrmLin, L1, L2, L3              ' Assume L1 can only have one term or all 3 terms
     Case 2: A = TrmLin: L2 = ParseTerm(A): L3 = A  ' Assume L2 can have (L2) or (L2 & L3)
     Case 3: L3 = TrmLin
 End Select
@@ -1746,75 +1633,176 @@ If TrmLin_IsL2(L) Then TrmLin_Lvl = 2: Exit Function
 If TrmLin_IsL3(L) Then TrmLin_Lvl = 3: Exit Function
 End Function
 
-Private Function Wr(Dr) As Wr
-With Wr
-    AyAsg Dr, .LinI, .Ns, .Nm, .Switch, .Op, .Prm
-End With
+Private Function Vdt(Wy() As WrkDr) As Variant()
+Dim O()
+PushAy O, Vdt_InvalidOp(Wy)
+PushAy O, Vdt_GpDotXXX_IsNoNeed(Wy)
+PushAy O, Vdt_MissingRf(Wy)   ' Som Operations, the parameter is a list of PrmTerm.  Each Term need to be refer further defintion.  It is to check such definition exist
+PushAy O, Vdt_NotAlwSwitch(Wy)
+PushAy O, Vdt_Switch(Wy)
+PushAy O, Vdt_NoPrm(Wy)
+PushAy O, Vdt_NoSql(Wy)
+Vdt = O
+End Function
+
+Private Function Vdt_GpDotXXX_IsNoNeed(Wy() As WrkDr) As Variant()
+Dim O()
+Dim J%
+For J = 0 To Wy_UB(Wy)
+    If IsSfx(Wy(J).Ns, ".Gp") Then
+        Push O, Array(Wy(J).LinI, "No need to define Itm-[XXX.Gp.FldNm], because such definition will use Itm-[XXX.Sel.FldNm]")
+    End If
+Next
+Vdt_GpDotXXX_IsNoNeed = O
+End Function
+
+Private Function Vdt_InvalidOp(Wy() As WrkDr) As Variant()
+Dim J%
+Dim O()
+For J = 0 To UBound(Wy)
+    With Wy(J).L3
+        If .Op = eOp.eUnknown Then
+            Push O, Array(Wy(J).LinI, FmtQQ("Invalid Op[?]", .OpStr))
+        End If
+    End With
+Next
+Vdt_InvalidOp = O
+End Function
+
+Private Function Vdt_MissingRf(Wy() As WrkDr) As Variant()
+Dim W() As WrkDr
+    W = Vdt_MissingRf_Wy(Wy)
+Dim O()
+Dim J%, KeyDic As Dictionary
+Set KeyDic = Wy_KeyDic(Wy)
+For J = 0 To Wy_UB(W)
+    With Vdt_MissingRf_ErDrOpt(W(J), KeyDic)
+        If .Som Then
+            Push O, .ErDr
+        End If
+    End With
+Next
+Vdt_MissingRf = O
+End Function
+
+Private Function Vdt_MissingRf_ErDrOpt(A As WrkDr, NsNmDic As Dictionary) As ErDrOpt
+Dim Ay$(): Ay = SplitLvs(A.L3.Prm)
+Dim O$(), K$
+If A.Nm = "Gp" Then
+    K = A.Ns & ".Sel"
+Else
+    K = WrkDr_Key(A)
+End If
+Dim Term
+For Each Term In Ay
+    If Vdt_MissingRf_IsTerm_MissingRf(K, Term, NsNmDic) Then
+        Push O, Term
+    End If
+Next
+If AyIsEmpty(O) Then Exit Function
+Dim Er
+    Dim B$
+    B = "Invalid term: " & Join(AyQuote(O, "[]"), " ")
+    Er = Array(A.LinI, B)
+Vdt_MissingRf_ErDrOpt = SomErDr(Er)
+End Function
+
+Private Function Vdt_MissingRf_IsTerm_MissingRf(K$, Term, NsNmDic As Dictionary) As Boolean
+'[T] can be:
+'1. {K}.{Term}, or,   if {Term} does not contains [.]
+'2 {Term}     , or,   if fstchr-{Term} is not [.] and {Term} contains [.]
+'3 {Term}    ,       if fstchr-{Term} is [.]
+'For case-1 and 2, return true if [T] is NOT in {NsNmDic} else return false
+'For case-3,       return false
+If FstChr(Term) = "." Then
+    Exit Function
+End If
+Dim T$
+    If HasSubStr(Term, ".") Then
+        T = Term
+    Else
+        T = K & "." & Term
+    End If
+Vdt_MissingRf_IsTerm_MissingRf = Not NsNmDic.Exists(T)
+End Function
+
+Private Function Vdt_MissingRf_IsWrkDrHasRfPrm(A As WrkDr) As Boolean
+Vdt_MissingRf_IsWrkDrHasRfPrm = True
+If A.L3.Op = eSqlPhrase Then
+    If AyHas(PrmIsLisOfRf_Of_SqlKw, A.Nm) Then Exit Function
+End If
+If AyHas(PrmIsLisOfRf_Of_OpAy, A.L3.Op) Then Exit Function
+Vdt_MissingRf_IsWrkDrHasRfPrm = False
+End Function
+
+Private Function Vdt_MissingRf_Wy(Wy() As WrkDr) As WrkDr()
+Dim O() As WrkDr
+Dim J%
+For J = 0 To Wy_UB(Wy)
+    If Vdt_MissingRf_IsWrkDrHasRfPrm(Wy(J)) Then
+        Wy_Push O, Wy(J)
+    End If
+Next
+Vdt_MissingRf_Wy = O
+End Function
+
+Private Function Vdt_NoPrm(Wy() As WrkDr) As Variant()
+Dim J%
+For J = 0 To Wy_UB(Wy)
+    If Wy(J).Ns = "Prm" Then Exit Function
+Next
+Vdt_NoPrm = Array(Array(0, "Warning: No Prml namespace"))
+End Function
+
+Private Function Vdt_NoSql(Wy() As WrkDr) As Variant()
+Dim J%
+For J = 0 To Wy_UB(Wy)
+    If Wy(J).Ns = "Sql" Then Exit Function
+Next
+Vdt_NoSql = Array(Array(0, "Warning: No Sql namespace"))
+End Function
+
+Private Function Vdt_NotAlwSwitch(Wy() As WrkDr) As Variant()
+Dim O()
+    Dim J%, S$
+    For J = 0 To UBound(Wy)
+        With Wy(J).L3
+            If .Switch = "" Then GoTo Nxt
+            If Op_IsAlwSwitch(.Op) Then GoTo Nxt
+            S = FmtQQ("Switch is not allowed in Op[?].  Only these Op are allowed:?", OpStr(.Op), Op_AlwSwitchOpLis$)
+            Push O, Array(Wy(J).LinI, S)
+        End With
+Nxt:
+    Next
+Vdt_NotAlwSwitch = O
+End Function
+
+Private Function Vdt_Switch(Wy() As WrkDr) As Variant()
+'Return ErDry if any Wy(..) has switch not defined in Wy()
+Dim J%, O(), D As Dictionary
+Set D = AyDic(Wy_SwitchNy(Wy))
+For J = 0 To UBound(Wy)
+    With Wy(J).L3
+        If .Switch = "" Then GoTo Nxt
+        If D.Exists(.Switch) Then GoTo Nxt
+        Push O, Array(Wy(J).LinI, FmtQQ("Switch [?] not exist", .Switch))
+    End With
+Nxt:
+Next
+Vdt_Switch = O
+End Function
+
+Private Function WrkDr_HasSwitch(A As WrkDr) As Boolean
+WrkDr_HasSwitch = A.L3.Switch <> ""
 End Function
 
 Private Function WrkDr_Key$(A As WrkDr)
 WrkDr_Key = A.Ns & "." & A.Nm
 End Function
 
-Private Function Wrs_IdxAy_Ns(Wrs As Drs, Ns$) As Long()
-Dim INs%
-    INs = AyIdx(Wrs.Fny, "Ns")
-Dim O&()
-    Dim J%
-    For J = 0 To UB(Wrs.Dry)
-        If Wrs.Dry(J)(INs) = Ns Then
-            Push O, J
-        End If
-    Next
-Wrs_IdxAy_Ns = O
-End Function
-
-Private Function Wrs_IdxAy_Op(Wrs As Drs, Op As eOp) As Long()
-Dim IOp%
-    IOp = AyIdx(Wrs.Fny, "Op")
-Dim O&()
-    Dim J%
-    For J = 0 To UB(Wrs.Dry)
-        If Wrs.Dry(J)(IOp) = Op Then
-            Push O, J
-        End If
-    Next
-Wrs_IdxAy_Op = O
-End Function
-
-Private Function Wrs_Wr(Wrs As Drs, J%) As Wr
-Wrs_Wr = Wr(Wrs.Dry(J))
-End Function
-
-Private Function Wy_BefAftCurDs(Bef() As WrkDr, Aft() As WrkDr, Optional Dic As Dictionary) As Ds
-Dim O As Ds
-Dim Done() As WrkDr
-    Done = Wy_Minus(Bef, Aft)
-DsAddDt O, Dt("Bef", Wy_Drs(Bef, Dic))
-DsAddDt O, Dt("Aft", Wy_Drs(Aft, Dic))
-DsAddDt O, Dt("Cur", Wy_Drs(Done, Dic))
-Wy_BefAftCurDs = O
-End Function
-
 Private Sub Wy_Brw(Wy() As WrkDr, Optional SwitchDic As Dictionary)
-DrsWs Wy_Drs(Wy, SwitchDic)
+DrsBrw Wy_Drs(Wy, SwitchDic)
 End Sub
-
-Private Function Wy_Dic(Wy() As WrkDr) As Dictionary
-If Wy_IsEmpty(Wy) Then Exit Function
-Dim J%, W As WrkDr
-Dim U%, K$
-    U = UBound(Wy)
-Dim O As New Dictionary
-    For J = 0 To U
-        With Wy(J)
-            K = .Ns & "." & .Nm
-            Stop
-'            O.Add K, .Str
-        End With
-    Next
-Set Wy_Dic = O
-End Function
 
 Private Function Wy_Dr(A As WrkDr, Dic As Dictionary) As Variant()
 Dim SwitchV$
@@ -1836,79 +1824,6 @@ O.Dry = ODry
 Wy_Drs = O
 End Function
 
-Private Function Wy_ErDry(Wy() As WrkDr) As Variant()
-Dim O()
-PushAy O, Wy_ErDry_InvalidOp(Wy)
-PushAy O, Wy_ErDry_NotAlwSwitch(Wy)
-PushAy O, Wy_ErDry_SwitchNotExist(Wy)
-PushAy O, Wy_ErDry_UpdMstHavNamWithPondSign(Wy)
-PushAy O, Wy_ErDry_NoPrm(Wy)
-PushAy O, Wy_ErDry_NoSql(Wy)
-Wy_ErDry = O
-End Function
-
-Private Function Wy_ErDry_InvalidOp(Wy() As WrkDr) As Variant()
-Dim J%
-Dim O()
-For J = 0 To UBound(Wy)
-    With Wy(J).L3
-        If .Op = eOp.eUnknown Then
-            Stop
-            Push O, Array(Wy(J).LinI, FmtQQ("Invalid Op[?]", .OpStr))
-        End If
-    End With
-Next
-Wy_ErDry_InvalidOp = O
-End Function
-
-Private Function Wy_ErDry_NoPrm(Wy() As WrkDr) As Variant()
-Dim J%
-For J = 0 To Wy_UB(Wy)
-    If Wy(J).Ns = "Prm" Then Exit Function
-Next
-Wy_ErDry_NoPrm = Array(Array(0, "Warning: No Prml namespace"))
-End Function
-
-Private Function Wy_ErDry_NoSql(Wy() As WrkDr) As Variant()
-Dim J%
-For J = 0 To Wy_UB(Wy)
-    If Wy(J).Ns = "Sql" Then Exit Function
-Next
-Wy_ErDry_NoSql = Array(Array(0, "Warning: No Sql namespace"))
-End Function
-
-Private Function Wy_ErDry_NotAlwSwitch(Wy() As WrkDr) As Variant()
-Dim O()
-    Dim J%, S$
-    For J = 0 To UBound(Wy)
-        With Wy(J).L3
-            If .Switch = "" Then GoTo Nxt
-            If Op_IsAlwSwitch(.Op) Then GoTo Nxt
-            S = FmtQQ("Switch is not allowed in Op[?].  Only these Op are allowed:?", OpStr(.Op), Op_AlwSwitchOpLis$)
-            Push O, Array(Wy(J).LinI, S)
-        End With
-Nxt:
-    Next
-Wy_ErDry_NotAlwSwitch = O
-End Function
-
-Private Function Wy_ErDry_SwitchNotExist(Wy() As WrkDr) As Variant()
-Dim J%, O()
-For J = 0 To UBound(Wy)
-    With Wy(J).L3
-        If .Switch = "" Then GoTo Nxt
-        If Switch_Exist(Wy, .Switch) Then GoTo Nxt
-        Push O, Array(J, "Switch not exist")
-    End With
-Nxt:
-Next
-Wy_ErDry_SwitchNotExist = O
-End Function
-
-Private Function Wy_ErDry_UpdMstHavNamWithPondSign(Wy() As WrkDr) As Variant()
-
-End Function
-
 Private Function Wy_Fny() As String()
 Wy_Fny = SplitSpc("LinI Ns Nm Switch SwitchVal Op Prm L3")
 End Function
@@ -1917,6 +1832,21 @@ Private Function Wy_Has(A() As WrkDr, B As WrkDr) As Boolean
 Dim J%
 For J = 0 To Wy_UB(A)
     If A(J).LinI = B.LinI Then Wy_Has = True: Exit Function
+Next
+End Function
+
+Private Function Wy_HasSwitchDefined(Wy() As WrkDr, Switch$) As Boolean
+Debug.Print "Wy_HasSwitchDefined: ", Switch
+Dim J%
+For J = 0 To UBound(Wy)
+    With Wy(J).L3
+        If .Switch = "" Then GoTo Nxt
+        If .Switch <> Switch Then
+            Wy_HasSwitchDefined = True
+            Exit Function
+        End If
+    End With
+Nxt:
 Next
 End Function
 
@@ -1952,6 +1882,18 @@ End Function
 
 Private Function Wy_IsEmpty(A() As WrkDr) As Boolean
 Wy_IsEmpty = Wy_Sz(A) = 0
+End Function
+
+Private Function Wy_KeyDic(Wy() As WrkDr) As Dictionary
+Dim O As New Dictionary
+Dim J%, K$
+For J = 0 To Wy_UB(Wy)
+    K = WrkDr_Key(Wy(J))
+    If Not O.Exists(K) Then
+        O.Add K, True
+    End If
+Next
+Set Wy_KeyDic = O
 End Function
 
 Private Function Wy_Ky(Wy() As WrkDr) As String()
@@ -2004,24 +1946,19 @@ Next
 Wy_Minus = O
 End Function
 
-Private Function Wy_MulNmIdxAy(Wy() As WrkDr, Ky$()) As Integer()
-
-End Function
-
-Private Function Wy_MulNmKy(Wy() As WrkDr) As String()
-Wy_MulNmKy = AyDupAy(Wy_Ky(Wy))
-End Function
-
-Private Function Wy_MulNmVal$(Key, Wy() As WrkDr)
-
-End Function
-
-Private Function Wy_MulNmWy(Wy() As WrkDr) As WrkDr()
-Dim Ky$()
-    Ky = Wy_MulNmKy(Wy)
-Dim IdxAy%()
-    IdxAy = Wy_IdxAy_Ky(Wy, Ky)
-Wy_MulNmWy = Wy_Sel(Wy, IdxAy)
+Private Function Wy_Ny(Wy() As WrkDr) As String()
+Dim O$()
+Dim J%
+For J = 0 To Wy_UB(Wy)
+    If Wy(J).Ns = "?" Then
+        Push O, "?" & Wy(J).Nm
+    ElseIf Wy(J).Ns = "Prm" Then
+        If IsPfx(Wy(J).Nm, "?") Then
+            Push O, Wy(J).Nm
+        End If
+    End If
+Next
+Wy_Ny = O
 End Function
 
 Private Sub Wy_Push(OAy() As WrkDr, M As WrkDr)
@@ -2037,6 +1974,15 @@ For J = 0 To Wy_Sz(Ay) - 1
 Next
 End Sub
 
+Private Function Wy_RmvItms(A() As WrkDr, IdxAy%()) As WrkDr()
+If AyIsEmpty(IdxAy) Then Wy_RmvItms = A: Exit Function
+Dim O() As WrkDr, J%
+For J = 0 To Wy_UB(A)
+    If Not AyHas(IdxAy, J) Then Wy_Push O, A(J)
+Next
+Wy_RmvItms = O
+End Function
+
 Private Function Wy_Sel(Wy() As WrkDr, IdxAy%()) As WrkDr()
 If AyIsEmpty(IdxAy) Then Exit Function
 Dim U%: U = UB(IdxAy)
@@ -2050,214 +1996,42 @@ Next
 Wy_Sel = O
 End Function
 
-Private Function Wy_StsExp(Wy() As WrkDr) As StsExp
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eOp.eExp)
-Dim ODic As New Dictionary
-    Dim J%, M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$, V$
-        K = M.Ns & "." & M.Nm
-        V = Wy_StsExp__Val(M.L3.Prm)
-        ODic.Add K, V
-    Next
-Set Wy_StsExp.ExpDic = ODic
-Wy_StsExp.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsExp__Val$(Prm$)
-Wy_StsExp__Val$ = Prm
-End Function
-
-Private Function Wy_StsFixDrp(Wy() As WrkDr) As StsFixDrp
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eOp.eFixDrp)
-Dim ODic As New Dictionary
-    Dim J%, M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$, V$
-        K = M.Ns & "." & M.Nm
-        V = Wy_StsFixDrp__Sqs(M.L3.Prm)
-        ODic.Add K, V
-    Next
-Set Wy_StsFixDrp.DrpDic = ODic
-Wy_StsFixDrp.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsFixDrp__Sqs$(TblNmLvs$)
-Wy_StsFixDrp__Sqs$ = TblNmLvs
-End Function
-
-Private Function Wy_StsFixFm(Wy() As WrkDr) As StsFixFm
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eFixFm)
-Dim W() As WrkDr: W = Wy_Sel(Wy, IdxAy)
-Dim ODic As New Dictionary
-    Dim J%
-    Dim M As WrkDr
-    For J = 0 To Wy_UB(W)
-        M = W(J)
-        If Trim(M.L3.Prm) = "" Then Stop
-        Dim K$: K = M.Ns & "." & M.Nm & ".Fm"
-        Dim V$: V = "|  From " & M.L3.Prm
-        ODic.Add K, V
-    Next
-Wy_StsFixFm.RestWy = Wy_RmvItms(Wy, IdxAy)
-Set Wy_StsFixFm.FmDic = ODic
-End Function
-
-Private Function Wy_StsFixJn(Wy() As WrkDr) As StsFixJn
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eOp.eFixJn)
-Dim ODic As New Dictionary
-    Dim J%, M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$, V$
-        K = M.Ns & "." & M.Nm
-        V = "|  Inner Join " & M.L3.Prm
-        ODic.Add K, V
-    Next
-Set Wy_StsFixJn.JnDic = ODic
-Wy_StsFixJn.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsFixLeftJn(Wy() As WrkDr) As StsFixLeftJn
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eOp.eFixLeftJn)
-Dim ODic As New Dictionary
-    Dim J%, M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$, V$
-        K = M.Ns & "." & M.Nm
-        V = "|  Left Join " & M.L3.Prm
-        ODic.Add K, V
-    Next
-Set Wy_StsFixLeftJn.LeftJnDic = ODic
-Wy_StsFixLeftJn.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsFixSelDis(Wy() As WrkDr) As StsFixSelDis
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eOp.eFixSelDis)
-Dim ODic As New Dictionary
-    Dim J%, M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$, V$
-        K = M.Ns & "." & M.Nm
-        V = "Select Distinct " & M.L3.Prm
-        ODic.Add K, V
-    Next
-Set Wy_StsFixSelDis.SelDisDic = ODic
-Wy_StsFixSelDis.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsFixStr(Wy() As WrkDr, SwitchDic As Dictionary) As StsFixStr
-Dim IdxAy%():                   IdxAy = Wy_IdxAy_Op(Wy, eFixStr)
-Dim ODic As New Dictionary
-    Dim J%
-    Dim M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$: K = M.Ns & "." & M.Nm
-        Dim V$
-            If SwitchVal(SwitchDic, M.L3.Switch) Then
-                V = M.L3.Prm
-            Else
-                V = ""
-            End If
-        ODic.Add K, V
-    Next
-Set Wy_StsFixStr.StrDic = ODic
-Wy_StsFixStr.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsFixUpd(Wy() As WrkDr) As StsFixUpd
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eOp.eFixUpd)
-Dim ODic As New Dictionary
-    Dim J%, M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$, V$
-        K = M.Ns & "." & M.Nm
-        V = "Update #" & Brk(M.Nm, "#").S1
-        ODic.Add K, V
-    Next
-Set Wy_StsFixUpd.UpdDic = ODic
-Wy_StsFixUpd.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsFixWh(Wy() As WrkDr) As StsFixWh
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, eFixWh)
-Dim ODic As New Dictionary
-    Dim J%, M As WrkDr
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        Dim K$: K = M.Ns & "." & M.Nm & ".Where"
-        Dim V$: V = "|  Where " & M.L3.Prm
-        ODic.Add K, V
-    Next
-Set Wy_StsFixWh.WhDic = ODic
-Wy_StsFixWh.RestWy = Wy_RmvItms(Wy, IdxAy)
-End Function
-
-Private Function Wy_StsFixXXX(Wy() As WrkDr, Op As eOp) As StsFixXXX
-Dim IdxAy%(): IdxAy = Wy_IdxAy_Op(Wy, Op)
-Dim ODic As New Dictionary
-    Dim J%
-    Dim M As WrkDr
-    Dim OpDic As Dictionary
-        Set OpDic = FixOpDic
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        If Trim(M.L3.Prm) = "" Then Stop
-        Dim K$: K = M.Ns & "." & M.Nm & ".Fm"
-        Dim V$: V = FixPrm_Val(M.L3.Prm, OpDic(M.L3.Op))
-        ODic.Add K, V
-    Next
-Wy_StsFixXXX.RestWy = Wy_RmvItms(Wy, IdxAy)
-Set Wy_StsFixXXX.XXXDic = ODic
-End Function
-
-Private Function Wy_StsFixXXXAll(Wy() As WrkDr) As StsFixXXX
-Dim I, Op As eOp
-Dim IWy() As WrkDr
-Dim A As StsFixXXX
-For Each I In FixOpAy
-    Op = I
-    A = Wy_StsFixXXX(IWy, Op)
+Private Function Wy_SelWithSwith(A() As WrkDr) As WrkDr()
+Dim O() As WrkDr, J%
+For J = 0 To Wy_UB(A)
+    If WrkDr_HasSwitch(A(J)) Then
+        Wy_Push O, A(J)
+    End If
 Next
+Wy_SelWithSwith = O
 End Function
 
-Private Function Wy_StsMulNm(Wy() As WrkDr) As StsMulNm
-Dim Ky$()
-    Ky = Wy_MulNmKy(Wy)
-Dim ODic As New Dictionary
-    Dim K
-    For Each K In Ky
-        ODic.Add K, Wy_MulNmVal(K, Wy)
-    Next
-Dim IdxAy%()
-    IdxAy = Wy_MulNmIdxAy(Wy, Ky)
-Set Wy_StsMulNm.MulNmDic = ODic
-Wy_StsMulNm.RestWy = Wy_RmvItms(Wy, IdxAy)
+Private Function Wy_SwitchNy(A() As WrkDr) As String()
+Dim A1$(): A1 = Wy_SwitchNy_FmPrmNsWithNmBegWithQuestionMrk(A)
+Dim A2$(): A2 = Wy_SwitchNy_FmNsIsQuestionMrk(A)
+Wy_SwitchNy = AyAdd(A1, A2)
 End Function
 
-Private Function Wy_StsSwitch(A As StsPrm) As StsSwitch
-Dim Wy() As WrkDr
-Dim PrmDic As Dictionary
-    Wy = A.RestWy
-    Set PrmDic = A.PrmDic
-Dim IdxAy%()
-    IdxAy = Wy_IdxAy_Ns(Wy, "?")
-Dim ODic As Dictionary
-    Set ODic = A.PrmDic
-    Dim J%, M As WrkDr, K$
-    For J = 0 To UB(IdxAy)
-        M = Wy(IdxAy(J))
-        K = "?" & M.Nm
-        ODic.Add K, SwitchWrkDr_Val(M, ODic)
-    Next
-Set Wy_StsSwitch.SwitchDic = ODic
-Wy_StsSwitch.RestWy = Wy_RmvItms(Wy, IdxAy)
+Private Function Wy_SwitchNy_FmNsIsQuestionMrk(A() As WrkDr) As String()
+Dim O$(), J%
+For J = 0 To Wy_UB(A)
+    If A(J).Ns = "?" Then
+        Push O, "?" & A(J).Nm
+    End If
+Next
+Wy_SwitchNy_FmNsIsQuestionMrk = O
+End Function
+
+Private Function Wy_SwitchNy_FmPrmNsWithNmBegWithQuestionMrk(A() As WrkDr) As String()
+Dim O$(), J%
+For J = 0 To Wy_UB(A)
+    If A(J).Ns = "Prm" Then
+        If IsPfx(A(J).Nm, "?") Then
+            Push O, A(J).Nm
+        End If
+    End If
+Next
+Wy_SwitchNy_FmPrmNsWithNmBegWithQuestionMrk = O
 End Function
 
 Private Function Wy_Sz&(Wy() As WrkDr)
@@ -2269,9 +2043,28 @@ Private Function Wy_UB&(Wy() As WrkDr)
 Wy_UB = Wy_Sz(Wy) - 1
 End Function
 
-Private Function ZZSql3Ft$()
-ZZSql3Ft = TstResPth & "SalRpt.Sql3"
+Private Function Wy_Ws(Wy() As WrkDr, Optional SwitchDic As Dictionary) As Worksheet
+DrsWs Wy_Drs(Wy, SwitchDic)
 End Function
+
+Private Function ZZEvl_1____FmSql3Ly_ToL123Ay() As L123()
+ZZEvl_1____FmSql3Ly_ToL123Ay = Evl_1____FmSql3Ly_ToL123Ay(ZZSql3Ly)
+End Function
+
+Private Function ZZL12SOPSAy(Optional Sql3FtVarNm = "") As L12SOPS()
+Dim A() As L123: A = Evl_1___Pass1(ZZSql3Ly(Sql3FtVarNm))
+ZZL12SOPSAy = Evl_1___Pass2(A)
+End Function
+
+Private Function ZZSql3Ft$(Optional Sql3FtVarNm = "")
+Dim V$
+If Not IsEmpty(Sql3FtVarNm) Then V = "-" & Sql3FtVarNm
+ZZSql3Ft = TstResPth & FmtQQ("SalRpt?.Sql3", V)
+End Function
+
+Private Sub ZZSql3Ft_Edt(Optional Sql3FtVarNm = "")
+FtBrw ZZSql3Ft(Sql3FtVarNm)
+End Sub
 
 Private Sub ZZSql3Ft_Fix()
 Dim O$(): O = ZZSql3Ly
@@ -2282,21 +2075,12 @@ Next
 AyWrt O, ZZSql3Ft
 End Sub
 
-Private Function ZZSql3Ly() As String()
-ZZSql3Ly = FtLy(ZZSql3Ft)
-End Function
-
-Private Function ZZSql3Ly_L123Ay() As L123()
-ZZSql3Ly_L123Ay = Sql3Ly_L123Ay(ZZSql3Ly)
+Private Function ZZSql3Ly(Optional Sql3FtVarNm = "") As String()
+ZZSql3Ly = FtLy(ZZSql3Ft(Sql3FtVarNm))
 End Function
 
 Private Function ZZSql3Ly_Wy() As WrkDr()
 ZZSql3Ly_Wy = Sql3Ly_Wy(ZZSql3Ly)
-End Function
-
-Private Function ZZSts() As Sts
-ZZSts.Wy = ZZWy
-Set ZZSts.Dic = New Dictionary
 End Function
 
 Private Function ZZWy() As WrkDr()
@@ -2304,7 +2088,38 @@ If Sql3Ft_WrtEr(ZZSql3Ft) Then ZZSql3Ft_Edt: Stop
 ZZWy = Sql3Ly_Wy(ZZSql3Ly)
 End Function
 
-Private Sub KPD_Run__Tst()
+Private Sub Evl__Tst(Optional Sql3FtVarNm)
+If Sql3Ft_WrtEr(ZZSql3Ft(Sql3FtVarNm)) Then
+    FtBrw ZZSql3Ft(Sql3FtVarNm)
+    Stop
+End If
+Dim D As Dictionary
+Set D = Evl(ZZSql3Ft(Sql3FtVarNm))
+StrBrw RplVBar(D("Sql.X")), "Sql.X"
+AyBrw DicLy(DicSrt(D)), "RsltDic"
+Edt Sql3FtVarNm
+Stop
+End Sub
+
+Private Sub Evl_1___Pass1__Tst(Optional Sql3FtVarNm = "")
+L123Ay_Brw Evl_1___Pass1(ZZSql3Ly(Sql3FtVarNm))
+End Sub
+
+Sub Evl_1___Pass2__Tst(Optional Sql3FtVarNm = "")
+Dim A() As L123: A = Evl_1___Pass1(ZZSql3Ly(Sql3FtVarNm))
+Dim B() As L123: B = Evl_1___Pass2(A)
+L123Ay_Brw B
+End Sub
+
+Function Evl_21___FmL123Ay_ToL12SOPSAy__Tst(Optional Sql3FtVarNm = "")
+Dim A() As L123: A = Evl_1___Pass1(ZZSql3Ly(Sql3FtVarNm))
+Dim B() As L123: B = Evl_1___Pass2(A)
+Dim C() As L12SOPS: C = Evl_21___FmL123Ay_ToL12SOPSAy(B)
+Dim D() As L12SOPS: D = L12SOPSAy_Srt(C)
+L12SOPSAy_Brw D
+End Function
+
+Private Sub Evl_24127_Run__Tst()
 Dim Dic As New Dictionary
 Dim L3Prm$
 Dim Ns$
@@ -2313,57 +2128,68 @@ Dim Ns$
     Dic.Add "Prm.CrdTyLis", "1 2 3"
 Dim A As KPD
     A = KPD(Ns, L3Prm, Dic)
-With KPD_Run(A)
+With Evl_24127_Run(A)
     Debug.Assert .Som
     Debug.Print .Str
 End With
 End Sub
 
-Private Sub L123Ay_Brw_L1233__Tst()
-Dim A() As L123: A = Sql3Ly_L123Pass1Ay(ZZSql3Ly)
-Dim B() As L123: B = L123Ay_L123Pass2Ay(A)
-Dim C() As L123: C = L123Ay_L123Pass3Ay(B)
-L123Ay_Brw_L1233 C
+Private Sub Evl_241296__SqlUpd__Tst()
+With Evl_241296__SqlUpd("Sql.Tx.Tx#Upd.Upd")
+    Debug.Assert .Str = "Update #Tx"
+    Debug.Assert .Som = True
+End With
 End Sub
 
-Private Sub L123Ay_DistOpSy__Tst()
-Dim A() As L123: A = Sql3Ly_L123Pass1Ay(ZZSql3Ly)
-Dim B() As L123: B = L123Ay_L123Pass2Ay(A)
-Dim C() As L123: C = L123Ay_L123Pass3Ay(B)
-AyBrw L123Ay_DistOpSy(C)
+Private Sub Evl_2412A_SqlSelFldLis__Tst()
+Dim GivKey$, GivPrm$, GivDic As Dictionary
+Dim ExpStr$, ExpSom As Boolean
+Dim ActStr$, ActSom As Boolean
+ExpSom = True
+ExpStr = "    F1-Expr|    XXX 123 123|    yy           F1,|    F2-Expr      F2,|    F4           F4,|    Expr-X       X "
+GivKey = "A"
+GivPrm = "F1 F2 ?F3 .F4 E.X"
+
+Set GivDic = DicByDry(Array( _
+    Array("A.F1", "F1-Expr|XXX 123 123|yy"), _
+    Array("A.F2", "F2-Expr"), _
+    Array("A.?F3", ""), _
+    Array("E.X", "Expr-X")))
+Dim A As KPD
+    A = KPD(GivKey, GivPrm, GivDic)
+With Evl_2412A_SqlSelFldLis(A)      '<== Run
+    ActSom = .Som
+    ActStr = .Str
+End With
+Debug.Assert ActSom = ExpSom
+Debug.Assert ActStr = ExpStr
 End Sub
 
-Private Sub L123Ay_L123Pass2Ay__Tst()
-Dim A() As L123: A = Sql3Ly_L123Pass1Ay(ZZSql3Ly)
-Dim B() As L123: B = L123Ay_L123Pass2Ay(A)
-L123Ay_Brw B
+Private Sub Evl_ToDic__Tst()
+Const VarNm$ = "SqlUpd"
+Dim A1() As L12SOPS: A1 = ZZL12SOPSAy(VarNm)
+Dim A2() As L12SOPS: A2 = Evl_SetFixStr(A1)
+L12SOPSAy_Brw_NoL1L2 A2
+Stop
+
+Dim Act As Dictionary: Set Act = Evl_ToDic(A2)
+DicBrw Act
 End Sub
 
-Private Sub L123Ay_L123Pass3Ay__Tst()
-Dim A() As L123: A = Sql3Ly_L123Pass1Ay(ZZSql3Ly)
-Dim B() As L123: B = L123Ay_L123Pass2Ay(A)
-Dim C() As L123: C = L123Ay_L123Pass3Ay(B)
-L123Ay_Brw C
+Private Sub Evl_ToDic_3_FmMulNm__Tst()
+DicBrw Evl_ToDic_3_FmMulNm(ZZL12SOPSAy("SqlUpd"))
+End Sub
+
+Private Sub L12SOPSAy_Ky_UniqSrt__Tst()
+AyBrw L12SOPSAy_Ky_UniqSrt(ZZL12SOPSAy)
 End Sub
 
 Private Sub Op_Sy__Tst()
 AyDmp Op_Sy
 End Sub
 
-Sub Sql3Ft_Dic__Tst()
-If Sql3Ft_WrtEr(ZZSql3Ft) Then
-    FtBrw ZZSql3Ft
-    Stop
-End If
-DicBrw Sql3Ft_Dic(ZZSql3Ft)
-End Sub
-
-Private Sub Sql3Ft_WrtWy_ErDry__Tst()
+Private Sub Sql3Ft_WrtEr__Tst()
 If Sql3Ft_WrtEr(ZZSql3Ft) Then ZZSql3Ft_Edt
-End Sub
-
-Private Sub Sql3Ly_L123Pass1Ay__Tst()
-L123Ay_Brw Sql3Ly_L123Pass1Ay(ZZSql3Ly)
 End Sub
 
 Private Sub Sql3Ly_LinLvlDrs__Tst()
@@ -2387,307 +2213,8 @@ Dim Act() As WrkDr: Act = Sql3Ly_Wy(ZZSql3Ly)
 Wy_Brw Act
 End Sub
 
-Private Sub SqlPhrase_Upd__Tst()
-With SqlPhrase_Upd("Sql.Tx.Tx#Upd.Upd")
-    Debug.Assert .Str = "Update #Tx"
-    Debug.Assert .Som = True
-End With
-End Sub
-
-Private Sub Sts_StsFixStr__Tst()
-Dim A As Sts: A = ZZSts
-Dim B As Sts: 'B = Sts_StsPrm(A)
-Dim X As Sts: 'X = Sts_StsSwitch(B)
-Dim Y As Sts: 'Y = Sts_StsFixStr(X)
-StsPair_Assert X, Y
-'DsWbVis Sts1Pair_Ds(X, Y, "Sts_StsFixStr")
-End Sub
-
-Private Function Sts_StsMulNm__Tst()
-Const A$ = "Prm Switch FixStr MulNm"
-Dim FunNy$(): FunNy = AyAddPfx(SplitLvs(A), "Sts_Sts")
-Dim FunNy1$(): FunNy1 = FunNy: AyRmvLasEle FunNy
-Dim X As Sts: 'X = Sts_StsFixStr(Sts_StsSwitch(Sts_StsPrm(ZZSts)))
-Dim Y As Sts: 'Y = Sts_StsPrm(X)
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(X.Wy)
-    Dim Aft%: Aft = Wy_UB(Y.Wy)
-    Dif = Bef - Aft
-Debug.Assert Y.Dic.Count - X.Dic.Count = Dif
-Wy_Brw X.Wy
-End Function
-
-Private Function Sts_StsPrm__Tst()
-Dim A As Sts: A = ZZSts
-Dim B As Sts: 'B = Sts_StsPrm(A)  '<== Run
-Dim Diff%
-    Dim Bef%, Aft%
-    Bef = Wy_UB(A.Wy)
-    Aft = Wy_UB(B.Wy)
-    Diff = Bef - Aft
-Debug.Assert B.Dic.Count - A.Dic.Count = Diff
-Dim J%
-For J = 0 To Wy_UB(B.Wy)
-    With B.Wy(J)
-        Debug.Assert .Ns <> "Prm"
-    End With
-Next
-Dim O As Ds
-    O = Wy_BefAftCurDs(A.Wy, B.Wy)
-    O.DsNm = "Wy_StsPrm Result"
-    DsAddDt O, DicDt(B.Dic, "Dic")
-DsWbVis O
-End Function
-
-Private Function Sts_StsSwitch__Tst()
-Dim A As Sts: 'A = Sts_StsPrm(ZZSts)
-Dim B As Sts: 'B = Sts_StsSwitch(A) '<== Run
-Dim Diff%
-    Dim Bef%, Aft%
-    Bef = Wy_UB(A.Wy)
-    Aft = Wy_UB(B.Wy)
-    Diff = Bef - Aft
-Debug.Assert B.Dic.Count - A.Dic.Count = Diff
-Dim J%
-For J = 0 To Wy_UB(B.Wy)
-    With B.Wy(J)
-        Debug.Assert .Ns <> "Prm"
-    End With
-Next
-Dim O As Ds
-    O = Wy_BefAftCurDs(A.Wy, B.Wy)
-    O.DsNm = "Wy_StsPrm Result"
-    DsAddDt O, DicDt(A.Dic, "PrmDic")
-DsWbVis O
-End Function
-
-Private Sub Wy_MulNmWy__Tst()
-Wy_Brw Wy_MulNmWy(ZZWy)
-End Sub
-
-Private Sub Wy_StsExp__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: '' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim F As StsFixWh: F = Wy_StsFixWh(D.RestWy)
-Dim G As StsFixUpd: G = Wy_StsFixUpd(F.RestWy)
-Dim H As StsFixLeftJn: H = Wy_StsFixLeftJn(G.RestWy)
-Dim I As StsFixJn: I = Wy_StsFixJn(H.RestWy)
-Dim J As StsFixSelDis: J = Wy_StsFixSelDis(I.RestWy)
-Dim K As StsFixDrp: K = Wy_StsFixDrp(J.RestWy)
-Dim L As StsExp: L = Wy_StsExp(K.RestWy)
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(K.RestWy)
-    Dim Aft%: Aft = Wy_UB(L.RestWy)
-    Dif = Bef - Aft
-Debug.Assert L.ExpDic.Count = Dif
-Dim O As Ds
-    O = Wy_BefAftCurDs(K.RestWy, L.RestWy, B.SwitchDic)
-Dim DD As Dictionary
-    'Const DicPfx$ = "Prm Switch FixStr Fm Into Wh Upd LeftJn Jn SelDis Drp Exp"
-    'Set DD = DicMge(DicPfx, A.PrmDic, B.SwitchDic, C.FixStrDic, D.FmDic, E.IntoDic, F.WhDic, G.UpdDic, H.LeftJnDic, I.JnDic, J.SelDisDic, K.DrpDic, L.ExpDic)
-    Set DD = DicAdd(A.PrmDic, B.SwitchDic, C.StrDic, D.FmDic, F.WhDic, G.UpdDic, H.LeftJnDic, I.JnDic, J.SelDisDic, K.DrpDic, L.ExpDic)
-    If DicHasBlankKey(B.SwitchDic) Then Stop
-    If DicHasBlankKey(C.StrDic) Then Stop
-DsAddDt O, DicDt(DD, "Mged Dic")
-DsAddDt O, DicDt(L.ExpDic, "Exp Dic (@)")
-O.DsNm = "Wy_StsExp Result"
-DsWbVis O
-End Sub
-
-Private Sub Wy_StsFixDrp__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim F As StsFixWh: F = Wy_StsFixWh(D.RestWy)
-Dim G As StsFixUpd: G = Wy_StsFixUpd(F.RestWy)
-Dim H As StsFixLeftJn: H = Wy_StsFixLeftJn(G.RestWy)
-Dim I As StsFixJn: I = Wy_StsFixJn(H.RestWy)
-Dim J As StsFixSelDis: J = Wy_StsFixSelDis(I.RestWy)
-Dim K As StsFixDrp: K = Wy_StsFixDrp(J.RestWy)
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(J.RestWy)
-    Dim Aft%: Aft = Wy_UB(K.RestWy)
-    Dif = Bef - Aft
-Debug.Assert K.DrpDic.Count = Dif
-Dim O As Ds
-    O = Wy_BefAftCurDs(J.RestWy, K.RestWy, B.SwitchDic)
-    DsAddDt O, DicDt(K.DrpDic, "Drp Dic")
-O.DsNm = "Wy_StsFixDrp Result"
-DsWbVis O
-End Sub
-
-Private Sub Wy_StsFixFm__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim Dif%
-    Dim Aft%: Aft = Wy_UB(D.RestWy)
-    Dim Bef%: Bef = Wy_UB(C.RestWy)
-    Dif = Bef - Aft
-Debug.Assert Dif = D.FmDic.Count
-Dim O As Ds
-    O = Wy_BefAftCurDs(C.RestWy, D.RestWy, B.SwitchDic)
-    DsAddDt O, DicDt(D.FmDic, "Fm Dic")
-DsWbVis O
-End Sub
-
-Private Sub Wy_StsFixJn__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim F As StsFixWh: F = Wy_StsFixWh(D.RestWy)
-Dim G As StsFixUpd: G = Wy_StsFixUpd(F.RestWy)
-Dim H As StsFixLeftJn: H = Wy_StsFixLeftJn(G.RestWy)
-Dim I As StsFixJn: I = Wy_StsFixJn(H.RestWy)
-DicBrw I.JnDic
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(H.RestWy)
-    Dim Aft%: Aft = Wy_UB(I.RestWy)
-    Dif = Bef - Aft
-Debug.Assert I.JnDic.Count = Dif
-Wy_Brw I.RestWy, B.SwitchDic
-End Sub
-
-Private Sub Wy_StsFixLeftJn__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim F As StsFixWh: F = Wy_StsFixWh(D.RestWy)
-Dim G As StsFixUpd: G = Wy_StsFixUpd(F.RestWy)
-Dim H As StsFixLeftJn: H = Wy_StsFixLeftJn(G.RestWy)
-DicBrw H.LeftJnDic
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(G.RestWy)
-    Dim Aft%: Aft = Wy_UB(H.RestWy)
-    Dif = Bef - Aft
-Debug.Assert H.LeftJnDic.Count = Dif
-Wy_Brw H.RestWy, B.SwitchDic
-End Sub
-
-Private Sub Wy_StsFixSelDis__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim F As StsFixWh: F = Wy_StsFixWh(D.RestWy)
-Dim G As StsFixUpd: G = Wy_StsFixUpd(F.RestWy)
-Dim H As StsFixLeftJn: H = Wy_StsFixLeftJn(G.RestWy)
-Dim I As StsFixJn: I = Wy_StsFixJn(H.RestWy)
-Dim K As StsFixSelDis: K = Wy_StsFixSelDis(I.RestWy)
-DicBrw K.SelDisDic
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(I.RestWy)
-    Dim Aft%: Aft = Wy_UB(K.RestWy)
-    Dif = Bef - Aft
-Debug.Assert K.SelDisDic.Count = Dif
-Wy_Brw K.RestWy, B.SwitchDic
-End Sub
-
-Private Sub Wy_StsFixStr__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(B.RestWy)
-    Dim Aft%: Aft = Wy_UB(C.RestWy)
-    Dif = Bef - Aft
-Debug.Assert C.StrDic.Count = Dif
-Dim O As Ds
-    O = Wy_BefAftCurDs(B.RestWy, C.RestWy, B.SwitchDic)
-    O.DsNm = "Wy_StsFixStr Result"
-    DsAddDt O, DicDt(C.StrDic, "FixStrDic")
-    DsAddDt O, DicDt(B.SwitchDic, "SwitchDic")
-    DsAddDt O, DicDt(Wy_L3Dic_FixStr(B.RestWy), "FixStrL3Dic")
-DsWbVis O
-End Sub
-
-Private Sub Wy_StsFixUpd__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim F As StsFixWh: F = Wy_StsFixWh(D.RestWy)
-Dim G As StsFixUpd: G = Wy_StsFixUpd(F.RestWy)
-DicBrw G.UpdDic
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(F.RestWy)
-    Dim Aft%: Aft = Wy_UB(G.RestWy)
-    Dif = Bef - Aft
-Debug.Assert G.UpdDic.Count = Dif
-Wy_Brw G.RestWy, B.SwitchDic
-End Sub
-
-Private Sub Wy_StsFixWh__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim C As StsFixStr: ' C = Wy_StsFxStr(B)
-Dim D As StsFixFm: D = Wy_StsFixFm(C.RestWy)
-Dim F As StsFixWh: F = Wy_StsFixWh(D.RestWy)
-DicBrw F.WhDic
-Dim Dif%
-    Dim Bef%: Bef = Wy_UB(D.RestWy)
-    Dim Aft%: Aft = Wy_UB(F.RestWy)
-    Dif = Bef - Aft
-Debug.Assert F.WhDic.Count = Dif
-Wy_Brw F.RestWy, B.SwitchDic
-End Sub
-
-Private Sub Wy_StsPrm__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy) '<== Run
-Dim Diff%
-    Dim Bef%, Aft%
-    Bef = Wy_UB(Wy)
-    Aft = Wy_UB(A.RestWy)
-    Diff = Bef - Aft
-Debug.Assert A.PrmDic.Count = Diff
-Dim J%
-For J = 0 To Wy_UB(A.RestWy)
-    With A.RestWy(J)
-        Debug.Assert .Ns <> "Prm"
-    End With
-Next
-Dim O As Ds
-    O = Wy_BefAftCurDs(Wy, A.RestWy)
-    O.DsNm = "Wy_StsPrm Result"
-    DsAddDt O, DicDt(A.PrmDic, "PrmDic")
-DsWbVis O
-End Sub
-
-Sub Wy_StsSwitch__Tst()
-Dim Wy() As WrkDr: Wy = ZZWy
-Dim A As StsPrm: A = Wy_StsPrm(Wy)
-Dim B As StsSwitch: B = Wy_StsSwitch(A)
-Dim Diff%
-    Dim Aft%, Bef%
-    Bef = Wy_UB(A.RestWy)
-    Aft = Wy_UB(B.RestWy)
-    Diff = Bef - Aft
-Debug.Assert B.SwitchDic.Count = Diff
-Dim O As Ds
-    O = Wy_BefAftCurDs(A.RestWy, B.RestWy, B.SwitchDic)
-    O.DsNm = "Wy_StsSwitch Result"
-    Dim DD As Dictionary
-        Dim SwitchL3Dic As Dictionary
-            Set SwitchL3Dic = Wy_L3Dic_Switch(Wy)
-        Set DD = DicMge("SwtichL3Val SwitchVal Prm", SwitchL3Dic, B.SwitchDic, A.PrmDic)
-    DsAddDt O, DicDt(DD, "Dic for checking")
-DsWbVis O
+Private Sub Wy_Ny__Tst()
+AyBrw Wy_Ny(ZZWy)
 End Sub
 
 Private Sub ZZSql3Ly__Tst()
@@ -2695,22 +2222,11 @@ AyBrw ZZSql3Ly
 End Sub
 
 Sub Tst()
-Wy_StsExp__Tst
-Wy_StsFixDrp__Tst
-Wy_StsFixFm__Tst
-Wy_StsFixJn__Tst
-Wy_StsFixLeftJn__Tst
-Wy_StsFixSelDis__Tst
-Wy_StsFixStr__Tst
-Wy_StsFixUpd__Tst
-Wy_StsFixWh__Tst
-Wy_StsPrm__Tst
-Wy_StsSwitch__Tst
+Tst
 Op_Sy__Tst
 Sql3Ly_ValidatedLy__Tst
-Sql3Ft_WrtWy_ErDry__Tst
+Sql3Ft_WrtEr__Tst
 Sql3Ly_Wy__Tst
-Sql3Ft_Dic__Tst
 ZZSql3Ly__Tst
 End Sub
 
