@@ -15,7 +15,8 @@ Fso.CopyFile FmFil, ToPth & FfnFn(FmFil), OvrWrt
 End Sub
 
 Sub FtBrw(Ft)
-Shell "code.cmd """ & Ft & """", vbHide
+'Shell "code.cmd """ & Ft & """", vbHide
+Shell "notepad.exe """ & Ft & """", vbMaximizedFocus
 End Sub
 
 Function FtLy(Ft) As String()

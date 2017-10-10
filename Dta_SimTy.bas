@@ -45,13 +45,14 @@ SimTy = O
 End Function
 
 Function SimTyQuoteTp$(A As eSimTy)
+Const CSub$ = "SimTyQuot1eTp"
 Dim O$
 Select Case A
 Case eTxt: O = "'?'"
 Case eNbr, eLgc: O = "?"
 Case eDte: O = "#?#"
 Case Else
-    Er "Given {eSimTy} should be [eTxt eNbr eDte eLgc]", A
+    Er CSub, "Given {eSimTy} should be [eTxt eNbr eDte eLgc]", A
 End Select
 SimTyQuoteTp = O
 End Function

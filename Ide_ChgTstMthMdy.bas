@@ -2,19 +2,19 @@ Attribute VB_Name = "Ide_ChgTstMthMdy"
 Option Compare Database
 Option Explicit
 
-Sub MdChgTstSubMdy(ToMdy$, Optional A As CodeModule)
+Sub MdChgTstMthMdy(ToMdy$, Optional A As CodeModule)
 Dim MthNm
-For Each MthNm In MdTstSubNy(A)
+For Each MthNm In MdTstMthNy(A)
     MthChgMdy MthNm, ToMdy, A
 Next
 End Sub
 
-Sub MdChgTstSubToPrv(Optional A As CodeModule)
-MdChgTstSubMdy "Private", A
+Sub MdChgTstMthToPrv(Optional A As CodeModule)
+MdChgTstMthMdy "Private", A
 End Sub
 
-Sub MdChgTstSubToPub(Optional A As CodeModule)
-MdChgTstSubMdy "Public", A
+Sub MdChgTstMthToPub(Optional A As CodeModule)
+MdChgTstMthMdy "Public", A
 End Sub
 
 Sub MthChgMdy(MthNm, ToMdy$, Optional A As CodeModule)
@@ -23,23 +23,23 @@ Dim LnoAy%(): LnoAy = MdMthLnoAy(MthNm, A)
 If AyIsEmpty(LnoAy) Then Stop
 Dim Lno, NewLin$
 For Each Lno In LnoAy
-    NewLin = SrcLinRplMthMdy(Md.Lines(Lno, 1), ToMdy)
+    NewLin = MthLinRplMdy(Md.Lines(Lno, 1), ToMdy)
     MdRplLin CLng(Lno), NewLin, Md
 Next
 End Sub
 
-Sub PjChgTstSubMdy(ToMdy$, Optional A As VBProject)
+Sub PjChgTstMthMdy(ToMdy$, Optional A As Vbproject)
 Dim I, Md As CodeModule
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(, A)
     Set Md = I
-    MdChgTstSubMdy ToMdy, Md
+    MdChgTstMthMdy ToMdy, Md
 Next
 End Sub
 
-Sub PjChgTstSubToPrv(Optional A As VBProject)
+Sub PjChgTstMthToPrv(Optional A As Vbproject)
 Dim I, Md As CodeModule
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(, A)
     Set Md = I
-    MdChgTstSubToPrv Md
+    MdChgTstMthToPrv Md
 Next
 End Sub

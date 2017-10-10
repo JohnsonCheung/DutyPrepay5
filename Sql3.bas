@@ -58,7 +58,7 @@ Private Type L3
     Switch As String ' Start with ?, but
     OpStr As String
     Op As eOp
-    Prm As String    ' RestTerm of L3
+    Prm As String    ' RstTerm of L3
 End Type
 Private Type WrkDr
     Ns As String
@@ -66,14 +66,6 @@ Private Type WrkDr
     L3 As L3
     LinI As Integer
 End Type
-
-Sub AA(Optional Sql3FtVarNm = "")
-Evl__Tst Sql3FtVarNm
-End Sub
-
-Sub AAA()
-Evl_ToDic__Tst
-End Sub
 
 Sub Edt(Optional Sql3FtVarNm = "")
 ZZSql3Ft_Edt Sql3FtVarNm
@@ -955,13 +947,13 @@ Private Function L123Ay_SelPrm(A() As L123) As L123()
 L123Ay_SelPrm = L123Ay_SelL1(A, "Prm")
 End Function
 
-Private Function L123Ay_SelSwitch(A() As L123) As L123()
-L123Ay_SelSwitch = L123Ay_SelL1(A, "?")
+Private Function L123Ay_SEvlSw__ForEachLineitch(A() As L123) As L123()
+L123Ay_SEvlSw__ForEachLineitch = L123Ay_SelL1(A, "?")
 End Function
 
 Private Function L123Ay_SwitchDic(A() As L123, PrmDic As Dictionary) As Dictionary
 Dim B() As L123
-    B = L123Ay_SelSwitch(A)
+    B = L123Ay_SEvlSw__ForEachLineitch(A)
 Dim O As Dictionary
     Set O = SwitchPrmDic(PrmDic)    '<== Any Prm with Nm = ?XXX, promote them as Switch
     Dim Dic As Dictionary
@@ -1219,7 +1211,7 @@ With O
     .Switch = Switch
     .OpStr = OpStr
     .Op = Op(OpStr)
-    .Prm = RestTerm(L)
+    .Prm = RstTerm(L)
 End With
 L3Str_Brk = O
 End Function
@@ -2096,7 +2088,7 @@ If Sql3Ft_WrtEr(ZZSql3Ft(Sql3FtVarNm)) Then
 End If
 Dim D As Dictionary
 Set D = Evl(ZZSql3Ft(Sql3FtVarNm))
-StrBrw RplVBar(D("Sql.X")), "Sql.X"
+StrBrw RplVbar(D("Sql.X")), "Sql.X"
 AyBrw DicLy(DicSrt(D)), "RsltDic"
 Edt Sql3FtVarNm
 Stop

@@ -1,4 +1,4 @@
-Attribute VB_Name = "Md_Srt__Tst"
+Attribute VB_Name = "Ide_Md__MdSrt__Tst"
 Option Explicit
 Option Compare Database
 

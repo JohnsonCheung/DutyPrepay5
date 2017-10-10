@@ -1,6 +1,10 @@
 Attribute VB_Name = "Vb_Opt"
 Option Explicit
 Option Compare Database
+Type VarOpt
+    Som As Boolean
+    V As Variant
+End Type
 Type StrOpt
     Som As Boolean
     Str As String
@@ -61,9 +65,13 @@ Function SomBoolAy(A() As Boolean) As BoolAyOpt
 SomBoolAy.Som = True
 SomBoolAy.BoolAy = A
 End Function
-
-Function SomS1S2(A As S1S2) As S1S2Opt
-SomS1S2.S1S2 = A
+Function StrOptIsEq(A1 As StrOpt, A2 As StrOpt) As Boolean
+If A1.Som <> A1.Som Then Exit Function
+If A1.Str <> A2.Str Then Exit Function
+StrOptIsEq = True
+End Function
+Function SomS1S2(S1$, S2$) As S1S2Opt
+SomS1S2.S1S2 = S1S2(S1, S2)
 SomS1S2.Som = True
 End Function
 
@@ -80,4 +88,9 @@ End Function
 Function SomV(V) As VOpt
 SomV.Som = True
 SomV.V = V
+End Function
+
+Function SomVar(V) As VarOpt
+SomVar.Som = True
+SomVar.V = V
 End Function

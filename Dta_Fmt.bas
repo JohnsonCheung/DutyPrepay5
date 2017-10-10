@@ -22,9 +22,9 @@ Function DrsLyInsBrkLin(TblLy$(), ColNm$) As String()
 Dim Hdr$: Hdr = TblLy(1)
 Dim Fny$():
     Fny = SplitVBar(Hdr)
-    AyRmvFstEle Fny
-    AyRmvLasEle Fny
-    AyTrim Fny
+    Fny = AyRmvFstEle(Fny)
+    Fny = AyRmvLasEle(Fny)
+    Fny = AyTrim(Fny)
 Dim Idx%
     Idx = AyIdx(Fny, ColNm)
 Dim DryLy$()

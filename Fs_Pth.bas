@@ -2,10 +2,6 @@ Attribute VB_Name = "Fs_Pth"
 Option Explicit
 Option Compare Database
 
-Function IsPth(P) As Boolean
-IsPth = Dir(P, vbDirectory) <> ""
-End Function
-
 Sub PthAssertIsExist(P)
 If Not IsPth(P) Then Err.Raise 1, , FmtQQ("Given Pth[?] does not exist", P)
 End Sub

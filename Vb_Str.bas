@@ -2,6 +2,11 @@ Attribute VB_Name = "Vb_Str"
 Option Explicit
 Option Compare Database
 
+
+Type FmToPos
+    FmPos As Long
+    ToPos As Long
+End Type
 Type S1S2
     S1 As String
     S2 As String
@@ -11,12 +16,26 @@ Type Map
     Sy2() As String
 End Type
 
-Function AlignL$(S, W)
+Function AddPfxIf$(S, Pfx)
+If S = "" Then Exit Function
+AddPfxIf = Pfx & S
+End Function
+
+Function AddSfxIf$(S, Sfx)
+If S = "" Then Exit Function
+AddSfxIf = S & Sfx
+End Function
+
+Function AlignL$(S, W, Optional ErIfNotEnoughWdt As Boolean)
+Const CSub$ = "AlignL"
 Dim L%
 If IsNull(S) Then
     L = 0
 Else
     L = Len(S)
+End If
+If ErIfNotEnoughWdt Then
+    If L > W Then Er CSub, "Len({S)) > {W}", S, W
 End If
 If W >= L Then
     AlignL = S & Space(W - L)
@@ -46,9 +65,39 @@ Function AppendDash$(S)
 AppendDash = Append(S, "-")
 End Function
 
+Function BktPos(S, Optional Bkt$ = "()") As FmToPos
+Const CSub$ = "BktPos"
+Dim Q1$, Q2$
+    With BrkQuote(Bkt)
+        Q1 = .S1
+        Q2 = .S2
+    End With
+Dim FmPos&
+    FmPos = InStr(S, Q1)
+    If FmPos = 0 Then Exit Function
+Dim ToPos&
+    Dim NOpn%, J%
+    For J = FmPos + 1 To Len(S)
+        Select Case Mid(S, J, 1)
+        Case Q2
+            If NOpn = 0 Then
+                ToPos = J
+                Exit For
+            End If
+            NOpn = NOpn - 1
+        Case Q1
+            NOpn = NOpn + 1
+        End Select
+    Next
+    If ToPos = 0 Then Er CSub, "{Str} has {Q1} and {Q2} is not in pair", S, Q1, Q2
+BktPos.FmPos = FmPos
+BktPos.ToPos = ToPos
+End Function
+
 Function Brk(S, Sep, Optional NoTrim As Boolean) As S1S2
+Const CSub$ = "Brk"
 Dim P&: P = InStr(S, Sep)
-If P = 0 Then Err.Raise "Brk: Str[" & S & "] does not contains Sep[" & Sep & "]"
+If P = 0 Then Er CSub, "{S} does not contains {Sep}", S, Sep
 Brk = BrkAt(S, P, Len(Sep), NoTrim)
 End Function
 
@@ -207,7 +256,7 @@ End Function
 
 Function FmtQQVBar$(QQStr$, ParamArray Ap())
 Dim Av(): Av = Ap
-FmtQQVBar = RplVBar(FmtQQAv(QQStr, Av))
+FmtQQVBar = RplVbar(FmtQQAv(QQStr, Av))
 End Function
 
 Function FstChr$(S)
@@ -216,6 +265,17 @@ End Function
 
 Function HasSubStr(S, SubStr) As Boolean
 HasSubStr = InStr(S, SubStr) > 0
+End Function
+
+Function HasSubStrAy(S, SubStrAy) As Boolean
+Dim SubStr
+For Each SubStr In SubStrAy
+    If HasSubStr(S, SubStr) Then HasSubStrAy = True: Exit Function
+Next
+End Function
+
+Function HasVBar(S) As Boolean
+HasVBar = HasSubStr(S, "|")
 End Function
 
 Function InstrN&(S, SubStr, N%)
@@ -254,6 +314,12 @@ End Function
 Function IsPfx(S, Pfx) As Boolean
 IsPfx = (Left(S, Len(Pfx)) = Pfx)
 End Function
+Function IsPfxAy(S, PfxAy) As Boolean
+Dim Pfx
+For Each Pfx In PfxAy
+    If IsPfx(S, Pfx) Then IsPfxAy = True: Exit Function
+Next
+End Function
 
 Function IsSfx(S, Sfx) As Boolean
 IsSfx = (Right(S, Len(Sfx)) = Sfx)
@@ -261,6 +327,10 @@ End Function
 
 Function JnComma$(Ay)
 JnComma = Join(Ay, ",")
+End Function
+
+Function JnCommaSpc(Ay)
+JnCommaSpc = Join(Ay, ", ")
 End Function
 
 Function JnCrLf$(Ay)
@@ -400,8 +470,8 @@ Else
 End If
 End Function
 
-Function RplVBar$(S)
-RplVBar = Replace(S, "|", vbCrLf)
+Function RplVbar$(S)
+RplVbar = Replace(S, "|", vbCrLf)
 End Function
 
 Function S1S2(S1, S2) As S1S2
@@ -478,6 +548,14 @@ Function SpcUnE$(S)
 SpcUnE = Replace(S, "~", " ")
 End Function
 
+Function SplitComma(S, Optional NoTrim As Boolean) As String()
+If NoTrim Then
+    SplitComma = Split(S, ",")
+Else
+    SplitComma = AyTrim(Split(S, ","))
+End If
+End Function
+
 Function SplitCrLf(S) As String()
 SplitCrLf = Split(S, vbCrLf)
 End Function
@@ -545,6 +623,13 @@ Function TakAft$(S, Sep, Optional NoTrim As Boolean)
 TakAft = Brk1(S, Sep, NoTrim).S2
 End Function
 
+Function TakAftBkt$(S, Optional Bkt$ = "()")
+Dim P2&
+    P2 = BktPos(S, Bkt).ToPos
+If P2 = 0 Then Exit Function
+TakAftBkt = Mid(S, P2 + 1)
+End Function
+
 Function TakAftRev$(S, Sep, Optional NoTrim As Boolean)
 TakAftRev = Brk1Rev(S, Sep, NoTrim).S2
 End Function
@@ -564,6 +649,16 @@ With Brk1(S, S1, NoTrim)
     If InclMarker Then O = S1 & O & S2
     TakBet = O
 End With
+End Function
+
+Function TakBetBkt$(S, Optional Bkt$ = "()")
+Dim P1&, P2&
+    With BktPos(S, Bkt)
+        P1 = .FmPos
+        P2 = .ToPos
+    End With
+If P1 = 0 Then Exit Function
+TakBetBkt = Mid(S, P1 + 1, P2 - P1 - 1)
 End Function
 
 Function TmpFfn(Ext$, Optional Fdr, Optional Fnn)
@@ -657,6 +752,14 @@ Const S1$ = "Excel 8.0;HDR=YES;IMEX=2;DATABASE=??"
 Const S2$ = "Excel 8.0;HDR=YES;IMEX=2;DATABASE=??;AA=XX"
 Debug.Assert TakBet(S1, "DATABASE=", ";") = "??"
 Debug.Assert TakBet(S2, "DATABASE=", ";") = "??"
+End Sub
+
+Private Sub TakBetBkt__Tst()
+Dim Act$
+    Dim S$
+    S = "sdklfjdsf(1234()567)aaa("
+    Act = TakBetBkt(S)
+    Debug.Assert Act = "1234()567"
 End Sub
 
 Sub Tst()

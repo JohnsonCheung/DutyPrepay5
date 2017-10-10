@@ -1,0 +1,14 @@
+BrkCrd    = 
+BrkDiv    = 
+BrkMbr    = 
+BrkSto    = 
+CrdLis    = 
+StoLis    = 
+DivLis    = 
+FmDte     = 
+ToDte     = 
+SumLvl    = 
+InclAdr   = 
+InclNm    = 
+InclPhone = False
+InclEmail = False

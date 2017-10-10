@@ -9,7 +9,7 @@ mFld.Type = Ty
 Flds(T, D).Append mFld
 End Sub
 
-Sub AssertT(T, Optional D As Dao.Database)
+Sub AssertTblIsExist(T, Optional D As Dao.Database)
 On Error GoTo X:
 Dim A$
 A = D.TableDefs(T).Name
@@ -188,6 +188,13 @@ Next
 FldsFny = O
 End Function
 
+Function FldsHasFld(Flds As Dao.Fields, F) As Boolean
+Dim I As Dao.Field
+For Each I In Flds
+    If I.Name = F Then FldsHasFld = True: Exit Function
+Next
+End Function
+
 Function FnyQuote(Fny$(), ToQuoteFny$()) As String()
 If AyIsEmpty(Fny) Then Exit Function
 Dim O$(): O = Fny
@@ -211,19 +218,12 @@ FnyQuoteIfNeed = O
 End Function
 
 Function HasFld(T, F, Optional D As Database) As Boolean
-AssertT T, D
+AssertTblIsExist T, D
 HasFld = HasFld_Tbl(Tbl(T, D), F)
 End Function
 
-Function HasFld_Flds(Flds As Dao.Fields, F) As Boolean
-Dim I As Dao.Field
-For Each I In Flds
-    If I.Name = F Then HasFld_Flds = True: Exit Function
-Next
-End Function
-
 Function HasFld_Tbl(T As Dao.TableDef, F) As Boolean
-HasFld_Tbl = HasFld_Flds(T.Fields, F)
+HasFld_Tbl = FldsHasFld(T.Fields, F)
 End Function
 
 Function IsNeedQuote(S) As Boolean

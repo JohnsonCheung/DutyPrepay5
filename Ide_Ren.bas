@@ -3,25 +3,22 @@ Option Explicit
 Option Compare Database
 
 Sub MdRen(NewNm$, Optional A As CodeModule)
+Const CSub$ = "MdRen"
 Dim Nm$: Nm = MdNm(A)
-If NewNm = Nm Then Debug.Print FmtQQ("MdRen: New and Old are same [?]", Nm): Exit Sub
+If NewNm = Nm Then Er CSub, "Given {Md} name and {NewNm} is same", Nm, NewNm
 If MdIsExist(NewNm, MdPj(A)) Then
-    Debug.Print FmtQQ("MdRen: NewNm[?] exist, cannot MdRen(?)", NewNm, MdNm(A))
-    Exit Sub
+    Er CSub, "{NewNm} already exist.  Cannot rename {Md}", NewNm, MdNm(A)
 End If
 MdCmp(A).Name = NewNm
+Debug.Print FmtQQ("MdRen: Md-[?] renamed to [?]", Nm, NewNm)
 End Sub
 
 Sub MdRenPfx(FmPfx, ToPfx, Optional A As CodeModule)
+Const CSub$ = "MdRenPfx"
 Dim Nm$: Nm = MdNm(A)
-If Not IsPfx(Nm, FmPfx) Then Exit Sub
+If Not IsPfx(Nm, FmPfx) Then Er CSub, "Given {Md} does have given {Pfx}", MdNm(A), FmPfx
 Dim NewNm$: NewNm = ToPfx & RmvPfx(Nm, FmPfx)
-If MdIsExist(NewNm, MdPj(A)) Then
-    Debug.Print FmtQQ("MdRenPfx: New-Md-Nm-[?] exist, cannot rename from-pfx-[?] to-pfx-[?] for md-[?]", NewNm, FmPfx, ToPfx, Nm)
-    Exit Sub
-End If
 MdRen NewNm, A
-Debug.Print FmtQQ("MdRenPfx: Md-[?] renamed to [?]", Nm, NewNm)
 End Sub
 
 Sub MdRmvNmPfx(Pfx, Optional A As CodeModule)
@@ -29,20 +26,19 @@ Dim Nm$: Nm = MdNm(A): If Not IsPfx(Nm, Pfx) Then Exit Sub
 MdRen RmvPfx(MdNm(A), Pfx), A
 End Sub
 
-Sub PjRenPfx(FmPfx, ToPfx, Optional A As VBProject)
+Sub PjRenMdPfx(FmMdPfx, ToMdPfx, Optional A As Vbproject)
 Dim Ny$()
-    Ny = PjMdNy(A)
-    Ny = AyFilter(Ny, "IsPfx", FmPfx)
+    Ny = PjMdNy(, A)
+    Ny = AyFilter(Ny, "IsPfx", FmMdPfx)
 Dim Nm
     For Each Nm In Ny
-        MdRenPfx FmPfx, ToPfx, Md(CStr(Nm), A)
+        MdRenPfx FmMdPfx, ToMdPfx, Md(CStr(Nm), A)
     Next
-
 End Sub
 
 Sub PjRmvMdNmPfx(Pfx, Optional A As CodeModule)
 Dim I, Md As CodeModule
-For Each I In PjMdAy(A)
+For Each I In PjMdAy(, A)
     Set Md = I
     MdRmvNmPfx Pfx, Md
 Next

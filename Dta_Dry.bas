@@ -91,3 +91,27 @@ End Function
 Function DryStrCol(Dry, Optional ColIdx% = 0) As String()
 DryStrCol = AySy(DryCol(Dry, ColIdx))
 End Function
+
+Function TblLyFmt(TblLy) As String()
+AyAssertPfx TblLy, "|"
+Dim Dry()
+    Dim I
+    For Each I In TblLy
+        Push Dry, AyTrim(SplitVBar(I))
+    Next
+TblLyFmt = DryLy(Dry)
+End Function
+
+Sub TblLyFmt__Tst()
+Dim TblLy$()
+Dim Act$()
+Dim Exp$()
+Push TblLy, "|lskdf|sdlf|lsdkf"
+Push TblLy, "|lsdf|"
+Push TblLy, "|lskdfj|sdlfk|sdlkfj|sdklf|skldf|"
+Push TblLy, "|sdf"
+Act = TblLyFmt(TblLy)
+Exp = Sy()
+AyDmp Act
+AyAssertEq Exp, Act
+End Sub

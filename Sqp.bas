@@ -1,8 +1,10 @@
 Attribute VB_Name = "Sqp"
 Option Compare Database
 Option Explicit
-Private ExprVblAy_$()
-Private Fny_$()
+
+Function FmtSql$(SqlTp$, Dic As Dictionary)
+
+End Function
 
 Property Get MulSqlDrp$(TblNmLvs$)
 
@@ -13,13 +15,29 @@ If Expr = "" Then Exit Function
 SqpAnd = "|    And " & Expr
 End Function
 
-Function SqpAndIn$(ExprVblAy, InLisAy)
-Dim O$(), J%
-O = AyAddPfx(AlignedExprAy, "|    And ")
-For J = 0 To UB(O)
-    O(J) = O(J) & " in (" & InLisAy(J) & ")"
-Next
-SqpAndIn = JnComma(O)
+Function SqpcGp$(ExprVblAy)
+'Sqpc = Sql-Phrase-Context
+SqpcGp = JnComma(AyAddPfx(VblAyAlignL(ExprVblAy, 4, 6), "|"))
+End Function
+
+Function SqpcSel$(Fny, ExprVblAy)
+'Sqpc = Sql-Phrase-Context
+Assert_Fny_ExprVblAy Fny, ExprVblAy
+Dim AlignedExprAy$()
+Dim AlignedFny$()
+    AlignedExprAy = VblAyAlignL(ExprVblAy, 4, 6)
+    AlignedFny = AyAlignL(Fny)
+Dim mS1S2Ay() As S1S2
+    mS1S2Ay = S1S2Ay(AlignedExprAy, AlignedFny)
+Dim O$()
+    O = S1S2AyConcat(mS1S2Ay, " ")
+    O = AyAddPfx(O, "|")
+SqpcSel = Join(O, ",")
+End Function
+
+Function SqpExprIn$(Expr$, InLis$)
+If InLis = "" Then Exit Function
+SqpExprIn = FmtQQ("? in (?)", Expr, InLis)
 End Function
 
 Function SqpFm$(T)
@@ -27,9 +45,8 @@ SqpFm = "|  From " & T
 End Function
 
 Function SqpGp$(ExprVblAy)
-AssertIsVblAy ExprVblAy
-ExprVblAy_ = AySy(ExprVblAy)
-SqpGp = "|  Group By|" & Join(AlignedExprAy, ",|")
+VblAyAssertIsVdt ExprVblAy
+SqpGp = "|  Group By" & SqpcGp(ExprVblAy)
 End Function
 
 Function SqpInto$(T)
@@ -37,27 +54,33 @@ SqpInto = "|  Into " & T
 End Function
 
 Function SqpSel$(Fny, ExprVblAy)
-AssertIsAy Fny
-AssertIsVblAy ExprVblAy
-Fny_ = Fny
-ExprVblAy_ = AySy(ExprVblAy)
-If UB(Fny) <> UB(ExprVblAy) Then Stop
-Dim O$()
-    O = S1S2AyConcat(S1S2Ay(AlignedExprAy(4, 2), AlignedFny), " ")
-SqpSel = "Select|" & Join(O, ",|")
+SqpSel = "Select" & SqpcSel(Fny, ExprVblAy)
+End Function
+
+Function SqpSelDis$(Fny, ExprVblAy)
+SqpSelDis = "Select Distinct|" & SqpcSel$(Fny, ExprVblAy)
+End Function
+
+Function SqpSelDisFldLvs$(FldLvs, ExprVblAy)
+Dim Fny$(): Fny = SplitLvs(FldLvs)
+SqpSelDisFldLvs = SqpSelDis(Fny, ExprVblAy)
+End Function
+
+Function SqpSelFldLvs$(FldLvs, ExprVblAy)
+Dim Fny$(): Fny = SplitLvs(FldLvs)
+SqpSelFldLvs = SqpSel(Fny, ExprVblAy)
 End Function
 
 Function SqpSet$(FldLvs$, ExprVblAy)
-Fny_ = SplitLvs(FldLvs)
-ExprVblAy_ = AySy(ExprVblAy)
-AssertIsVblAy ExprVblAy
-If Sz(Fny_) <> Sz(ExprVblAy_) Then Stop
+Dim Fny$(): Fny = SplitLvs(FldLvs)
+VblAyAssertIsVdt ExprVblAy
+If Sz(Fny) <> Sz(ExprVblAy) Then Stop
 Dim AFny$()
 Dim AExprAy$()
     Dim W%
-    AFny = AyAddPfx(AlignedFny, "    ")
+    AFny = AyAddPfx(AyAlignL(Fny), "    ")
     W = Len(AFny(0)) + 3
-    AExprAy = AlignedExprAy(0, W)
+    AExprAy = VblAyAlignL(0, W)
 Dim O$()
     Dim J%
     For J = 0 To UB(AFny)
@@ -70,50 +93,22 @@ Function SqpUpd$(T)
 SqpUpd = "Update " & T
 End Function
 
+Function SqpWh$(Expr)
+SqpWh = "|  Where " & Expr
+End Function
+
 Function SqpWhBetStr$(FldNm$, FmStr$, ToStr$)
 SqpWhBetStr = FmtQQ("|  Where ? Between '?' and '?'", FldNm, FmStr, ToStr)
 End Function
 
-Private Sub AAA()
-SqpSel__Tst
+Private Sub Assert_Fny_ExprVblAy(Fny, ExprVblAy)
+Const CSub$ = "Assert_Fny_ExprVblAy"
+AssertIsAy Fny
+VblAyAssertIsVdt ExprVblAy
+If UB(Fny) <> UB(ExprVblAy) Then Er CSub, "?: UB-{Fny} <> UB-{ExprAy}", CSub, UB(Fny), UB(ExprVblAy)
+AyAssertNoEmptyEle Fny
+AyAssertNoEmptyEle ExprVblAy
 End Sub
-
-Private Function AlignedExprAy(Optional FstVblNSpc%, Optional RstVblNSpc%) As String()
-Dim O$()
-Dim ExprLines
-For Each ExprLines In ExprLinesAyAlignL(FstVblNSpc, RstVblNSpc)
-    Push O, VblIndent(ExprLines, FstVblNSpc, RstVblNSpc)
-Next
-AlignedExprAy = O
-End Function
-
-Private Function AlignedFny() As String()
-AlignedFny = AyAlignL(Fny_)
-End Function
-
-Private Function ExprLinesAyAlignL(Optional FstVblNSpc%, Optional RstVblNSpc%) As String()
-Dim ExprWdt%
-    ExprWdt = ExprLinesAyWdt(FstVblNSpc%, RstVblNSpc%)
-Dim O$(), W%
-Dim I
-For Each I In ExprVblAy_
-    W = ExprWdt - Len(VblLasLin(I)) + 1
-    If W < 1 Then W = 1
-    Push O, I & Space(W)
-Next
-ExprLinesAyAlignL = O
-End Function
-
-Private Function ExprLinesAyWdt%(Optional FstVblNSpc%, Optional RstVblNSpc%)
-Dim W%, J%, O%, A$()
-A = ExprVblAy_
-Dim I
-For Each I In A
-    W = VblWdt(VblIndent(I, FstVblNSpc, RstVblNSpc))
-    If W > O Then O = W
-Next
-ExprLinesAyWdt = O
-End Function
 
 Private Function ZCpy()
 
@@ -154,7 +149,7 @@ Private Function ZCpy()
 'Dim F2$()
 'Dim E2$()
 '    F2 = AyAlignL(F1)
-'    E2 = Z5__ExprLinesAyAlignL(E1)
+'    E2 = Z5__VblAyAlignL(E1)
 'Dim E3$()
 '    E3 = Z6__ExprLinesAyTab(E2, 4)
 '
@@ -223,16 +218,45 @@ Private Function ZZFny() As String()
 ZZFny = SplitSpc("F1 F2 F3xxxxx")
 End Function
 
-Private Sub ZZSetPrm()
-ExprVblAy_ = ZZExprVblAy
-Fny_ = ZZFny
-End Sub
-
-Private Sub AlignedExprAy__Tst()
-ZZSetPrm
-AyDmp AlignedExprAy
+Private Sub FmtSql__Tst()
+Dim Tp$: Tp = "Select" & _
+"|{?Sel}" & _
+"|    {ECrd} Crd," & _
+"|    {EAmt} Amt," & _
+"|    {EQty} Qty," & _
+"|    {ECnt} Cnt," & _
+"|  Into #Tx" & _
+"|  From SaleHistory" & _
+"|  Where SHDate Between '{PFm}' and '{PTo}'" & _
+"|    And {EDiv} in ({InDiv})" & _
+"|  Group By" & _
+"|{?Gp}" & _
+"|?M   {ETxM}," & _
+"|?W   {ETxW}," & _
+"|?D   {ETxD}"
+'SR_ = Sales Report
+Const ETxWD$ = _
+"CASE WHEN TxWD1 = 1 then 'Sun'" & _
+"|ELSE WHEN TxWD1 = 2 THEN 'Mon'" & _
+"|ELSE WHEN TxWD1 = 3 THEN 'Tue'" & _
+"|ELSE WHEN TxWD1 = 4 THEN 'Mon'" & _
+"|ELSE WHEN TxWD1 = 5 THEN 'Thu'" & _
+"|ELSE WHEN TxWD1 = 6 THEN 'Fri'" & _
+"|ELSE WHEN TxWD1 = 7 THEN 'Sat'" & _
+"|ELSE Null" & _
+"|END END END END END END END"
+Dim D As New Dictionary
+With D
+    .Add "ECrd", "Line-1|Line-2"
+    .Add "EAmt", "Sum(SHTxDate)"
+    
+End With
+Dim Act$: Act = FmtSql(Tp, D)
+Dim Exp$: Exp = ""
+Debug.Assert Act = Exp
 End Sub
 
 Private Sub SqpSel__Tst()
-Debug.Print RplVBar(SqpSel(ZZFny, ZZExprVblAy))
+Debug.Print RplVbar(SqpSel(ZZFny, ZZExprVblAy))
 End Sub
+

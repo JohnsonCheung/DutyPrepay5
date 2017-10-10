@@ -11,6 +11,33 @@ Else
 End If
 End Sub
 
+Sub AssertIsPfx(S, I)
+If Not IsPfx(S, I) Then Er "AssertIsPfx", "{S} does not have this {Pfx}", S, I
+End Sub
+Sub StrOptDmp(A As StrOpt)
+Debug.Print StrOptToStr(A)
+End Sub
+Function StrOptToStr(A As StrOpt)
+StrOptToStr = "StrOpt: *Som=" & A.Som & vbCrLf & A.Str
+End Function
+Sub AssertIsStr(V)
+If Not IsStr(V) Then Stop
+End Sub
+
+Sub AssertIsSy(V)
+If Not IsSy(V) Then Er "AssertIsSy", "VarType-{V} is not String Array", TypeName(V)
+End Sub
+
+Sub AssertNonEmpty(V)
+If IsEmpty(V) Then Er "AssertNonEmpty", "Given V is IsEmpty"
+End Sub
+
+Sub AssertNotHasSubStr(S, SubStr)
+AssertIsStr S
+AssertIsStr SubStr
+If HasSubStr(S, SubStr) Then Er "AssertNotHasSubStr", "{S} cannot has {SubStr}", S, SubStr
+End Sub
+
 Function CollObjAy(ObjColl) As Object()
 Dim O() As Object
 Dim V
@@ -23,16 +50,36 @@ End Function
 Function Dft(V, DftV)
 If IsEmpty(V) Then
     Dft = V
-Else
     Dft = DftV
 End If
 End Function
 
-Sub Er(MacroStr$, ParamArray Ap())
+Sub Er(CSub$, MacroStr$, ParamArray Ap())
 Dim Av(): Av = Ap
-AyBrw MsgLy(MacroStr, Av)
+AyBrw ErMsgLy(CSub, MacroStr, Av)
 Stop
 End Sub
+
+Sub ErMsgBrw(CSub$, MacroStr$, Av())
+AyBrw ErMsgLy(CSub, MacroStr, Av())
+End Sub
+
+Function ErMsgLy(CSub$, MacroStr$, Av()) As String()
+Dim O$()
+    Push O, "Subr-" & CSub & ": " & RplVbar(MacroStr)
+If Not AyIsEmpty(Av) Then
+    Dim Ny$(): Ny = MacroStrNy(MacroStr)
+    Dim I, J%
+    If Not AyIsEmpty(Ny) Then
+        For Each I In Ny
+            Push O, Chr(9) & I
+            PushAy O, AyAddPfx(VarLy(Av(J)), Chr(9) & Chr(9))
+            J = J + 1
+        Next
+    End If
+End If
+ErMsgLy = O
+End Function
 
 Function FstTerm$(S)
 FstTerm = Brk1(Trim(S), " ").S1
@@ -105,6 +152,10 @@ Function IsStrAy(V) As Boolean
 IsStrAy = VarType(V) = vbArray + vbString
 End Function
 
+Function IsSy(V) As Boolean
+IsSy = IsStrAy(V)
+End Function
+
 Function JnVBar$(Ay)
 JnVBar = Join(Ay, "|")
 End Function
@@ -131,56 +182,48 @@ Next
 Min = O
 End Function
 
-Function MsgAyLy(MsgAy()) As String()
-Dim I, Av(), O$(), MacroStr$
-For Each I In MsgAy
-    Av = I
-    MacroStr = AyShift(Av)
-    PushAy O, MsgLy(MacroStr, Av)
-Next
-MsgAyLy = O
-End Function
-
-Sub MsgBrw(MacroStr$, Av())
-AyBrw MsgLy(MacroStr, Av())
-End Sub
-
-Function MsgLy(MacroStr$, Av()) As String()
-Dim Ny$(): Ny = MacroStrNy(MacroStr)
-Dim O$()
-    PushAy O, SplitVBar(MacroStr)
-Dim I, J%
-For Each I In Ny
-    Push O, Chr(9) & I
-    PushAy O, AyAddPfx(VarLy(Av(J)), Chr(9) & Chr(9))
-Next
-MsgLy = O
-End Function
-
 Sub Never()
-Debug.Print "It should never reach Here"
-Stop
+Const CSub$ = "Never"
+Er CSub, "Should never reach here"
 End Sub
 
 Property Get NowStr$()
 NowStr = Format(Now(), "YYYY-MM-DD HH:MM:SS")
 End Property
 
-Function PipeAy(Prm, FunNy$())
+Function ObjAyPrpSy(ObjAy, PrpNm$) As String()
+If AyIsEmpty(ObjAy) Then Exit Function
+Dim O$(), I
+For Each I In ObjAy
+    Push O, ObjPrp(I, PrpNm)
+Next
+ObjAyPrpSy = O
+End Function
+
+Function ObjAySelPrp(Oy, PrpNm$, PrpVal)
+Dim O
+    O = Oy
+    Erase O
+If Not AyIsEmpty(Oy) Then
+    Dim I
+    For Each I In Oy
+        If CallByName(I, PrpNm, VbGet) = PrpVal Then PushObj O, I
+    Next
+End If
+ObjAySelPrp = O
+End Function
+
+Function ObjPrp(Obj, PrpNm$)
+ObjPrp = CallByName(Obj, PrpNm, VbGet)
+End Function
+
+Function PipeAy(Prm, MthNy$())
 Dim O: Asg Prm, O
 Dim I
-For Each I In FunNy
+For Each I In MthNy
     Asg Run(I, O), O
 Next
 Asg O, PipeAy
-End Function
-
-Sub PrmEr()
-Stop
-End Sub
-
-Function RestTerm$(S)
-RestTerm = Brk1(Trim(S), " ").S2
 End Function
 
 Function RmvFstChr$(S)
@@ -197,6 +240,10 @@ If FstChr(S) = If_Str Then
 Else
     RplFstChrToIf = S
 End If
+End Function
+
+Function RstTerm$(S)
+RstTerm = Brk1(Trim(S), " ").S2
 End Function
 
 Function VarLy(V) As String()
